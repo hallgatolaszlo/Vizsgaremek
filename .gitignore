@@ -1,2 +1,26 @@
 /.idea/
 /.env
+**/__pycache__/
+
+# Ignore logs and debug files everywhere
+**/logs
+**/*.log
+**/*-debug.log*
+**/*-error.log*
+
+# Ignore common build artifacts
+**/node_modules
+**/dist
+**/dist-ssr
+**/*.local
+
+# Ignore editor/project files
+**/.vscode/*
+!**/.vscode/extensions.json
+**/.idea
+**/.DS_Store
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.sw?
