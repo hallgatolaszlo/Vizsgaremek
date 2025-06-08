@@ -66,3 +66,8 @@ p, span, a, li {
 input::placeholder {
     color: var(--text-color-2);
 }
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--soft-white) inset !important;
+    -webkit-text-fill-color: #000 !important;
+}
