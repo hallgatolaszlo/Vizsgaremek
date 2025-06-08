@@ -1,4 +1,4 @@
-import './App.css';
+import './css/App.css';
 import LoginPage from "./pages/LoginPage.tsx";
 import {type JSX} from "react";
 import ThemeSwitcher from "./components/ThemeSwitcher.tsx";
