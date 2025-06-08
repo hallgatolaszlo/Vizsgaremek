@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --title-font: 'Lora', serif;
+    --text-font: 'Nunito', sans-serif;
+    --bg-color-1: #000000;
+    --bg-color-2: #000000;
+    --btn-color-1: #000000;
+    --text-color-1: #000000;
+    --text-color-2: #000000;
+    --soft-white: #F5F5F5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.title-font {
+    font-family: var(--title-font), sans-serif;
+}
+
+.text-font {
+    font-family: var(--text-font), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--title-font), sans-serif;
+}
+
+p, span, a, li {
+    font-family: var(--text-font), sans-serif;
+}
+
+.bg-color-1 {
+    background-color: var(--bg-color-1);
+    transition: background-color 1s ease;
+}
+
+.bg-color-2 {
+    background-color: var(--bg-color-2);
+    transition: background-color 1s ease;
+}
+
+.btn-color-1 {
+    background-color: var(--btn-color-1);
+    transition: background-color 1s ease;
+}
+
+.text-color-1 {
+    color: var(--text-color-1);
+    transition: color 1s ease;
+}
+
+.text-color-2 {
+    color: var(--text-color-2);
+    transition: color 1s ease;
+}
+
+input::placeholder {
+    color: var(--text-color-2);
+}
