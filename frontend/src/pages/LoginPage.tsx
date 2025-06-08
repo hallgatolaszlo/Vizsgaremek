@@ -1,13 +1,14 @@
-import type {JSX} from "react";
+import {type JSX} from "react";
 import {useForm} from "react-hook-form";
 import Hr from "../components/login/Hr.tsx";
 import LabelledTextInput from "../components/login/LabelledTextInput.tsx";
 import SubmitButton from "../components/login/SubmitButton.tsx";
 import LabelledCheckbox from "../components/login/LabelledCheckbox.tsx";
 import "../css/LoginPage.css";
+import {loginEndpoint} from "../endpoints.ts";
 
 type LoginFormInputs = {
-    email: string;
+    email_username: string;
     password: string;
     rememberMe: boolean;
 };
@@ -15,8 +16,28 @@ type LoginFormInputs = {
 function LoginPage(): JSX.Element {
     const {register, handleSubmit, formState: {errors}} = useForm<LoginFormInputs>();
 
-    const onSubmit = (data: LoginFormInputs) => {
+    const onSubmit = async (data: LoginFormInputs) => {
         console.log(data);
+        const response = await fetch(loginEndpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email_username: data.email_username,
+                password: data.password,
+                rememberMe: data.rememberMe
+            })
+        });
+
+        const json = await response.json();
+        console.log(json);
+
+        if (response.ok) {
+            alert("Login successful!");
+        } else {
+            alert("Login failed!");
+        }
     };
 
     return (
@@ -35,10 +56,11 @@ function LoginPage(): JSX.Element {
                         <LabelledTextInput
                             label="Email/Username:"
                             placeholder="Enter your email/username"
-                            register={register("email", {required: "Email/username is required"})}>
+                            register={register("email_username", {required: "Email/username is required"})}>
                         </LabelledTextInput>
-                        {errors.email && <span className="text-color-1">{errors.email.message}</span>}
+                        {errors.email_username && <span className="text-color-1">{errors.email_username.message}</span>}
                         <LabelledTextInput
+                            type="password"
                             label="Password:"
                             placeholder="Enter your password"
                             register={register("password", {required: "Password is required"})}>
