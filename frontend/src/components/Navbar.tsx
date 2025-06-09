@@ -1,17 +1,47 @@
 import type { JSX } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 function Navbar(): JSX.Element {
+    const navigate = useNavigate();
+
     return (
         <div className="flex gap-[10px] fixed">
             <ThemeSwitcher />
-            <Link className="text-color-1" to="/sign-in">
-                Sign In
-            </Link>
-            <Link className="text-color-1" to="/sign-up">
-                Sign Up
-            </Link>
+            <button
+                onClick={() => {
+                    navigate("/daily-journal");
+                }}
+            >
+                Daily Journal
+            </button>
+            <button
+                onClick={() => {
+                    navigate("/sign-in");
+                }}
+            >
+                Sign in
+            </button>
+            <button
+                onClick={() => {
+                    navigate("/sign-up");
+                }}
+            >
+                Sign up
+            </button>
+            <button
+                onClick={async () => {
+                    try {
+                        await api.post("/api/user/logout/");
+                        navigate("/sign-in");
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }}
+            >
+                Sign out
+            </button>
         </div>
     );
 }
