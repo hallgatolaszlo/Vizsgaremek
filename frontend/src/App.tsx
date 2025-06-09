@@ -33,10 +33,8 @@ function App(): JSX.Element {
                     path="/daily-journal"
                     element={
                         <ProtectedRoute>
-                            <>
-                                <Navbar />
-                                <DailyJournalPage />
-                            </>
+                            <Navbar />
+                            <DailyJournalPage />
                         </ProtectedRoute>
                     }
                 />

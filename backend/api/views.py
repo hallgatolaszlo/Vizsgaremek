@@ -4,9 +4,10 @@ from .models import CustomUser, DailyJournal
 from rest_framework import generics
 from .serializers import CustomUserSerializer, DailyJournalSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework.views import APIView
 
 class CreateCustomUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -71,3 +72,40 @@ class CookieTokenVerifyView(TokenVerifyView):
             return Response({'status': 'ok'}, status=200)
         except:
             return Response({'error': 'Invalid token'}, status=401)
+        
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh_token')
+        
+        if not refresh_token:
+            return Response({'error': 'No refresh token found'}, status=401)
+        
+        try:
+            refresh = RefreshToken(refresh_token)
+            access_token = str(refresh.access_token)
+
+            response = Response({'status': 'ok'}, status=200)
+            
+            response.set_cookie(
+                settings.SIMPLE_JWT['AUTH_COOKIE'],
+                access_token,
+                max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            )
+            
+            return response
+            
+        except Exception as e:
+            return Response({'error': 'Invalid refresh token'}, status=401)
+        
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response = Response({'message': 'Logged out successfully'}, status=200)
+
+        response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+        response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+
+        return response
