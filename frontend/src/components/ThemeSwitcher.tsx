@@ -1,12 +1,17 @@
-import {useState, useEffect, type JSX} from "react";
-import {themes, type Theme} from "../themes/themes.ts";
+import { useEffect, useState, type JSX } from "react";
+import { themes, type Theme } from "../themes/themes.ts";
 
 const themeNames: string[] = Object.keys(themes);
 const savedTheme: string | null = localStorage.getItem("theme");
-const savedThemeIndex: number = savedTheme && themeNames.includes(savedTheme) ? themeNames.indexOf(savedTheme) : 0;
+const savedThemeIndex: number =
+    savedTheme && themeNames.includes(savedTheme)
+        ? themeNames.indexOf(savedTheme)
+        : 0;
 
 function ThemeSwitcher(): JSX.Element {
-    const [currentTheme, setCurrentTheme] = useState<string>(themeNames[savedThemeIndex]);
+    const [currentTheme, setCurrentTheme] = useState<string>(
+        themeNames[savedThemeIndex]
+    );
 
     const applyTheme = (theme: Theme) => {
         const root = document.documentElement;
@@ -18,13 +23,17 @@ function ThemeSwitcher(): JSX.Element {
 
     useEffect(() => {
         applyTheme(themes[currentTheme]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTheme]);
 
     return (
-        <div className="bg-color-1 fixed">
+        <div className="bg-color-1">
             <select
-                name="theme-switcher" defaultValue={savedThemeIndex}
-                onChange={(e) => setCurrentTheme(themeNames[Number(e.target.value)])}
+                name="theme-switcher"
+                defaultValue={savedThemeIndex}
+                onChange={(e) =>
+                    setCurrentTheme(themeNames[Number(e.target.value)])
+                }
             >
                 <option value={0}>Dark Blue</option>
                 <option value={1}>Dark Green</option>
