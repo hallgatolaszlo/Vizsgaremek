@@ -17,4 +17,4 @@ class DailyJournal(models.Model):
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="daily_journals")
 
     def __str__(self):
-        return self.created_at
+        return ""

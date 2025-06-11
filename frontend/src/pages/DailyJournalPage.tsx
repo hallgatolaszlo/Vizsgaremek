@@ -3,18 +3,40 @@ import { useForm } from "react-hook-form";
 import MoodSlider from "../components/daily-journal/MoodSlider.tsx";
 import Hr from "../components/signin/Hr.tsx";
 import SubmitButton from "../components/signin/SubmitButton.tsx";
+import api from "../services/api.ts";
 
 type DailyJournalFormInputs = {
     mood: number;
-    journal_entry: string;
+    journal_entry?: string;
 };
 
 function DailyJournalPage(): JSX.Element {
     const { register, handleSubmit } = useForm<DailyJournalFormInputs>();
 
     const onSubmit = async (data: DailyJournalFormInputs) => {
-        console.log(data);
+        const mood = data.mood;
+        const journal_entry = data.journal_entry ?? "";
+        try {
+            const res = await api.post("/api/user/daily-journals/list/", {
+                mood,
+                journal_entry,
+            });
+            //const res = await api.get("/api/user/daily-journals/list/");
+            //const res = await api.delete("api/user/daily-journals/delete/1/");
+            console.log(res);
+        } catch (error) {
+            console.log(error);
+        }
     };
+
+    async function getDailyJournals() {
+        try {
+            const res = await api.get("/api/user/daily-journals/list/");
+            console.log(res.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="p-[25px] flex justify-center items-center bg-color-1 min-h-screen">
@@ -41,10 +63,14 @@ function DailyJournalPage(): JSX.Element {
                         }}
                         className="w-full min-h-[100px] text-font p-[10px]"
                         placeholder="How was your day?"
+                        {...register("journal_entry")}
                     ></textarea>
                     <div className="w-full flex justify-center">
                         <SubmitButton content="Submit"></SubmitButton>
                     </div>
+                    <button type="button" onClick={getDailyJournals}>
+                        get
+                    </button>
                 </form>
             </div>
         </div>
