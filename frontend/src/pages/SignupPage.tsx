@@ -61,7 +61,7 @@ function SignupPage(): JSX.Element {
                 >
                     <div className="w-full flex flex-col gap-[10px]">
                         <LabelledTextInput
-                            label="Username:"
+                            label="Username*"
                             placeholder="Enter your username"
                             register={register("username", {
                                 required: "Username is required",
@@ -73,10 +73,14 @@ function SignupPage(): JSX.Element {
                             </span>
                         )}
                         <LabelledTextInput
-                            label="Email:"
+                            label="Email*"
                             placeholder="Enter your email"
                             register={register("email", {
                                 required: "Email is required",
+                                pattern: {
+                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                    message: "Enter a valid email address",
+                                },
                             })}
                         ></LabelledTextInput>
                         {errors.email && (
@@ -86,7 +90,7 @@ function SignupPage(): JSX.Element {
                         )}
                         <LabelledTextInput
                             type="password"
-                            label="Password:"
+                            label="Password*"
                             placeholder="Enter your password"
                             register={register("password", {
                                 required: "Password is required",
@@ -104,9 +108,10 @@ function SignupPage(): JSX.Element {
                         )}
                         <LabelledTextInput
                             type="password"
-                            label="Confirm password:"
+                            label="Confirm password*"
                             placeholder="Enter your password again"
                             register={register("confirmPassword", {
+                                required: "Confirm password required",
                                 validate: (value) =>
                                     value === watch("password") ||
                                     "Passwords do not match",
@@ -120,7 +125,7 @@ function SignupPage(): JSX.Element {
                     </div>
                     <div className="w-full flex flex-col items-start gap-[10px]">
                         <LabelledCheckbox
-                            label="I agree to the Terms of Service"
+                            label="*I agree to the Terms of Service"
                             register={register("tos", {
                                 validate: (value) =>
                                     value === true ||
@@ -133,7 +138,7 @@ function SignupPage(): JSX.Element {
                             </span>
                         )}
                         <LabelledCheckbox
-                            label="I have read and agree to the Privacy Policy, including how my data will be collected, used, and stored"
+                            label="*I have read and agree to the Privacy Policy, including how my data will be collected, used, and stored"
                             register={register("privacyPolicy", {
                                 validate: (value) =>
                                     value === true ||
