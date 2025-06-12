@@ -5,6 +5,7 @@ interface AuthContext {
     setIsAuthorized: Dispatch<SetStateAction<boolean>>;
     loading: boolean;
     setLoading: Dispatch<SetStateAction<boolean>>;
+    verifyAuth: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContext | undefined>(undefined);

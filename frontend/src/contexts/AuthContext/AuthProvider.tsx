@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useState, type JSX } from "react";
 import { AuthContext } from "./AuthContext";
 import api from "../../services/api";
 
@@ -9,10 +9,6 @@ interface Props {
 export const AuthProvider = ({ children }: Props) => {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        verifyAuth().catch();
-    }, []);
 
     const verifyAuth = async () => {
         try {
@@ -35,6 +31,7 @@ export const AuthProvider = ({ children }: Props) => {
         setIsAuthorized,
         loading,
         setLoading,
+        verifyAuth,
     };
 
     return (
