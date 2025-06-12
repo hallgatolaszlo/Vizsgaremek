@@ -6,11 +6,11 @@
 :root {
     --title-font: "Lora", serif;
     --text-font: "Nunito", sans-serif;
-    --bg-color-1: #000000;
-    --bg-color-2: #000000;
-    --btn-color-1: #000000;
-    --text-color-1: #000000;
-    --text-color-2: #000000;
+    --bg-color-1: #1e2a38;
+    --bg-color-2: #2f3e50;
+    --btn-color-1: #557a95;
+    --text-color-1: #c5cfdf;
+    --text-color-2: #8a9ba8;
     --soft-white: #f5f5f5;
 }
 

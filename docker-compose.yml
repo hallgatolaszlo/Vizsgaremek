@@ -45,11 +45,10 @@ services:
             db:
                 condition: service_healthy
         command: >
-            sh -c "./wait-for-it.sh db:5432 --timeout=30 --strict -- 
-                   sh -c 'python manage.py makemigrations &&
-                          python manage.py migrate &&
-                          python manage.py createsuperuser --noinput || true &&
-                          python manage.py runserver 0.0.0.0:8000'"
+            sh -c "python manage.py makemigrations &&
+                   python manage.py migrate &&
+                   python manage.py createsuperuser --noinput || true &&
+                   python manage.py runserver 0.0.0.0:8000"
 
     frontend:
         build:
@@ -68,8 +67,7 @@ services:
         depends_on:
             - backend
         command: >
-            sh -c "./wait-for-it.sh backend:8000 --timeout=30 --strict -- 
-                   npm run dev -- --host"
+            sh -c "npm run dev -- --host"
 
 volumes:
     postgres_data:
