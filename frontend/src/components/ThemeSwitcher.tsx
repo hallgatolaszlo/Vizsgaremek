@@ -29,12 +29,7 @@ function ThemeSwitcher(): JSX.Element {
     return (
         <div>
             <button
-                className={`${
-                    activeIndex === 1 || activeIndex === 2
-                        ? "text-white"
-                        : "text-black"
-                }
-                }`}
+                className="text-[var(--text-color-1)]"
                 onClick={() => {
                     dropdownRef.current?.classList.toggle(
                         "show-dropdown-theme-content"
