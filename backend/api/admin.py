@@ -18,10 +18,10 @@ class CustomUserAdmin(UserAdmin):
 
 class DailyJournalAdmin(UserAdmin):
     model = DailyJournal
-    list_display = ['mood', 'journal_entry', 'created_at', 'author']
-    list_filter = ['mood', 'journal_entry', 'created_at', 'author']
-    ordering = ['mood', 'journal_entry', 'created_at', 'author']
-    search_fields = ['mood', 'journal_entry', 'created_at', 'author']
+    list_display = ['author', 'created_at']
+    list_filter = ['author', 'created_at']
+    ordering = ['author', 'created_at']
+    search_fields = ['author', 'created_at']
 
     filter_horizontal = []
 

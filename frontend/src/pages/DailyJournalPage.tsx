@@ -58,10 +58,7 @@ function DailyJournalPage(): JSX.Element {
                         <MoodSlider register={register("mood")} />
                     </div>
                     <textarea
-                        style={{
-                            backgroundColor: "var(--soft-white)",
-                        }}
-                        className="w-full min-h-[100px] text-font p-[10px]"
+                        className="w-full min-h-[100px] text-font p-[10px] bg-[var(--soft-white)]"
                         placeholder="How was your day?"
                         {...register("journal_entry")}
                     ></textarea>

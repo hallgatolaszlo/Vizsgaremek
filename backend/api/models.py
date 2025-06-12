@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
 class DailyJournal(models.Model):
     mood = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     journal_entry = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="daily_journals")
 
     def __str__(self):
