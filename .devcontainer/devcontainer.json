@@ -1,0 +1,10 @@
+{
+    "name": "Full Stack Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "workspaceFolder": "/workspace",
+    "mounts": ["source=${localWorkspaceFolder},target=/workspace,type=bind"],
+    "postCreateCommand": "cd frontend && npm install && cd ../backend && pip install -r requirements.txt"
+}
