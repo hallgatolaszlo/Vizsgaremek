@@ -24,6 +24,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG')
 
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
@@ -42,7 +45,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE": "access_token",  # Cookie name for access token
     "AUTH_COOKIE_REFRESH": "refresh_token",  # Cookie name for refresh token
     "AUTH_COOKIE_DOMAIN": None,  # Change if using different domains
-    "AUTH_COOKIE_SECURE": False,  # Set True in production (HTTPS)
+    "AUTH_COOKIE_SECURE": not DEBUG,  # Set True in production (HTTPS)
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
