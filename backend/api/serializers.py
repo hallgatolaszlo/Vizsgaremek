@@ -14,6 +14,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
     
 class DailyJournalSerializer(serializers.ModelSerializer):
+    journal_entry = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = DailyJournal
         fields = ['id', 'mood', 'journal_entry', 'created_at', 'author']
