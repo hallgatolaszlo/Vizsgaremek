@@ -1,5 +1,5 @@
 import { useEffect, useState, type JSX } from "react";
-import { themes, type Theme } from "../../themes/themes";
+import { themes, type Theme, themeIndexes } from "../../themes/themes";
 import { ThemeContext } from "./ThemeContext";
 
 interface Props {
@@ -7,8 +7,21 @@ interface Props {
 }
 
 export const ThemeProvider = ({ children }: Props) => {
+    let savedTheme: { currentTheme: string; currentThemeIndex: number } | null =
+        null;
+
+    try {
+        const themeStorage = localStorage.getItem("theme");
+        savedTheme = themeStorage ? JSON.parse(themeStorage) : null;
+    } catch {
+        savedTheme = null;
+    }
+
     const [currentTheme, setCurrentTheme] = useState<string>(
-        localStorage.getItem("theme") || "darkBlue"
+        savedTheme?.currentTheme || "darkBlue"
+    );
+    const [currentThemeIndex, setCurrentThemeIndex] = useState<number>(
+        savedTheme?.currentThemeIndex || 1
     );
 
     const applyTheme = (theme: Theme) => {
@@ -16,7 +29,16 @@ export const ThemeProvider = ({ children }: Props) => {
         Object.entries(theme).forEach(([varName, value]) => {
             root.style.setProperty(`--${varName}`, value);
         });
-        localStorage.setItem("theme", currentTheme);
+
+        const index = themeIndexes[currentTheme as keyof typeof themeIndexes];
+
+        localStorage.setItem(
+            "theme",
+            JSON.stringify({
+                currentTheme: currentTheme,
+                currentThemeIndex: index,
+            })
+        );
     };
 
     useEffect(() => {
@@ -27,6 +49,8 @@ export const ThemeProvider = ({ children }: Props) => {
     const value = {
         currentTheme,
         setCurrentTheme,
+        currentThemeIndex,
+        setCurrentThemeIndex,
     };
 
     return (

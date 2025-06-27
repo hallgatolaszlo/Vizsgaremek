@@ -36,3 +36,10 @@ export const themes: Record<string, Theme> = {
         "text-color-2": "#8C7B69",
     },
 };
+
+export const themeIndexes = {
+    darkBlue: 1,
+    darkGreen: 2,
+    lightLavender: 3,
+    lightSand: 4,
+};
