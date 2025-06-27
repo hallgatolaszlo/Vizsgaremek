@@ -17,6 +17,7 @@ function Navbar(): JSX.Element {
                 MentaVia
             </h1>
             <div className="flex gap-[10px]">
+                <ThemeSwitcher />
                 <Link to="/daily-journal">Daily Journal</Link>
                 <Link to="/sign-in">Sign in</Link>
                 <Link to="/sign-up">Sign up</Link>
@@ -33,7 +34,6 @@ function Navbar(): JSX.Element {
                 >
                     Sign out
                 </a>
-                <ThemeSwitcher />
             </div>
         </header>
     );
