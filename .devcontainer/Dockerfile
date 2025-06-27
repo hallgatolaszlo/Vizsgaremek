@@ -2,13 +2,11 @@ FROM node:20
 
 # Install Python and pip
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv
+    apt-get install -y python3 python3-pip python3-venv openssh-client git && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /workspace
-
-# Install global node tools if needed
-# RUN npm install -g eslint
 
 # Set up virtual environment
 RUN python3 -m venv /opt/venv
@@ -22,3 +20,6 @@ RUN pip install -r ./backend/requirements.txt
 
 COPY frontend/package.json ./frontend/
 RUN cd frontend && npm install
+
+# Create .ssh directory for root
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
