@@ -1,7 +1,8 @@
-import { useRef, useState, type JSX } from "react";
-import { useTheme } from "../contexts/ThemeContext/UseTheme";
+import { useState, type JSX } from "react";
+import { useTheme } from "../../contexts/ThemeContext/UseTheme";
 import { MdOutlineImagesearchRoller } from "react-icons/md";
-import "../css/ThemeSwitcher.css";
+import "../../css/DropDownContent.css";
+import useClickOutside from "./DropDownHandle";
 
 function ThemeSwitcher(): JSX.Element {
     const { setCurrentTheme, currentThemeIndex } = useTheme();
@@ -12,7 +13,7 @@ function ThemeSwitcher(): JSX.Element {
         color: string;
         label: string;
     };
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    
     const elements: ElementItem[] = [
         { id: 1, theme: "darkBlue", color: "#2f3e50", label: "Dark Blue" },
         { id: 2, theme: "darkGreen", color: "#39504B", label: "Dark Green" },
@@ -26,31 +27,30 @@ function ThemeSwitcher(): JSX.Element {
     ];
     const [activeIndex, setActiveIndex] = useState<number>(currentThemeIndex);
 
+
+
+    const [isOpen, setIsOpen] = useState(false);
+    const themeDropdownRef = useClickOutside(async () => setIsOpen(false), isOpen);
+
     return (
         <div>
             <button
-                className="text-[var(--text-color-1)]"
-                onClick={() => {
-                    dropdownRef.current?.classList.toggle(
-                        "show-dropdown-theme-content"
-                    );
-                }}
+                className="text-[var(--text-color-1)] cursor-pointer"
+                onClick={() => {setIsOpen(true)}}
             >
-                <MdOutlineImagesearchRoller className="text-[2rem]" />
+                <MdOutlineImagesearchRoller className="text-[1.8rem]" />
             </button>
             <div
-                ref={dropdownRef}
-                className="absolute translate-x-[-40%] bg-white flex-col rounded-md pt-0 pb-0 dropdown-theme-content w-[12rem]"
+                ref={themeDropdownRef}
+                className={`absolute translate-x-[-85%] bg-white flex-col rounded-md mt-[5px] pt-0 pb-0 flex w-[12rem] z-[1000] ${isOpen && "dropdown-content"}`}
             >
-                {elements.map((item) => (
+                {isOpen && elements.map((item) => (
                     <p
                         key={item.id}
                         onClick={() => {
                             setCurrentTheme(item.theme);
                             setActiveIndex(item.id);
-                            dropdownRef.current?.classList.toggle(
-                                "show-dropdown-theme-content"
-                            );
+                            setIsOpen(!isOpen)
                         }}
                         className={`flex place-content-between cursor-pointer p-3 ${
                             activeIndex === item.id
