@@ -1,0 +1,10 @@
+.dropdown-content::before {
+    content: "";
+    position: relative;
+    background-color: white;
+    top: -9px;
+    left: 91%;
+    height: 10px;
+    width: 10px;
+    clip-path: polygon(50% 25%, 100% 100%, 0 100%);
+}
