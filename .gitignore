@@ -1,6 +1,7 @@
 /.idea/
 /.env
-**/__pycache__/
+/package-lock.json
+**/package-lock.json
 
 # Ignore logs and debug files everywhere
 **/logs
