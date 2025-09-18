@@ -4,7 +4,7 @@ import { AuthContext } from "./AuthContext";
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx) {
-        throw new Error("useThemeContext must be used within an ThemeProvider");
+        throw new Error("useAuthContext must be used within an AuthProvider");
     }
     return ctx;
 };

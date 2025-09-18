@@ -1,3 +1,5 @@
+# Ignore Visual Studio local settings
+.vs/
 /.idea/
 /.env
 /package-lock.json
