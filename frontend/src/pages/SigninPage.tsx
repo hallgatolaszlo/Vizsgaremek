@@ -1,21 +1,21 @@
-import { type JSX } from "react";
+import { AxiosError } from "axios";
+import { type JSX, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Hr from "../components/signin/Hr.tsx";
-import LabelledCheckbox from "../components/signin/LabelledCheckbox.tsx";
 import LabelledTextInput from "../components/signin/LabelledTextInput.tsx";
 import SubmitButton from "../components/signin/SubmitButton.tsx";
 import "../css/SigninPage.css";
 import api from "../services/api.ts";
 
 type LoginFormInputs = {
-    email_username: string;
+    emailUsername: string;
     password: string;
-    rememberMe: boolean;
 };
 
 function SigninPage(): JSX.Element {
     const navigate = useNavigate();
+    const errorSpanRef = useRef<HTMLSpanElement>(null);
 
     const {
         register,
@@ -24,16 +24,28 @@ function SigninPage(): JSX.Element {
     } = useForm<LoginFormInputs>();
 
     const onSubmit = async (data: LoginFormInputs) => {
-        const username = data.email_username;
+        const emailUsername = data.emailUsername;
         const password = data.password;
         try {
-            const res = await api.post("/api/token/get/", {
-                username,
+            const res = await api.post("api/auth/login", {
+                emailUsername,
                 password,
             });
             console.log(res);
+            if (errorSpanRef.current) {
+                errorSpanRef.current.textContent = "";
+            }
             navigate("/daily-journal");
         } catch (error) {
+            if (errorSpanRef.current) {
+                if (error instanceof AxiosError && error.response) {
+                    errorSpanRef.current.textContent = error.response
+                        .data as string;
+                } else {
+                    errorSpanRef.current.textContent =
+                        "An unexpected error occurred.";
+                }
+            }
             console.log(error);
         }
     };
@@ -58,13 +70,13 @@ function SigninPage(): JSX.Element {
                         <LabelledTextInput
                             label="Email/Username*"
                             placeholder="Enter your email/username"
-                            register={register("email_username", {
+                            register={register("emailUsername", {
                                 required: "Email/username is required",
                             })}
                         ></LabelledTextInput>
-                        {errors.email_username && (
+                        {errors.emailUsername && (
                             <span className="text-color-2">
-                                {errors.email_username.message}
+                                {errors.emailUsername.message}
                             </span>
                         )}
                         <LabelledTextInput
@@ -82,16 +94,18 @@ function SigninPage(): JSX.Element {
                         )}
                     </div>
                     <div className="w-full flex flex-col items-center gap-[5px]">
-                        <LabelledCheckbox
-                            label="Remember Me"
-                            register={register("rememberMe")}
-                        ></LabelledCheckbox>
                         <a className="font-semibold text-center text-color-1 text-font underline text-[20px]">
                             I forgot my password
                         </a>
                     </div>
                     <div className="w-full flex justify-center">
                         <SubmitButton content="Sign in"></SubmitButton>
+                    </div>
+                    <div>
+                        <span
+                            ref={errorSpanRef}
+                            className="text-color-1 text-center text-font font-bold"
+                        ></span>
                     </div>
                 </form>
             </div>

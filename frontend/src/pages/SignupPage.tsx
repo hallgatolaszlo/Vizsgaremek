@@ -31,7 +31,7 @@ function SignupPage(): JSX.Element {
         const email = data.email;
         const password = data.password;
         try {
-            const res = await api.post("/api/user/register/", {
+            const res = await api.post("api/auth/register", {
                 username,
                 email,
                 password,

@@ -1,6 +1,28 @@
-@backend_HostAddress = http://localhost:5053
+@backend_HostAddress = https://localhost:7205
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImE2YjM1Y2I4LTY0YTktNDMxZC05NDM1LTdlZTIzM2MyMjRiMyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJ0ZXN0dXNlciIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InRlc3R1c2VyQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3NTgyNzU2ODEsImlzcyI6Ik15QXBwIiwiYXVkIjoiTXlVc2VycyJ9.o2SZA28Vpuwii_88n9a7P3ghSDzPVaVW2Zh4mWtu35Y
 
-GET {{backend_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{backend_HostAddress}}/api/auth/verify
+Authorization: Bearer {{token}}
+
+###
+
+POST {{backend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "testuser@gmail.com",
+  "password": "Password@1234"
+}
+
+###
+
+POST {{backend_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "emailUsername": "testuser",
+  "password": "Password@1234"
+}
 
 ###
