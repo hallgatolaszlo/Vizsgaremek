@@ -27,7 +27,7 @@ namespace backend.Services
             // Validate password
             if (!IsValidPassword(request.Password))
             {
-                return "Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.";
+                return "Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.";
             }
 
             // Check if user with the same email already exists
@@ -213,8 +213,8 @@ namespace backend.Services
         // Validate password strength
         private bool IsValidPassword(string password)
         {
-            // Password must be at least 8 characters long
-            if (string.IsNullOrEmpty(password) || password.Length < 8)
+            // Password must be at least 8 characters long and no more than 128 characters
+            if (string.IsNullOrEmpty(password) || password.Length < 8 || password.Length > 128)
             {
                 return false;
             }

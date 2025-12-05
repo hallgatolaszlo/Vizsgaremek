@@ -88,6 +88,13 @@ namespace backend.Controllers
             return Ok();
         }
 
+        [HttpGet("protected")]
+        [Authorize]
+        public IActionResult Protected()
+        {
+            return Ok("You have accessed a protected endpoint.");
+        }
+
         private void SetTokenCookies(TokenResponseDTO tokens)
         {
             var tokenOptions = new CookieOptions
