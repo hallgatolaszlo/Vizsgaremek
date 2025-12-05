@@ -13,6 +13,14 @@ namespace backend.Models
         public string PasswordHash { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
-        public DateTime Created_at { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public User()
+        {
+            Id = Guid.NewGuid();
+            Email = string.Empty;
+            PasswordHash = string.Empty;
+            CreatedAt = DateTime.UtcNow;
+        }
     }
 }
