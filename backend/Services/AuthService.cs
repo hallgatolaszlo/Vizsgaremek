@@ -125,7 +125,7 @@ namespace backend.Services
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!);
+                var key = Encoding.UTF8.GetBytes(configuration.GetValue<string>("jwt-secret-key")!);
 
                 // KEY: ValidateLifetime is false to get claims from expired token
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
