@@ -33,6 +33,7 @@ namespace backendTests
             return new AuthService(context, configuration);
         }
 
+        // 1.
         [Fact]
         public async Task SignUp_ShouldReturnError_WhenEmailIsInvalid()
         {
@@ -52,15 +53,16 @@ namespace backendTests
             Assert.Equal("Invalid email format.", result);
         }
 
+        // 2.
         [Fact]
-        public async Task SignUp_ShouldReturnError_WhenPasswordIsWeak()
+        public async Task SignUp_ShouldReturnError_WhenPasswordIsShort()
         {
             // Arrange
-            var authService = CreateAuthService("TestDb_WeakPassword");
+            var authService = CreateAuthService("TestDb_ShortPassword");
             var signUpRequest = new SignUpRequestDTO
             {
                 Email = "testuser@example.com",
-                Password = "weak"
+                Password = "short"
             };
 
             // Act
@@ -71,6 +73,47 @@ namespace backendTests
             Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
         }
 
+        // 3.
+        [Fact]
+        public async Task SignUp_ShouldReturnError_WhenPasswordIsLong()
+        {
+            // Arrange
+            var authService = CreateAuthService("TestDb_LongPassword");
+            var signUpRequest = new SignUpRequestDTO
+            {
+                Email = "testuser@example.com",
+                Password = "verylongpasswordverylongpasswordverylongpasswordverylongpasswordverylongpasswordverylongpasswordverylongpasswordverylongpasswordverylongpassword"
+            };
+
+            // Act
+            var result = await authService.SignUpAsync(signUpRequest);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
+        }
+
+        // 4.
+        [Fact]
+        public async Task SignUp_ShouldReturnError_WhenPasswordMissingLowercase()
+        {
+            // Arrange
+            var authService = CreateAuthService("TestDb_NoLowercase");
+            var signUpRequest = new SignUpRequestDTO
+            {
+                Email = "testuser@example.com",
+                Password = "VALIDPASS123!"
+            };
+
+            // Act
+            var result = await authService.SignUpAsync(signUpRequest);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
+        }
+
+        // 5.
         [Fact]
         public async Task SignUp_ShouldReturnError_WhenPasswordMissingUppercase()
         {
@@ -90,6 +133,7 @@ namespace backendTests
             Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
         }
 
+        // 6.
         [Fact]
         public async Task SignUp_ShouldReturnError_WhenPasswordMissingSpecialCharacter()
         {
@@ -109,28 +153,16 @@ namespace backendTests
             Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
         }
 
+        // 7.
         [Fact]
-        public async Task SignUp_ShouldReturnError_WhenEmailAlreadyExists()
+        public async Task SignUp_ShouldReturnError_WhenPasswordMissingDigit()
         {
             // Arrange
-            var databaseName = "TestDb_DuplicateEmail";
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: databaseName)
-                .Options;
-
-            using var context = new AppDbContext(options);
-            context.Users.Add(new User
-            {
-                Email = "existing@example.com",
-                PasswordHash = "hashedpassword123"
-            });
-            await context.SaveChangesAsync();
-
-            var authService = CreateAuthService(databaseName);
+            var authService = CreateAuthService("TestDb_NoDigit");
             var signUpRequest = new SignUpRequestDTO
             {
-                Email = "existing@example.com",
-                Password = "ValidPass123!"
+                Email = "testuser@example.com",
+                Password = "ValidPass!"
             };
 
             // Act
@@ -138,9 +170,10 @@ namespace backendTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("User with this email already exists.", result);
+            Assert.Equal("Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.", result);
         }
 
+        // 8.
         [Fact]
         public async Task SignUp_ShouldCreateUser_WhenDataIsValid()
         {
@@ -172,6 +205,7 @@ namespace backendTests
             Assert.NotEmpty(user.PasswordHash);
         }
 
+        // 9.
         [Fact]
         public async Task SignUp_ShouldHashPassword_WhenUserIsCreated()
         {
@@ -200,6 +234,34 @@ namespace backendTests
             Assert.NotNull(user);
             Assert.NotEqual(plainPassword, user.PasswordHash); // Password should be hashed
         }
+
+        // 10.
+        [Fact]
+        public async Task SignUp_ShouldReturnError_WhenEmailAlreadyExists()
+        {
+            // Arrange
+            var databaseName = "TestDb_DuplicateEmail";
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: databaseName)
+                .Options;
+
+            var authService = CreateAuthService(databaseName);
+            var signUpRequest = new SignUpRequestDTO
+            {
+                Email = "existing@example.com",
+                Password = "ValidPass123!"
+            };
+
+            // Act
+            await authService.SignUpAsync(signUpRequest); // First sign up
+            var result = await authService.SignUpAsync(signUpRequest);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("User with this email already exists.", result);
+        }
+
+        // 11.
         [Fact]
         public async Task SignIn_ShouldReturnNull_WhenUserNotFound()
         {
@@ -216,38 +278,38 @@ namespace backendTests
             // Assert
             Assert.Null(result);
         }
+
+        // 12.
         [Fact]
-        public async Task SignIn_ShouldReturnToken_WhenCredentialsAreValid()
+        public async Task SignIn_ShouldReturnNull_WhenPasswordIsIncorrect()
         {
             // Arrange
-            var databaseName = "TestDb_SignIn_ValidCredentials";
+            var databaseName = "TestDb_SignIn_WrongPassword";
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseInMemoryDatabase(databaseName: databaseName)
                 .Options;
-            using var context = new AppDbContext(options);
             var authService = CreateAuthService(databaseName);
-            var signUpRequest = new SignUpRequestDTO
+
+            await authService.SignUpAsync(new SignUpRequestDTO
             {
-                Email = "valid@example.com",
-                Password = "ValidPass123!"
-            };
-            var signInRequest = new SignInRequestDTO
-            {
-                Email = "valid@example.com",
-                Password = "ValidPass123!"
-            };
-            // First, sign up the user
-            await authService.SignUpAsync(signUpRequest);
+                Email = "user@example.com",
+                Password = "CorrectPass123!"
+            });
+
             // Act
-            var result = await authService.SignInAsync(signInRequest);
+            var result = await authService.SignInAsync(new SignInRequestDTO
+            {
+                Email = "user@example.com",
+                Password = "WrongPass123!"
+            });
+
             // Assert
-            Assert.NotNull(result);
-            Assert.False(string.IsNullOrEmpty(result!.AccessToken));
-            Assert.False(string.IsNullOrEmpty(result.RefreshToken));
+            Assert.Null(result);
         }
 
+        // 13.
         [Fact]
-        public async Task SignIn_ShouldReturnValidAccesToken_WhenCredsAreValid()
+        public async Task SignIn_ShouldReturnValidTokens_WhenCredsAreValid()
         {
             // Arrange
             string databaseName = "TestDb_SignIn_ValidCredsWithValidAccessToken";
@@ -275,7 +337,7 @@ namespace backendTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.False(string.IsNullOrEmpty(result!.AccessToken));
+            Assert.False(string.IsNullOrEmpty(result.AccessToken));
             Assert.False(string.IsNullOrEmpty(result.RefreshToken));
 
             // Validate JWT token structure and claims
@@ -307,32 +369,7 @@ namespace backendTests
             Assert.True(user.RefreshTokenExpiryTime > DateTime.UtcNow);
         }
 
-        [Fact]
-        public async Task SignIn_ShouldReturnNull_WhenPasswordIsIncorrect()
-        {
-            // Arrange
-            var databaseName = "TestDb_SignIn_WrongPassword";
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: databaseName)
-                .Options;
-            var authService = CreateAuthService(databaseName);
-
-            await authService.SignUpAsync(new SignUpRequestDTO
-            {
-                Email = "user@example.com",
-                Password = "CorrectPass123!"
-            });
-
-            // Act
-            var result = await authService.SignInAsync(new SignInRequestDTO
-            {
-                Email = "user@example.com",
-                Password = "WrongPass123!"
-            });
-
-            // Assert
-            Assert.Null(result);
-        }
+        // 14.
         [Fact]
         public async Task RefreshTokens_ShouldReturnNewTokens_WhenTokensAreValid()
         {
@@ -373,6 +410,7 @@ namespace backendTests
             Assert.Equal(newTokens.RefreshToken, user.RefreshToken);
         }
 
+        // 15.
         [Fact]
         public async Task RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsInvalid()
         {
@@ -407,6 +445,7 @@ namespace backendTests
             Assert.Null(result);
         }
 
+        // 16.
         [Fact]
         public async Task RefreshTokens_ShouldReturnNull_WhenAccessTokenIsInvalid()
         {
@@ -426,6 +465,7 @@ namespace backendTests
             Assert.Null(result); // Should fail because GetUserIdFromExpiredToken returns null
         }
 
+        // 17.
         [Fact]
         public async Task RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsExpired()
         {
