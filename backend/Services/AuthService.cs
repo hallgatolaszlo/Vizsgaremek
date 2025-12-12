@@ -173,11 +173,15 @@ namespace backend.Services
         // Create JWT access token
         private string CreateToken(User user)
         {
+            DateTime now = DateTime.UtcNow;
+
             // Define claims
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(now).ToString(), ClaimValueTypes.Integer64),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String)
             };
 
             // Create signing credentials
@@ -190,7 +194,8 @@ namespace backend.Services
                 audience: configuration.GetValue<string>("AppSettings:Audience"),
                 claims: claims,
                 signingCredentials: creds,
-                expires: DateTime.UtcNow.AddMinutes(30)
+                notBefore: now,
+                expires: now.AddMinutes(30)
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
