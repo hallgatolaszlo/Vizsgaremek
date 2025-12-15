@@ -36,21 +36,25 @@ namespace backend.Services
                 return "User with this email already exists.";
             }
 
+            // Create new user
             User user = new User();
-
             user.Email = request.Email;
 
+            // Hash password
             string? hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
             user.PasswordHash = hashedPassword!;
 
+            // Save user to database
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
+            // Successful registration returns null
             return null;
         }
 
         public async Task<TokenResponseDTO?> SignInAsync(SignInRequestDTO request)
         {
+            // Find user by email
             User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             // User not found
@@ -66,20 +70,22 @@ namespace backend.Services
                 return null;
             }
 
+            // Create and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
                 AccessToken = CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
-
             return tokenDTO;
         }
 
         public async Task<TokenResponseDTO?> RefreshTokensAsync(TokenResponseDTO request)
         {
+            // Deconstruct tokens from request
             string accessToken = request.AccessToken;
             string refreshToken = request.RefreshToken;
 
+            // Extract user ID from expired access token
             string? userIdFromToken = GetUserIdFromExpiredToken(accessToken);
 
             // Invalid access token
@@ -88,6 +94,7 @@ namespace backend.Services
                 return null;
             }
 
+            // Get user by validating refresh token
             User? user = await ValidateRefreshTokenAsync(refreshToken, userIdFromToken);
 
             // Invalid refresh token
@@ -96,6 +103,7 @@ namespace backend.Services
                 return null;
             }
 
+            // Generate and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
                 AccessToken = CreateToken(user),
@@ -107,10 +115,12 @@ namespace backend.Services
         // Validate refresh token using an expired access token
         private async Task<User?> ValidateRefreshTokenAsync(string refreshToken, string userId)
         {
+            // Find user by refresh token and user ID
             User? user = await context.Users.FirstOrDefaultAsync(u =>
                 u.RefreshToken == refreshToken &&
                 u.Id.ToString() == userId);
 
+            // Invalid refresh token or expired
             if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
