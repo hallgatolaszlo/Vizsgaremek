@@ -1,4 +1,5 @@
-﻿using backend.DTOs;
+﻿using backend.Common;
+using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
 using backend.Services;
@@ -41,7 +42,7 @@ namespace backend.Controllers
             // Validate response
             if (response is null)
             {
-                return BadRequest("Invalid credentials");
+                return BadRequest(AuthErrors.InvalidCredentials);
             }
 
             // Set tokens in cookies

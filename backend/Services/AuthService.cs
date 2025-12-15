@@ -1,4 +1,5 @@
-﻿using backend.Context;
+﻿using backend.Common;
+using backend.Context;
 using backend.DTOs.Auth;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
@@ -21,19 +22,19 @@ namespace backend.Services
             // Validate email
             if (!IsValidEmail(request.Email))
             {
-                return "Invalid email format.";
+                return AuthErrors.InvalidEmail;
             }
 
             // Validate password
             if (!IsValidPassword(request.Password))
             {
-                return "Password must be between 8 and 128 characters long and include uppercase, lowercase, digit, and special character.";
+                return AuthErrors.InvalidPassword;
             }
 
             // Check if user with the same email already exists
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return "User with this email already exists.";
+                return AuthErrors.UserAlreadyExists;
             }
 
             // Create new user
