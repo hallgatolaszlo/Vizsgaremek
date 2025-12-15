@@ -20,8 +20,10 @@ namespace backend.Controllers
         [HttpPost("sign-up")]
         public async Task<ActionResult<string>> SignUp(SignUpRequestDTO request)
         {
+            // Call the service to sign up
             string? error = await authService.SignUpAsync(request);
 
+            // Validate response
             if (error is not null)
             {
                 return BadRequest(error);
@@ -33,54 +35,67 @@ namespace backend.Controllers
         [HttpPost("sign-in")]
         public async Task<ActionResult<TokenResponseDTO>> SignIn(SignInRequestDTO request)
         {
+            // Call the service to sign in
             TokenResponseDTO? response = await authService.SignInAsync(request);
 
+            // Validate response
             if (response is null)
             {
                 return BadRequest("Invalid credentials");
             }
 
+            // Set tokens in cookies
             SetTokenCookies(response);
 
-            return Ok(response);
+            return Ok();
         }
 
         [HttpGet("refresh")]
         public async Task<ActionResult<TokenResponseDTO>> RefreshTokens()
         {
+            // Retrieve tokens from cookies
             var accessToken = Request.Cookies["accessToken"];
             var refreshToken = Request.Cookies["refreshToken"];
 
+            // Validate presence of tokens
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
             {
                 return Unauthorized();
             }
 
+            // Create request DTO
             TokenResponseDTO request = new TokenResponseDTO
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
 
+            // Call the service to refresh tokens
             TokenResponseDTO? response = await authService.RefreshTokensAsync(request);
+
+            // Validate response
             if (response is null || response.AccessToken is null || response.RefreshToken is null)
             {
                 return Unauthorized();
             }
 
+            // Set new tokens in cookies
             SetTokenCookies(response);
 
-            return Ok(response);
+            return Ok();
         }
 
         [HttpGet("sign-out")]
         new public IActionResult SignOut()
         {
+            // Delete the authentication cookies
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
+
             return Ok();
         }
 
+        // Endpoint to verify authentication
         [HttpGet("verify")]
         [Authorize]
         public IActionResult AuthOnly()
@@ -88,6 +103,7 @@ namespace backend.Controllers
             return Ok();
         }
 
+        // Temporary protected endpoint for testing
         [HttpGet("protected")]
         [Authorize]
         public IActionResult Protected()
@@ -95,8 +111,10 @@ namespace backend.Controllers
             return Ok("You have accessed a protected endpoint.");
         }
 
+        // Helper method to set tokens in cookies
         private void SetTokenCookies(TokenResponseDTO tokens)
         {
+            // Set cookie options
             var tokenOptions = new CookieOptions
             {
                 HttpOnly = true,
@@ -105,6 +123,7 @@ namespace backend.Controllers
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             };
 
+            // Append cookies to the response
             Response.Cookies.Append("accessToken", tokens.AccessToken, tokenOptions);
             Response.Cookies.Append("refreshToken", tokens.RefreshToken, tokenOptions);
         }
