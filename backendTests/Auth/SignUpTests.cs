@@ -41,7 +41,7 @@ namespace backendTests.Auth
         [InlineData("testuser@example.com", "validpass123!")]
         [InlineData("testuser@example.com", "ValidPass123")]
         [InlineData("testuser@example.com", "ValidPass!")]
-        public async Task SignUp_ShouldReturnError_ForInvalidInput(string email, string password)
+        public async Task SignUp_ShouldReturnError_WhenPasswordIsInvalid(string email, string password)
         {
             // Arrange
             var authService = AuthServiceFactory.Create(Guid.NewGuid().ToString());
