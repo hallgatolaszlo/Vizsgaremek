@@ -1,0 +1,31 @@
+# Workspace configuration for pnpm
+# See: https://pnpm.io/workspaces
+packages:
+    - "apps/*"
+    - "packages/*"
+
+# Dependency version catalog
+catalog:
+    # Build tools
+    turbo: "2.6.3"
+
+    # Next.js
+    "next": "16.0.10"
+
+    # React
+    "react": "19.2.1"
+    "react-dom": "19.2.1"
+
+    # TypeScript
+    "typescript": "^5"
+    "@types/react": "^19"
+    "@types/react-dom": "^19"
+    "@types/node": "^20"
+
+    # Linting
+    "eslint": "^9"
+    "eslint-config-next": "16.0.10"
+
+    # Tailwind CSS
+    "tailwindcss": "^4"
+    "@tailwindcss/postcss": "^4"

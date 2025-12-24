@@ -21,7 +21,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Frontend (Node.js)
+# Frontend
 node_modules/
 dist/
 build/
@@ -29,6 +29,8 @@ coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+.next/
+*env.d.ts
 
 # Backend (ASP.NET Core)
 bin/
@@ -50,3 +52,6 @@ artifacts/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Turbo
+.turbo

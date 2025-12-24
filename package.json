@@ -1,0 +1,14 @@
+{
+    "name": "myorg",
+    "packageManager": "pnpm@9.15.1",
+    "private": true,
+    "scripts": {
+        "dev": "turbo dev",
+        "build": "turbo build",
+        "web:dev": "cd apps/web && pnpm run dev",
+        "backend:dev": "dotnet watch run --project services\\backend"
+    },
+    "devDependencies": {
+        "turbo": "catalog:"
+    }
+}

@@ -1,7 +1,6 @@
 ﻿using backend.Context;
 using backend.DTOs.Auth;
 using backend.Models;
-using backendTests.TestHelpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,8 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TestHelpers;
 
-namespace backendTests.Auth
+namespace Auth
 {
     public class TokenTests
     {

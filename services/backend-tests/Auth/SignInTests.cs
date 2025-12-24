@@ -1,14 +1,14 @@
 ﻿using backend.Context;
 using backend.DTOs.Auth;
-using backendTests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TestHelpers;
 
-namespace backendTests.Auth
+namespace Auth
 {
     public class SignInTests
     {
