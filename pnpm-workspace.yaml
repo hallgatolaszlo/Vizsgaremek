@@ -7,25 +7,54 @@ packages:
 # Dependency version catalog
 catalog:
     # Build tools
-    turbo: "2.6.3"
+    turbo: "latest"
+    "wait-on": "latest"
+    "concurrently": "latest"
 
     # Next.js
-    "next": "16.0.10"
+    "next": "latest"
 
     # React
-    "react": "19.2.1"
-    "react-dom": "19.2.1"
+    "react": "latest"
+    "react-dom": "latest"
 
     # TypeScript
-    "typescript": "^5"
-    "@types/react": "^19"
-    "@types/react-dom": "^19"
-    "@types/node": "^20"
+    "typescript": "latest"
+    "@types/react": "latest"
+    "@types/react-dom": "latest"
+    "@types/node": "latest"
 
     # Linting
-    "eslint": "^9"
-    "eslint-config-next": "16.0.10"
+    "eslint": "latest"
+    "eslint-config-next": "latest"
+    "eslint-plugin-react-hooks": "latest"
+    "eslint-plugin-react-refresh": "latest"
+    "typescript-eslint": "latest"
 
     # Tailwind CSS
-    "tailwindcss": "^4"
-    "@tailwindcss/postcss": "^4"
+    "tailwindcss": "latest"
+    "@tailwindcss/postcss": "latest"
+
+    # HTTP Client
+    "axios": "latest"
+
+    # Form Handling
+    "react-hook-form": "latest"
+    "@hookform/resolvers": "latest"
+    "zod": "latest"
+
+    # MUI
+    "@emotion/react": "latest"
+    "@emotion/styled": "latest"
+    "@fontsource/roboto": "latest"
+    "@mui/icons-material": "latest"
+    "@mui/material": "latest"
+
+    # Data Fetching
+    "@tanstack/react-query": "latest"
+
+    # State Management
+    "zustand": "latest"
+
+    # OpenAPI Typescript Generator
+    "openapi-typescript": "latest"

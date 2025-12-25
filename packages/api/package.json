@@ -1,0 +1,17 @@
+{
+	"name": "@repo/api",
+	"type": "module",
+	"dependencies": {
+		"axios": "catalog:",
+		"@repo/types": "workspace:*"
+	},
+	"exports": {
+		".": "./api.ts",
+		"./auth/signIn": "./auth/signIn.ts",
+		"./auth/signUp": "./auth/signUp.ts",
+		"./auth/signOut": "./auth/signOut.ts",
+		"./auth/verify": "./auth/verify.ts",
+		"./auth/refresh": "./auth/refresh.ts"
+	},
+	"types": "./api.ts"
+}

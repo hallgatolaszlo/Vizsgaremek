@@ -1,14 +1,18 @@
 {
-    "name": "myorg",
-    "packageManager": "pnpm@9.15.1",
-    "private": true,
-    "scripts": {
-        "dev": "turbo dev",
-        "build": "turbo build",
-        "web:dev": "cd apps/web && pnpm run dev",
-        "backend:dev": "dotnet watch run --project services\\backend"
-    },
-    "devDependencies": {
-        "turbo": "catalog:"
-    }
+	"name": "repo",
+	"packageManager": "pnpm@9.15.1",
+	"scripts": {
+		"dev": "concurrently -n backend,frontend -c blue,green \"pnpm backend:dev\" \"pnpm frontend:dev\"",
+		"frontend:dev": "wait-on -t 60000 http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts && turbo dev",
+		"build": "turbo build",
+		"web:dev": "cd apps/web && pnpm run dev",
+		"backend:dev": "dotnet watch run --project services\\backend",
+		"generate-types": "openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts"
+	},
+	"devDependencies": {
+		"concurrently": "catalog:",
+		"openapi-typescript": "catalog:",
+		"turbo": "catalog:",
+		"wait-on": "catalog:"
+	}
 }

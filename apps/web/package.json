@@ -1,26 +1,40 @@
 {
-    "name": "@myorg/web",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "eslint"
-    },
-    "dependencies": {
-        "next": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:"
-    },
-    "devDependencies": {
-        "@tailwindcss/postcss": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "eslint": "catalog:",
-        "eslint-config-next": "catalog:",
-        "tailwindcss": "catalog:",
-        "typescript": "catalog:"
-    }
+	"name": "@repo/web",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint"
+	},
+	"dependencies": {
+		"@emotion/react": "catalog:",
+		"@emotion/styled": "catalog:",
+		"@fontsource/roboto": "catalog:",
+		"@mui/icons-material": "catalog:",
+		"@mui/material": "catalog:",
+		"@repo/api": "workspace:*",
+		"@repo/types": "workspace:*",
+		"@tanstack/react-query": "catalog:",
+		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-hook-form": "catalog:",
+		"@hookform/resolvers": "catalog:",
+		"zod": "catalog:",
+		"axios": "catalog:",
+		"zustand": "catalog:"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "catalog:",
+		"@types/node": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"eslint": "catalog:",
+		"eslint-config-next": "catalog:",
+		"eslint-plugin-react-hooks": "catalog:",
+		"eslint-plugin-react-refresh": "catalog:",
+		"tailwindcss": "catalog:",
+		"typescript": "catalog:",
+		"typescript-eslint": "catalog:"
+	}
 }

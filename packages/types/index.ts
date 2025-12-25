@@ -76,11 +76,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["TokenResponseDTO"];
-                        "application/json": components["schemas"]["TokenResponseDTO"];
-                        "text/json": components["schemas"]["TokenResponseDTO"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -111,11 +107,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["TokenResponseDTO"];
-                        "application/json": components["schemas"]["TokenResponseDTO"];
-                        "text/json": components["schemas"]["TokenResponseDTO"];
-                    };
+                    content?: never;
                 };
             };
         };
@@ -237,10 +229,6 @@ export interface components {
         SignUpRequestDTO: {
             email?: string | null;
             password?: string | null;
-        };
-        TokenResponseDTO: {
-            accessToken: string | null;
-            refreshToken: string | null;
         };
     };
     responses: never;

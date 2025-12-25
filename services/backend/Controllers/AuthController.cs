@@ -34,7 +34,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("sign-in")]
-        public async Task<ActionResult<TokenResponseDTO>> SignIn(SignInRequestDTO request)
+        public async Task<ActionResult> SignIn(SignInRequestDTO request)
         {
             // Call the service to sign in
             TokenResponseDTO? response = await authService.SignInAsync(request);
@@ -52,7 +52,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("refresh")]
-        public async Task<ActionResult<TokenResponseDTO>> RefreshTokens()
+        public async Task<ActionResult> RefreshTokens()
         {
             // Retrieve tokens from cookies
             var accessToken = Request.Cookies["accessToken"];
