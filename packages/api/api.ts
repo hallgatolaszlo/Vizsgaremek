@@ -1,5 +1,5 @@
 import axios from "axios";
-import signOut from "./auth/signOut";
+import { signOut } from "./auth.ts";
 
 const api = axios.create({
 	baseURL: "http://localhost:5273/",

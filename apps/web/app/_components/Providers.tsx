@@ -1,8 +1,8 @@
 "use client";
 
+import useAuthStore from "@repo/hooks/useAuthStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useAuthStore } from "../_hooks/useAuthStore";
 import PrivateNavbar from "./navbars/PrivateNavbar";
 import PublicNavbar from "./navbars/PublicNavbar";
 

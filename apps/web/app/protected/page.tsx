@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuthStore } from "../_hooks/useAuthStore";
-import UnauthorizedPage from "../pages/401";
+import useAuthStore from "@repo/hooks/useAuthStore";
+import UnauthorizedPage from "../_pages/401";
 
 export default function ProtectedPage() {
 	const isAuthorized = useAuthStore((state) => state.isAuthorized);

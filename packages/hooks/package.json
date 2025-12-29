@@ -1,0 +1,12 @@
+{
+	"name": "@repo/hooks",
+	"type": "module",
+	"dependencies": {
+		"@repo/api": "workspace:*",
+		"zustand": "catalog:"
+	},
+	"exports": {
+		"./useAuthStore": "./useAuthStore.ts"
+	},
+	"types": "./useAuthStore.ts"
+}

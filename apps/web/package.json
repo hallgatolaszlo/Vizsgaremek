@@ -14,6 +14,7 @@
 		"@mui/material": "catalog:",
 		"@repo/api": "workspace:*",
 		"@repo/types": "workspace:*",
+		"@repo/hooks": "workspace:*",
 		"@tanstack/react-query": "catalog:",
 		"next": "catalog:",
 		"react": "catalog:",

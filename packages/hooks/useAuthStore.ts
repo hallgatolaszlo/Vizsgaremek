@@ -1,5 +1,4 @@
-import refresh from "@repo/api/auth/refresh";
-import verify from "@repo/api/auth/verify";
+import { refresh, verify } from "@repo/api/auth";
 import { create } from "zustand";
 
 interface AuthState {
@@ -9,7 +8,7 @@ interface AuthState {
 	setIsAuthorized: (value: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+const useAuthStore = create<AuthState>((set) => ({
 	isAuthorized: false,
 	isLoading: true,
 
@@ -32,3 +31,5 @@ export const useAuthStore = create<AuthState>((set) => ({
 		}
 	},
 }));
+
+export default useAuthStore;

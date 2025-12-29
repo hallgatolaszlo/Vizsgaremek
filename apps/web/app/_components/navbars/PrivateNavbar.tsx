@@ -1,10 +1,8 @@
-"use client";
-
 import Logout from "@mui/icons-material/Logout";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import signOut from "@repo/api/auth/signOut";
+import { signOut } from "@repo/api/auth";
 import type { JSX } from "react";
 
 function PrivateLayout(): JSX.Element {

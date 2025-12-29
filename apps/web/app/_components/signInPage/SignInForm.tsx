@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import InputAdornment from "@mui/material/InputAdornment";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import signIn from "@repo/api/auth/signIn";
+import { signIn } from "@repo/api/auth";
 import { components } from "@repo/types";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";

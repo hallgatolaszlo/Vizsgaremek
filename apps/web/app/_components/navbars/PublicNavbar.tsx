@@ -1,5 +1,3 @@
-"use client";
-
 import Login from "@mui/icons-material/Login";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";

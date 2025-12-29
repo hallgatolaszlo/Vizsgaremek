@@ -7,11 +7,7 @@
 	},
 	"exports": {
 		".": "./api.ts",
-		"./auth/signIn": "./auth/signIn.ts",
-		"./auth/signUp": "./auth/signUp.ts",
-		"./auth/signOut": "./auth/signOut.ts",
-		"./auth/verify": "./auth/verify.ts",
-		"./auth/refresh": "./auth/refresh.ts"
+		"./auth": "./auth.ts"
 	},
 	"types": "./api.ts"
 }
