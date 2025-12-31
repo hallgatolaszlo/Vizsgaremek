@@ -1,17 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import Email from "@mui/icons-material/Email";
-import Login from "@mui/icons-material/Login";
-import Password from "@mui/icons-material/Password";
-import Button from "@mui/material/Button";
-import InputAdornment from "@mui/material/InputAdornment";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import { signIn } from "@repo/api/auth";
 import { components } from "@repo/types";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { LogIn } from "lucide-react";
 import { useState, type JSX } from "react";
 import { useForm } from "react-hook-form";
+import { Button, Form, Input, Spinner, Text, YStack } from "tamagui";
 import { z } from "zod";
 
 type SignInRequestDTO = components["schemas"]["SignInRequestDTO"];
@@ -23,6 +18,7 @@ const SignInSchema = z.object({
 export default function SignInForm(): JSX.Element {
 	const [error, setError] = useState<string | null>(null);
 
+	// TODO: Add visual validation indicators (probably a custom Input component)
 	const {
 		register,
 		handleSubmit,
@@ -54,48 +50,20 @@ export default function SignInForm(): JSX.Element {
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
-			<Stack direction="column" spacing={3}>
-				<TextField
-					id="email"
-					label="Email"
-					variant="outlined"
+		<Form onSubmit={handleSubmit(onSubmit)}>
+			<YStack>
+				<Input
+					placeholder="Email address"
 					type="email"
-					required
-					error={!!errors.email}
-					helperText={errors.email && errors.email.message}
 					{...register("email")}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<InputAdornment position="start">
-									<Email />
-								</InputAdornment>
-							),
-						},
-					}}
 				/>
-				<TextField
-					id="password"
-					label="Password"
-					variant="outlined"
+				<Input
+					placeholder="Password"
 					type="password"
-					required
-					error={!!errors.password}
-					helperText={errors.password && errors.password.message}
 					{...register("password")}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<InputAdornment position="start">
-									<Password />
-								</InputAdornment>
-							),
-						},
-					}}
 				/>
 				{error && (
-					<span
+					<Text
 						style={{
 							color: "#d32f2f",
 							textAlign: "center",
@@ -103,18 +71,22 @@ export default function SignInForm(): JSX.Element {
 						}}
 					>
 						{error}
-					</span>
+					</Text>
 				)}
-				<Button
-					loading={signInMutation.isPending}
-					loadingPosition="start"
-					type="submit"
-					variant="contained"
-					endIcon={<Login />}
-				>
-					Sign In
-				</Button>
-			</Stack>
-		</form>
+				<Form.Trigger asChild disabled={signInMutation.isPending}>
+					<Button
+						icon={
+							signInMutation.isPending
+								? () => <Spinner />
+								: undefined
+						}
+						scaleIcon={1.5}
+						iconAfter={<LogIn />}
+					>
+						<Text>Sign In</Text>
+					</Button>
+				</Form.Trigger>
+			</YStack>
+		</Form>
 	);
 }

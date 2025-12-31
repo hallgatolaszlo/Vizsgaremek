@@ -1,31 +1,24 @@
-import Login from "@mui/icons-material/Login";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { LogIn } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { type JSX } from "react";
+import { Button, Text } from "tamagui";
 
 function PublicNavbar(): JSX.Element {
-	const pathname = usePathname();
+	const router = useRouter();
+
+	function handleNavigation() {
+		router.push("/sign-in");
+	}
 
 	return (
 		<nav className="public-navbar">
-			<Typography variant="h4"></Typography>
-			<Container disableGutters maxWidth={false}>
-				<Link href="/sign-in">
-					<Button
-						endIcon={<Login />}
-						variant={
-							pathname.endsWith("/sign-in")
-								? "contained"
-								: "outlined"
-						}
-					>
-						Sign In / Sign Up
-					</Button>
-				</Link>
-			</Container>
+			<Button
+				scaleIcon={1.5}
+				iconAfter={<LogIn />}
+				onPress={handleNavigation}
+			>
+				<Text>Sign In / Sign Up</Text>
+			</Button>
 		</nav>
 	);
 }

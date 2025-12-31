@@ -3,28 +3,27 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "eslint"
+		"dev": "next dev --turbopack",
+		"build": "next build"
 	},
 	"dependencies": {
-		"@emotion/react": "catalog:",
-		"@emotion/styled": "catalog:",
 		"@fontsource/roboto": "catalog:",
-		"@mui/icons-material": "catalog:",
-		"@mui/material": "catalog:",
+		"@hookform/resolvers": "catalog:",
 		"@repo/api": "workspace:*",
-		"@repo/types": "workspace:*",
 		"@repo/hooks": "workspace:*",
+		"@repo/types": "workspace:*",
+		"@tamagui/config": "catalog:",
+		"@tamagui/next-plugin": "catalog:",
+		"@tamagui/next-theme": "catalog:",
 		"@tanstack/react-query": "catalog:",
+		"axios": "catalog:",
+		"lucide-react": "catalog:",
 		"next": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-hook-form": "catalog:",
-		"@hookform/resolvers": "catalog:",
+		"tamagui": "catalog:",
 		"zod": "catalog:",
-		"axios": "catalog:",
 		"zustand": "catalog:"
 	},
 	"devDependencies": {

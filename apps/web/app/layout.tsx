@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../public/tamagui.css";
 import { Providers } from "./_components/Providers";
 import "./globals.css";
 

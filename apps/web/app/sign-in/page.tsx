@@ -1,41 +1,40 @@
 "use client";
 
-import Stack from "@mui/material/Stack";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { useState, type JSX } from "react";
+import { Text, ToggleGroup, YStack } from "tamagui";
 import SignInForm from "../_components/signInPage/SignInForm";
 import SignUpForm from "../_components/signInPage/SignUpForm";
 
 export default function SignInPage(): JSX.Element {
 	const [selectedForm, setSelectedForm] = useState<string>("sign-in");
 
-	function handleSelectedForm(
-		_event: React.MouseEvent<HTMLElement>,
-		newForm: string | null
-	) {
-		if (newForm !== null) {
-			setSelectedForm(newForm);
+	function handleSelectedForm(form: string | null) {
+		if (form !== null) {
+			setSelectedForm(form);
 		}
 	}
 
+	// Component for ToggleGroup Item Text to avoid console errors
+	const ToggleGroupItemText = ({ text }: { text: string }) => {
+		return <Text>{text}</Text>;
+	};
+
 	return (
-		<Stack
-			direction="column"
-			spacing={3}
-			alignItems="center"
-			justifyContent="center"
-		>
-			<ToggleButtonGroup
-				color="primary"
+		<YStack style={{ alignItems: "center" }}>
+			<ToggleGroup
+				disableDeactivation
 				value={selectedForm}
-				exclusive
-				onChange={handleSelectedForm}
+				type="single"
+				onValueChange={(value) => handleSelectedForm(value)}
 			>
-				<ToggleButton value="sign-in">Sign In</ToggleButton>
-				<ToggleButton value="sign-up">Sign Up</ToggleButton>
-			</ToggleButtonGroup>
+				<ToggleGroup.Item value="sign-in">
+					<ToggleGroupItemText text="Sign-In" />
+				</ToggleGroup.Item>
+				<ToggleGroup.Item value="sign-up">
+					<ToggleGroupItemText text="Sign-Up" />
+				</ToggleGroup.Item>
+			</ToggleGroup>
 			{selectedForm === "sign-in" ? <SignInForm /> : <SignUpForm />}
-		</Stack>
+		</YStack>
 	);
 }

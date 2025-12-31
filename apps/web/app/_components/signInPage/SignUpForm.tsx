@@ -1,17 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import Create from "@mui/icons-material/Create";
-import Email from "@mui/icons-material/Email";
-import Password from "@mui/icons-material/Password";
-import Button from "@mui/material/Button";
-import InputAdornment from "@mui/material/InputAdornment";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import { signIn, signUp } from "@repo/api/auth";
 import { components } from "@repo/types";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { UserPlus } from "lucide-react";
 import { useState, type JSX } from "react";
 import { useForm } from "react-hook-form";
+import { Button, Form, Input, Spinner, Text, YStack } from "tamagui";
 import z from "zod";
 
 type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
@@ -64,49 +59,20 @@ function SignUpForm(): JSX.Element {
 	}
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
-			<Stack direction="column" spacing={3}>
-				<TextField
-					id="email"
-					label="Email"
-					variant="outlined"
+		<Form onSubmit={handleSubmit(onSubmit)}>
+			<YStack>
+				<Input
+					placeholder="Email address"
 					type="email"
-					required
-					error={!!errors.email}
-					helperText={errors.email && errors.email.message}
 					{...register("email")}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<InputAdornment position="start">
-									<Email />
-								</InputAdornment>
-							),
-						},
-					}}
 				/>
-				<TextField
-					id="password"
-					label="Password"
-					variant="outlined"
+				<Input
+					placeholder="Password"
 					type="password"
-					required
-					error={!!errors.password}
-					helperText={errors.password && errors.password.message}
 					{...register("password")}
-					slotProps={{
-						input: {
-							startAdornment: (
-								<InputAdornment position="start">
-									<Password />
-								</InputAdornment>
-							),
-						},
-					}}
 				/>
-
 				{error && (
-					<span
+					<Text
 						style={{
 							color: "#d32f2f",
 							textAlign: "center",
@@ -114,19 +80,23 @@ function SignUpForm(): JSX.Element {
 						}}
 					>
 						{error}
-					</span>
+					</Text>
 				)}
-				<Button
-					loading={signUpMutation.isPending}
-					loadingPosition="start"
-					type="submit"
-					variant="contained"
-					endIcon={<Create />}
-				>
-					Sign Up
-				</Button>
-			</Stack>
-		</form>
+				<Form.Trigger asChild disabled={signUpMutation.isPending}>
+					<Button
+						icon={
+							signUpMutation.isPending
+								? () => <Spinner />
+								: undefined
+						}
+						scaleIcon={1.5}
+						iconAfter={<UserPlus />}
+					>
+						<Text>Sign Up</Text>
+					</Button>
+				</Form.Trigger>
+			</YStack>
+		</Form>
 	);
 }
 

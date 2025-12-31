@@ -1,25 +1,20 @@
-import Logout from "@mui/icons-material/Logout";
-import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
 import { signOut } from "@repo/api/auth";
+import { LogOut } from "lucide-react";
 import type { JSX } from "react";
+import { Button, Text } from "tamagui";
 
-function PrivateLayout(): JSX.Element {
+function PrivateNavbar(): JSX.Element {
 	return (
 		<nav className="private-navbar">
-			<Typography variant="h4"></Typography>
-			<Container disableGutters maxWidth={false}>
-				<Button
-					endIcon={<Logout />}
-					variant="outlined"
-					onClick={() => signOut()}
-				>
-					Sign Out
-				</Button>
-			</Container>
+			<Button
+				scaleIcon={1.5}
+				iconAfter={<LogOut />}
+				onPress={() => signOut()}
+			>
+				<Text>Sign Out</Text>
+			</Button>
 		</nav>
 	);
 }
 
-export default PrivateLayout;
+export default PrivateNavbar;
