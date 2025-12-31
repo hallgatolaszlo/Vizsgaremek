@@ -1,6 +1,7 @@
 {
 	"name": "@repo/api",
 	"type": "module",
+	"private": true,
 	"dependencies": {
 		"axios": "catalog:",
 		"@repo/types": "workspace:*"

@@ -1,60 +1,63 @@
-# Workspace configuration for pnpm
-# See: https://pnpm.io/workspaces
 packages:
-    - "apps/*"
-    - "packages/*"
+    - apps/*
+    - packages/*
 
-# Dependency version catalog
 catalog:
-    # Build tools
-    turbo: "latest"
-    "wait-on": "latest"
-    "concurrently": "latest"
+    "@emotion/react": ^11.14.0
+    "@emotion/styled": ^11.14.1
+    "@expo/vector-icons": ^15.0.3
+    "@fontsource/roboto": ^5.2.9
+    "@hookform/resolvers": ^5.2.2
+    "@mui/icons-material": ^7.3.6
+    "@mui/material": ^7.3.6
+    "@react-navigation/bottom-tabs": ^7.4.0
+    "@react-navigation/elements": ^2.6.3
+    "@react-navigation/native": ^7.1.8
+    "@tailwindcss/postcss": ^4.1.18
+    "@tanstack/react-query": ^5.90.16
+    "@types/node": ^25.0.3
+    "@types/react": ^19.2.7
+    "@types/react-dom": ^19.2.3
+    axios: ^1.13.2
+    concurrently: ^9.2.1
+    eslint: ^9.39.2
+    eslint-config-expo: ^10.0.0
+    eslint-config-next: ^16.1.1
+    eslint-plugin-react-hooks: ^7.0.1
+    eslint-plugin-react-refresh: ^0.4.26
+    expo: ~54.0.30
+    expo-constants: ~18.0.12
+    expo-dev-client: ^6.0.20
+    expo-font: ~14.0.10
+    expo-haptics: ~15.0.8
+    expo-image: ~3.0.11
+    expo-linking: ~8.0.11
+    expo-router: ~6.0.21
+    expo-splash-screen: ~31.0.13
+    expo-status-bar: ~3.0.9
+    expo-symbols: ~1.0.8
+    expo-system-ui: ~6.0.9
+    expo-web-browser: ~15.0.10
+    next: ^16.1.1
+    openapi-typescript: ^7.10.1
+    react: 19.1.0
+    react-dom: 19.1.0
+    react-hook-form: ^7.69.0
+    react-native: 0.81.5
+    react-native-gesture-handler: ~2.28.0
+    react-native-reanimated: ~4.1.1
+    react-native-safe-area-context: ~5.6.0
+    react-native-screens: ~4.16.0
+    react-native-web: ~0.21.0
+    react-native-worklets: 0.5.1
+    tailwindcss: ^4.1.18
+    turbo: ^2.7.2
+    typescript: ^5.9.3
+    typescript-eslint: ^8.51.0
+    wait-on: ^9.0.3
+    zod: ^4.3.2
+    zustand: ^5.0.9
 
-    # Next.js
-    "next": "latest"
-
-    # React
-    "react": "latest"
-    "react-dom": "latest"
-
-    # TypeScript
-    "typescript": "latest"
-    "@types/react": "latest"
-    "@types/react-dom": "latest"
-    "@types/node": "latest"
-
-    # Linting
-    "eslint": "latest"
-    "eslint-config-next": "latest"
-    "eslint-plugin-react-hooks": "latest"
-    "eslint-plugin-react-refresh": "latest"
-    "typescript-eslint": "latest"
-
-    # Tailwind CSS
-    "tailwindcss": "latest"
-    "@tailwindcss/postcss": "latest"
-
-    # HTTP Client
-    "axios": "latest"
-
-    # Form Handling
-    "react-hook-form": "latest"
-    "@hookform/resolvers": "latest"
-    "zod": "latest"
-
-    # MUI
-    "@emotion/react": "latest"
-    "@emotion/styled": "latest"
-    "@fontsource/roboto": "latest"
-    "@mui/icons-material": "latest"
-    "@mui/material": "latest"
-
-    # Data Fetching
-    "@tanstack/react-query": "latest"
-
-    # State Management
-    "zustand": "latest"
-
-    # OpenAPI Typescript Generator
-    "openapi-typescript": "latest"
+onlyBuiltDependencies:
+    - sharp
+    - unrs-resolver

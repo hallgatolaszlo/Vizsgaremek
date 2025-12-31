@@ -32,6 +32,34 @@ pnpm-lock.yaml
 .next/
 *env.d.ts
 
+# Expo (Mobile)
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# Native (Mobile)
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro (Mobile)
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated files
+app-example
+ios/
+android/
+
 # Backend (ASP.NET Core)
 bin/
 obj/

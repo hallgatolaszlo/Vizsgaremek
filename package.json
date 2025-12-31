@@ -1,10 +1,13 @@
 {
 	"name": "repo",
+	"type": "module",
+	"private": true,
 	"packageManager": "pnpm@10.26.2",
 	"scripts": {
 		"dev": "concurrently -n backend,frontend -c blue,green \"pnpm backend:dev\" \"pnpm frontend:dev\"",
 		"frontend:dev": "wait-on -t 60000 http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts && turbo dev",
 		"build": "turbo build",
+		"android:dev": "cd apps/mobile && pnpm run android",
 		"web:dev": "cd apps/web && pnpm run dev",
 		"backend:dev": "dotnet watch run --project apps\\backend",
 		"generate-types": "openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts"

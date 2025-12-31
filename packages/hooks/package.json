@@ -1,6 +1,7 @@
 {
 	"name": "@repo/hooks",
 	"type": "module",
+	"private": true,
 	"dependencies": {
 		"@repo/api": "workspace:*",
 		"zustand": "catalog:"
