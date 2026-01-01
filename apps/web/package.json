@@ -1,33 +1,39 @@
 {
 	"name": "@repo/web",
-	"type": "module",
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbopack",
-		"build": "next build"
+		"build": "tamagui build --target web ./src -- next build --turbopack",
+		"start": "next start"
 	},
 	"dependencies": {
 		"@fontsource/roboto": "catalog:",
 		"@hookform/resolvers": "catalog:",
 		"@repo/api": "workspace:*",
+		"@repo/config": "workspace:*",
+		"@repo/features": "workspace:*",
 		"@repo/hooks": "workspace:*",
 		"@repo/types": "workspace:*",
 		"@tamagui/config": "catalog:",
+		"@tamagui/lucide-icons": "catalog:",
 		"@tamagui/next-plugin": "catalog:",
 		"@tamagui/next-theme": "catalog:",
 		"@tanstack/react-query": "catalog:",
 		"axios": "catalog:",
-		"lucide-react": "catalog:",
 		"next": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-hook-form": "catalog:",
+		"react-native": "catalog:",
+		"react-native-svg": "catalog:",
+		"react-native-svg-web": "catalog:",
+		"react-native-web": "catalog:",
 		"tamagui": "catalog:",
 		"zod": "catalog:",
 		"zustand": "catalog:"
 	},
 	"devDependencies": {
-		"@tailwindcss/postcss": "catalog:",
+		"@tamagui/cli": "catalog:",
 		"@types/node": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
@@ -35,7 +41,6 @@
 		"eslint-config-next": "catalog:",
 		"eslint-plugin-react-hooks": "catalog:",
 		"eslint-plugin-react-refresh": "catalog:",
-		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
 		"typescript-eslint": "catalog:"
 	}

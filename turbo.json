@@ -1,5 +1,6 @@
 {
 	"$schema": "https://turbo.build/schema.json",
+	"globalPassThroughEnv": ["ANDROID_HOME", "JAVA_HOME", "NODE_ENV"],
 	"tasks": {
 		"dev": {
 			"cache": false,
@@ -7,7 +8,12 @@
 		},
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": [".next/**", "!.next/cache/**"]
+			"outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
+		},
+		"start": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"persistent": true
 		}
 	}
 }
