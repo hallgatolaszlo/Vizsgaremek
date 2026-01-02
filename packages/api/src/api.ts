@@ -1,7 +1,13 @@
 import axios from "axios";
 
+function getBaseUrl() {
+	if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+	if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+	return "http://localhost:5273";
+}
+
 export const api = axios.create({
-	baseURL: "http://localhost:5273/",
+	baseURL: getBaseUrl(),
 	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",

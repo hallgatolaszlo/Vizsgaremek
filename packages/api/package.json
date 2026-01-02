@@ -4,7 +4,7 @@
 	"main": "./src/index.ts",
 	"types": "./src",
 	"dependencies": {
-		"axios": "catalog:",
-		"@repo/types": "workspace:*"
+		"@repo/types": "workspace:*",
+		"axios": "catalog:"
 	}
 }
