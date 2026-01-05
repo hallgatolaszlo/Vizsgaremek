@@ -1,0 +1,6 @@
+{
+	"name": "@repo/types",
+	"private": true,
+	"types": "./index.ts",
+	"main": "./index.ts"
+}

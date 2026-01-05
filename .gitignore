@@ -21,7 +21,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Frontend (Node.js)
+# Frontend
 node_modules/
 dist/
 build/
@@ -29,6 +29,37 @@ coverage/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+.next/
+*env.d.ts
+
+# Expo (Mobile)
+.expo/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# Native (Mobile)
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro (Mobile)
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated files
+app-example
+ios/
+android/
+packages/types/index.ts
 
 # Backend (ASP.NET Core)
 bin/
@@ -50,3 +81,9 @@ artifacts/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Turbo
+.turbo
+
+# Tamagui
+.tamagui/

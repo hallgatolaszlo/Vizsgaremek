@@ -1,0 +1,18 @@
+{
+	"name": "@repo/features",
+	"private": true,
+	"main": "./src/index.tsx",
+	"types": "./src",
+	"dependencies": {
+		"@repo/types": "workspace:*",
+		"@repo/api": "workspace:*",
+		"@hookform/resolvers": "catalog:",
+		"@tamagui/lucide-icons": "catalog:",
+		"@tanstack/react-query": "catalog:",
+		"axios": "catalog:",
+		"react": "catalog:",
+		"react-hook-form": "catalog:",
+		"tamagui": "catalog:",
+		"zod": "catalog:"
+	}
+}
