@@ -12,7 +12,10 @@ function PrivateNavbar(): JSX.Element {
 				<Button
 					scaleIcon={1.5}
 					iconAfter={<LogOut />}
-					onPress={() => signOut()}
+					onPress={async () => {
+						await signOut();
+						window.location.href = "/sign-in";
+					}}
 				>
 					<Text>Sign Out</Text>
 				</Button>

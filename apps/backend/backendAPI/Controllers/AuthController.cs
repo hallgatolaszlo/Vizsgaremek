@@ -34,7 +34,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("sign-in")]
-        public async Task<ActionResult> SignIn(SignInRequestDTO request)
+        public async Task<ActionResult<TokenResponseDTO>> SignIn(SignInRequestDTO request)
         {
             // Call the service to sign in
             TokenResponseDTO? response = await authService.SignInAsync(request);
@@ -45,18 +45,30 @@ namespace backend.Controllers
                 return BadRequest(AuthErrors.InvalidCredentials);
             }
 
-            // Set tokens in cookies
+            // Set tokens in cookies (for web)
             SetTokenCookies(response);
 
-            return Ok();
+            // Return tokens in response body (for native apps)
+            return Ok(response);
         }
 
         [HttpGet("refresh")]
-        public async Task<ActionResult> RefreshTokens()
+        public async Task<ActionResult<TokenResponseDTO>> RefreshTokens()
         {
-            // Retrieve tokens from cookies
+            // Try to get tokens from cookies first (web)
             var accessToken = Request.Cookies["accessToken"];
             var refreshToken = Request.Cookies["refreshToken"];
+
+            // If not in cookies, try Authorization header and X-Refresh-Token header (native)
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+                if (authHeader != null && authHeader.StartsWith("Bearer "))
+                {
+                    accessToken = authHeader.Substring("Bearer ".Length).Trim();
+                }
+                refreshToken = Request.Headers["X-Refresh-Token"].FirstOrDefault();
+            }
 
             // Validate presence of tokens
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
@@ -80,10 +92,11 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            // Set new tokens in cookies
+            // Set new tokens in cookies (for web)
             SetTokenCookies(response);
 
-            return Ok();
+            // Return tokens in response body (for native apps)
+            return Ok(response);
         }
 
         [HttpGet("sign-out")]

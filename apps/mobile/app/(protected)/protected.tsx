@@ -1,13 +1,11 @@
-"use client";
-
 import { ProtectedRoute } from "@repo/features";
-import { H1, View } from "tamagui";
+import { Text, View } from "react-native";
 
 export default function ProtectedPage() {
 	return (
 		<ProtectedRoute>
 			<View>
-				<H1>Protected Content</H1>
+				<Text>Protected Content</Text>
 			</View>
 		</ProtectedRoute>
 	);

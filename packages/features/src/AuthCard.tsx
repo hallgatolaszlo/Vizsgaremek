@@ -5,7 +5,16 @@ import { Text, ToggleGroup, YStack } from "tamagui";
 import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
 
-export function AuthCard(): JSX.Element {
+// Component for ToggleGroup Item Text to avoid console errors
+const ToggleGroupItemText = ({ text }: { text: string }) => {
+	return <Text>{text}</Text>;
+};
+
+export function AuthCard({
+	onSignIn = () => {},
+}: {
+	onSignIn?: () => void;
+}): JSX.Element {
 	const [selectedForm, setSelectedForm] = useState<string>("sign-in");
 
 	function handleSelectedForm(form: string | null) {
@@ -14,10 +23,9 @@ export function AuthCard(): JSX.Element {
 		}
 	}
 
-	// Component for ToggleGroup Item Text to avoid console errors
-	const ToggleGroupItemText = ({ text }: { text: string }) => {
-		return <Text>{text}</Text>;
-	};
+	function handleSignInSuccess() {
+		onSignIn();
+	}
 
 	return (
 		<YStack style={{ alignItems: "center" }}>
@@ -34,7 +42,11 @@ export function AuthCard(): JSX.Element {
 					<ToggleGroupItemText text="Sign-Up" />
 				</ToggleGroup.Item>
 			</ToggleGroup>
-			{selectedForm === "sign-in" ? <SignInForm /> : <SignUpForm />}
+			{selectedForm === "sign-in" ? (
+				<SignInForm onSuccessfulSignIn={handleSignInSuccess} />
+			) : (
+				<SignUpForm />
+			)}
 		</YStack>
 	);
 }
