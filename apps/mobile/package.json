@@ -17,6 +17,7 @@
 		"@repo/features": "workspace:*",
 		"@repo/hooks": "workspace:*",
 		"@repo/types": "workspace:*",
+		"@repo/ui": "workspace:*",
 		"@tamagui/babel-plugin": "catalog:",
 		"@tamagui/lucide-icons": "catalog:",
 		"@tamagui/metro-plugin": "catalog:",

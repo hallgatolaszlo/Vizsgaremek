@@ -6,9 +6,8 @@ import { NextThemeProvider, useRootTheme } from "@tamagui/next-theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
-import { TamaguiProvider } from "tamagui";
-import PrivateNavbar from "./navbars/PrivateNavbar";
-import PublicNavbar from "./navbars/PublicNavbar";
+import { TamaguiProvider, View } from "tamagui";
+import Navbar from "./ui/Navbar";
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => new QueryClient());
@@ -42,8 +41,10 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<TamaguiProvider config={config} defaultTheme={theme}>
-				{isAuthorized ? <PrivateNavbar /> : <PublicNavbar />}
-				{children}
+				<View background="$color1">
+					<Navbar />
+					{children}
+				</View>
 			</TamaguiProvider>
 		</QueryClientProvider>
 	);

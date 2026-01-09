@@ -1,0 +1,9 @@
+{
+	"name": "@repo/ui",
+	"private": true,
+	"types": "./src",
+	"main": "./index.ts",
+	"dependencies": {
+		"tamagui": "catalog:"
+	}
+}

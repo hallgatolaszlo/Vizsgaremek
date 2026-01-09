@@ -1,14 +1,11 @@
 "use client";
 
-import { ProtectedRoute } from "@repo/features";
 import { H1, View } from "tamagui";
 
 export default function ProtectedPage() {
 	return (
-		<ProtectedRoute>
-			<View>
-				<H1>Protected Content</H1>
-			</View>
-		</ProtectedRoute>
+		<View>
+			<H1>Protected Content</H1>
+		</View>
 	);
 }

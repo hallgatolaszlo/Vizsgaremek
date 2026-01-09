@@ -1,12 +1,15 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn, signUp } from "@repo/api";
 import { components } from "@repo/types";
+import { StyledButton, StyledInput } from "@repo/ui";
 import { UserPlus } from "@tamagui/lucide-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useRef, useState, type JSX } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button, Form, Input, Spinner, Text, Theme, YStack } from "tamagui";
+import { Form, Spinner, Text, Theme, YStack } from "tamagui";
 import z from "zod";
 
 type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
@@ -25,7 +28,15 @@ const signUpSchema = z.object({
 		.regex(/[\W_]/, "At least 1 special character"),
 });
 
-export function SignUpForm(): JSX.Element {
+const ErrorText = ({ message }: { message: string | undefined }) => (
+	<Theme name="error">
+		<Text pl="$1" fontSize="$1" color="$color9">
+			{message}
+		</Text>
+	</Theme>
+);
+
+export function SignUpForm() {
 	const [error, setError] = useState<string | null>(null);
 	const passwordRef = useRef<any>(null);
 
@@ -68,66 +79,77 @@ export function SignUpForm(): JSX.Element {
 
 	return (
 		<YStack>
-			<Form>
-				<Controller
-					control={control}
-					name="email"
-					render={({ field: { onChange, onBlur, value, ref } }) => (
-						<Input
-							ref={ref}
-							placeholder="Email address"
-							onBlur={onBlur}
-							onChange={onChange}
-							value={value}
-							returnKeyType="next"
-							onSubmitEditing={() => passwordRef.current?.focus()}
-						/>
+			<Form gap="$3">
+				<YStack gap="$2">
+					<Controller
+						control={control}
+						name="email"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<StyledInput
+								ref={ref}
+								placeholder="Email address"
+								onBlur={onBlur}
+								onChangeText={onChange}
+								value={value}
+								returnKeyType="next"
+								onSubmitEditing={() =>
+									passwordRef.current?.focus()
+								}
+							/>
+						)}
+					/>
+					{errors.email && (
+						<ErrorText message={errors.email.message} />
 					)}
-				/>
-				{errors.email && (
-					<Theme name="error">
-						<Text color="$color12">{errors.email.message}</Text>
-					</Theme>
-				)}
-				<Controller
-					control={control}
-					name="password"
-					render={({ field: { onChange, onBlur, value, ref } }) => (
-						<Input
-							ref={(input: any) => {
-								ref(input);
-								passwordRef.current = input;
-							}}
-							placeholder="Password"
-							type="password"
-							secureTextEntry
-							onBlur={onBlur}
-							onChange={onChange}
-							value={value}
-							returnKeyType="done"
-							onSubmitEditing={handleSubmit(onSubmit)}
-						/>
+				</YStack>
+				<YStack gap="$2">
+					<Controller
+						control={control}
+						name="password"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<StyledInput
+								ref={(input: any) => {
+									ref(input);
+									passwordRef.current = input;
+								}}
+								placeholder="Password"
+								secureTextEntry
+								onBlur={onBlur}
+								onChangeText={onChange}
+								value={value}
+								returnKeyType="done"
+								onSubmitEditing={handleSubmit(onSubmit)}
+							/>
+						)}
+					/>
+					{errors.password && (
+						<ErrorText message={errors.password.message} />
 					)}
-				/>
-				{errors.password && (
-					<Theme name="error">
-						<Text color="$color12">{errors.password.message}</Text>
-					</Theme>
-				)}
-				<Button
+				</YStack>
+				<StyledButton
 					onPress={handleSubmit(onSubmit)}
 					disabled={signUpMutation.isPending}
 					icon={
-						signUpMutation.isPending ? () => <Spinner /> : undefined
+						signUpMutation.isPending
+							? () => <Spinner color="$color12" />
+							: undefined
 					}
 					scaleIcon={1.5}
-					iconAfter={<UserPlus />}
+					iconAfter={
+						!signUpMutation.isPending ? <UserPlus /> : undefined
+					}
 				>
-					<Text>Sign Up</Text>
-				</Button>
+					{!signUpMutation.isPending && <Text>Sign Up</Text>}
+				</StyledButton>
 				{error && (
 					<Theme name="error">
-						<Text color="$color12">{error}</Text>
+						<Text style={{ textAlign: "center" }} color="$color9">
+							{error}
+						</Text>
 					</Theme>
 				)}
 			</Form>

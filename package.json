@@ -8,11 +8,11 @@
 		"generate-types": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts",
 		"backend:dev": "dotnet watch run --project apps/backend/backendAPI",
 		"web:dev": "turbo dev --filter=@repo/web",
-		"mobile:dev": "pnpm clean:android && turbo dev --filter=@repo/mobile",
+		"mobile:dev": "taskkill /F /IM adb.exe /T /FI \"status eq running\" && turbo dev --filter=@repo/mobile",
 		"build": "turbo build",
 		"clean:packages": "powershell ./scripts/clean_packages.ps1",
-		"clean:android": "taskkill /F /IM adb.exe /T /FI \"status eq running\" || exit 0",
-		"reinstall": "pnpm clean && pnpm install"
+		"clean:android": "powershell ./scripts/clean_android.ps1",
+		"reinstall": "pnpm clean:packages && pnpm install"
 	},
 	"devDependencies": {
 		"concurrently": "catalog:",

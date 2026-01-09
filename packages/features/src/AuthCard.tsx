@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type JSX } from "react";
-import { Text, ToggleGroup, YStack } from "tamagui";
+import { CSSProperties, useState } from "react";
+import { Card, Text, ToggleGroup } from "tamagui";
 import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
 
@@ -10,11 +10,12 @@ const ToggleGroupItemText = ({ text }: { text: string }) => {
 	return <Text>{text}</Text>;
 };
 
-export function AuthCard({
-	onSignIn = () => {},
-}: {
+interface AuthCardProps {
 	onSignIn?: () => void;
-}): JSX.Element {
+	style?: CSSProperties;
+}
+
+export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 	const [selectedForm, setSelectedForm] = useState<string>("sign-in");
 
 	function handleSelectedForm(form: string | null) {
@@ -28,25 +29,66 @@ export function AuthCard({
 	}
 
 	return (
-		<YStack style={{ alignItems: "center" }}>
+		<Card
+			width="$size.20"
+			style={{ alignItems: "center", ...style }}
+			backgroundColor="$color1"
+		>
 			<ToggleGroup
 				disableDeactivation
 				value={selectedForm}
 				type="single"
 				onValueChange={(value) => handleSelectedForm(value)}
+				borderColor="$color6"
 			>
-				<ToggleGroup.Item value="sign-in">
+				<ToggleGroup.Item
+					backgroundColor={
+						selectedForm === "sign-in" ? "$color4" : "$color2"
+					}
+					focusStyle={{ backgroundColor: "$color4" }}
+					hoverStyle={{
+						cursor:
+							selectedForm === "sign-in" ? "default" : "pointer",
+						backgroundColor:
+							selectedForm === "sign-in" ? "$color4" : "$color3",
+						borderColor:
+							selectedForm === "sign-in" ? "$color8" : "$color7",
+					}}
+					value="sign-in"
+				>
 					<ToggleGroupItemText text="Sign-In" />
 				</ToggleGroup.Item>
-				<ToggleGroup.Item value="sign-up">
+				<ToggleGroup.Item
+					backgroundColor={
+						selectedForm === "sign-up" ? "$color4" : "$color2"
+					}
+					focusStyle={{ backgroundColor: "$color4" }}
+					hoverStyle={{
+						cursor:
+							selectedForm === "sign-up" ? "default" : "pointer",
+						backgroundColor:
+							selectedForm === "sign-up" ? "$color4" : "$color3",
+						borderColor:
+							selectedForm === "sign-up" ? "$color8" : "$color7",
+					}}
+					value="sign-up"
+				>
 					<ToggleGroupItemText text="Sign-Up" />
 				</ToggleGroup.Item>
 			</ToggleGroup>
-			{selectedForm === "sign-in" ? (
-				<SignInForm onSuccessfulSignIn={handleSignInSuccess} />
-			) : (
-				<SignUpForm />
-			)}
-		</YStack>
+			<Card
+				width="100%"
+				padding="$4"
+				borderColor="$color6"
+				borderWidth={1}
+				elevate
+			>
+				{selectedForm === "sign-in" ? (
+					<SignInForm onSuccessfulSignIn={handleSignInSuccess} />
+				) : (
+					<SignUpForm />
+				)}
+			</Card>
+		</Card>
 	);
 }

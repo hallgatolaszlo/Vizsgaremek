@@ -1,36 +1,34 @@
 import * as Colors from "@tamagui/colors";
 import { createThemes, defaultComponentThemes } from "@tamagui/theme-builder";
 
-// Slate-szerű sötét paletta (12 lépcsős)
 const darkPalette = [
-	"hsla(222, 15%, 5%, 1)", // 1: Background
-	"hsla(222, 15%, 8%, 1)", // 2: Subtle Background
-	"hsla(222, 15%, 12%, 1)", // 3: UI element background
-	"hsla(222, 15%, 16%, 1)", // 4: Hovered UI element
-	"hsla(222, 15%, 20%, 1)", // 5: Active UI element
-	"hsla(222, 15%, 26%, 1)", // 6: Subtle border
-	"hsla(222, 15%, 32%, 1)", // 7: Stronger border
-	"hsla(222, 15%, 40%, 1)", // 8: Hover border
-	"hsla(222, 15%, 55%, 1)", // 9: Solid background
-	"hsla(222, 15%, 65%, 1)", // 10: Hover solid
-	"hsla(222, 15%, 85%, 1)", // 11: Low-contrast text
-	"hsla(222, 15%, 96%, 1)", // 12: High-contrast text
+	"hsla(222, 14%, 8%, 1)", // 1 Background
+	"hsla(222, 14%, 11%, 1)", // 2 Subtle bg
+	"hsla(222, 14%, 15%, 1)", // 3 Surface
+	"hsla(222, 14%, 19%, 1)", // 4 Hover surface
+	"hsla(222, 14%, 24%, 1)", // 5 Active surface
+	"hsla(222, 14%, 30%, 1)", // 6 Subtle border
+	"hsla(222, 14%, 37%, 1)", // 7 Default border
+	"hsla(222, 14%, 45%, 1)", // 8 Hover border
+	"hsla(222, 14%, 54%, 1)", // 9 Muted fill
+	"hsla(222, 14%, 64%, 1)", // 10 Strong fill
+	"hsla(222, 18%, 76%, 1)", // 11 Secondary text
+	"hsla(222, 22%, 90%, 1)", // 12 Primary text
 ];
 
-// Slate-szerű világos paletta (12 lépcsős)
 const lightPalette = [
-	"hsla(222, 20%, 99%, 1)", // 1: Background
-	"hsla(222, 20%, 97%, 1)", // 2: Subtle Background
-	"hsla(222, 20%, 94%, 1)", // 3: UI element
-	"hsla(222, 20%, 90%, 1)", // 4: Hover
-	"hsla(222, 20%, 86%, 1)", // 5: Active
-	"hsla(222, 15%, 80%, 1)", // 6: Border
-	"hsla(222, 15%, 70%, 1)", // 7: Stronger border
-	"hsla(222, 15%, 55%, 1)", // 8: Hover border
-	"hsla(222, 15%, 45%, 1)", // 9: Solid background
-	"hsla(222, 15%, 35%, 1)", // 10: Hover solid
-	"hsla(222, 15%, 20%, 1)", // 11: Low-contrast text
-	"hsla(222, 15%, 4%, 1)", // 12: High-contrast text
+	"hsla(222, 20%, 96%, 1)", // 1 Background
+	"hsla(222, 20%, 93%, 1)", // 2 Subtle bg
+	"hsla(222, 20%, 89%, 1)", // 3 Surface
+	"hsla(222, 20%, 84%, 1)", // 4 Hover surface
+	"hsla(222, 20%, 78%, 1)", // 5 Active surface
+	"hsla(222, 16%, 71%, 1)", // 6 Subtle border
+	"hsla(222, 16%, 63%, 1)", // 7 Default border
+	"hsla(222, 16%, 54%, 1)", // 8 Hover border
+	"hsla(222, 16%, 45%, 1)", // 9 Muted fill
+	"hsla(222, 16%, 36%, 1)", // 10 Strong fill
+	"hsla(222, 18%, 26%, 1)", // 11 Secondary text
+	"hsla(222, 20%, 14%, 1)", // 12 Primary text
 ];
 
 const lightShadows = {
