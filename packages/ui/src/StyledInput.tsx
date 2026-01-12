@@ -12,7 +12,7 @@ export function StyledInput(props: StyledInputProps) {
 			focusStyle={{
 				outlineStyle: "none",
 				borderWidth: 2,
-				borderColor: "$color7",
+				borderColor: "$color8",
 			}}
 			ref={props.ref}
 		/>

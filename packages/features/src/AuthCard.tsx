@@ -39,7 +39,7 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 				value={selectedForm}
 				type="single"
 				onValueChange={(value) => handleSelectedForm(value)}
-				borderColor="$color6"
+				borderColor="$color7"
 			>
 				<ToggleGroup.Item
 					backgroundColor={
@@ -52,7 +52,7 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 						backgroundColor:
 							selectedForm === "sign-in" ? "$color4" : "$color3",
 						borderColor:
-							selectedForm === "sign-in" ? "$color8" : "$color7",
+							selectedForm === "sign-in" ? "$color5" : "$color7",
 					}}
 					value="sign-in"
 				>
@@ -69,7 +69,7 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 						backgroundColor:
 							selectedForm === "sign-up" ? "$color4" : "$color3",
 						borderColor:
-							selectedForm === "sign-up" ? "$color8" : "$color7",
+							selectedForm === "sign-up" ? "$color5" : "$color7",
 					}}
 					value="sign-up"
 				>
@@ -79,7 +79,7 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 			<Card
 				width="100%"
 				padding="$4"
-				borderColor="$color6"
+				borderColor="$color7"
 				borderWidth={1}
 				elevate
 			>

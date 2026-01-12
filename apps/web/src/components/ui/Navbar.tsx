@@ -58,7 +58,7 @@ export default function Navbar() {
 			maxH="var(--navbar-height)"
 			p="$2"
 			borderBottomWidth={1}
-			borderBottomColor="$color6"
+			borderBottomColor="$color7"
 			bg="$color2"
 		>
 			{isAuthorized ? <PrivateNavbar /> : <PublicNavbar />}

@@ -4,9 +4,9 @@ export function StyledButton(props: ButtonProps) {
 	return (
 		<Button
 			{...props}
-			bg={props.bg ?? "$color3"}
+			bg={props.bg ?? "$color4"}
 			hoverStyle={{
-				bg: "$color4",
+				bg: "$color5",
 				borderColor: "$color8",
 				...props.hoverStyle,
 			}}
