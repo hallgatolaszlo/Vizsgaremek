@@ -1,20 +1,22 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn, signUp } from "@repo/api";
 import { components } from "@repo/types";
+import { StyledButton, StyledInput } from "@repo/ui";
 import { UserPlus } from "@tamagui/lucide-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useState, type JSX } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button, Input, Spinner, Text, Theme, YStack } from "tamagui";
+import { Form, Spinner, Text, Theme, YStack } from "tamagui";
 import z from "zod";
 
 type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
 const signUpSchema = z.object({
 	email: z
-		.string()
-		.min(1, "The email field is required")
-		.email("Invalid email address"),
+		.email("Invalid email address")
+		.min(1, "The email field is required"),
 	password: z
 		.string()
 		.min(1, "The password field is required")
@@ -26,8 +28,17 @@ const signUpSchema = z.object({
 		.regex(/[\W_]/, "At least 1 special character"),
 });
 
-export function SignUpForm(): JSX.Element {
+const ErrorText = ({ message }: { message: string | undefined }) => (
+	<Theme name="error">
+		<Text pl="$1" fontSize="$1" color="$color9">
+			{message}
+		</Text>
+	</Theme>
+);
+
+export function SignUpForm() {
 	const [error, setError] = useState<string | null>(null);
+	const passwordRef = useRef<any>(null);
 
 	const {
 		control,
@@ -68,55 +79,80 @@ export function SignUpForm(): JSX.Element {
 
 	return (
 		<YStack>
-			<Controller
-				control={control}
-				name="email"
-				render={({ field: { onChange, onBlur, value } }) => (
-					<Input
-						placeholder="Email address"
-						onBlur={onBlur}
-						onChange={onChange}
-						value={value}
+			<Form gap="$3">
+				<YStack gap="$2">
+					<Controller
+						control={control}
+						name="email"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<StyledInput
+								ref={ref}
+								placeholder="Email address"
+								onBlur={onBlur}
+								onChangeText={onChange}
+								value={value}
+								returnKeyType="next"
+								onSubmitEditing={() =>
+									passwordRef.current?.focus()
+								}
+							/>
+						)}
 					/>
-				)}
-			/>
-			{errors.email && (
-				<Theme name="error">
-					<Text color="$color8">{errors.email.message}</Text>
-				</Theme>
-			)}
-			<Controller
-				control={control}
-				name="password"
-				render={({ field: { onChange, onBlur, value } }) => (
-					<Input
-						placeholder="Password"
-						type="password"
-						secureTextEntry
-						onBlur={onBlur}
-						onChange={onChange}
-						value={value}
+					{errors.email && (
+						<ErrorText message={errors.email.message} />
+					)}
+				</YStack>
+				<YStack gap="$2">
+					<Controller
+						control={control}
+						name="password"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<StyledInput
+								ref={(input: any) => {
+									ref(input);
+									passwordRef.current = input;
+								}}
+								placeholder="Password"
+								secureTextEntry
+								onBlur={onBlur}
+								onChangeText={onChange}
+								value={value}
+								returnKeyType="done"
+								onSubmitEditing={handleSubmit(onSubmit)}
+							/>
+						)}
 					/>
+					{errors.password && (
+						<ErrorText message={errors.password.message} />
+					)}
+				</YStack>
+				<StyledButton
+					onPress={handleSubmit(onSubmit)}
+					disabled={signUpMutation.isPending}
+					icon={
+						signUpMutation.isPending
+							? () => <Spinner color="$color12" />
+							: undefined
+					}
+					scaleIcon={1.5}
+					iconAfter={
+						!signUpMutation.isPending ? <UserPlus /> : undefined
+					}
+				>
+					{!signUpMutation.isPending && <Text>Sign Up</Text>}
+				</StyledButton>
+				{error && (
+					<Theme name="error">
+						<Text style={{ textAlign: "center" }} color="$color9">
+							{error}
+						</Text>
+					</Theme>
 				)}
-			/>
-			{errors.password && (
-				<Theme name="error">
-					<Text color="$color8">{errors.password.message}</Text>
-				</Theme>
-			)}
-			<Button
-				onPress={handleSubmit(onSubmit)}
-				icon={signUpMutation.isPending ? () => <Spinner /> : undefined}
-				scaleIcon={1.5}
-				iconAfter={<UserPlus />}
-			>
-				<Text>Sign Up</Text>
-			</Button>
-			{error && (
-				<Theme name="error">
-					<Text color="$color8">{error}</Text>
-				</Theme>
-			)}
+			</Form>
 		</YStack>
 	);
 }

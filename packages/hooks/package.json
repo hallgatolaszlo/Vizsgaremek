@@ -1,7 +1,7 @@
 {
 	"name": "@repo/hooks",
 	"private": true,
-	"main": "./src/index.ts",
+	"main": "./index.ts",
 	"types": "./src",
 	"dependencies": {
 		"@repo/api": "workspace:*",

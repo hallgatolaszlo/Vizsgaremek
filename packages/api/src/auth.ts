@@ -1,24 +1,31 @@
 import { components } from "@repo/types";
 import { api } from "./api";
+import { clearTokens } from "./nativeTokenStorage";
 
 type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
 type SignInRequestDTO = components["schemas"]["SignInRequestDTO"];
+type TokenResponseDTO = components["schemas"]["TokenResponseDTO"];
 
 export async function signUp(request: SignUpRequestDTO) {
 	const response = await api.post("api/auth/sign-up", request);
 	return response.data;
 }
 
-export async function signIn(request: SignInRequestDTO) {
-	const response = await api.post("api/auth/sign-in", request);
-	window.location.href = "/protected";
+export async function signIn(
+	request: SignInRequestDTO
+): Promise<TokenResponseDTO | void> {
+	const response = await api.post<TokenResponseDTO>(
+		"api/auth/sign-in",
+		request
+	);
 	return response.data;
 }
 
 export async function signOut() {
-	const response = await api.get("api/auth/sign-out");
-	window.location.href = "/sign-in";
-	return response.data;
+	// Clear locally stored tokens
+	await clearTokens();
+	// Clear cookies/server-side session
+	await api.get("api/auth/sign-out");
 }
 
 export async function verify() {
@@ -26,7 +33,7 @@ export async function verify() {
 	return response.data;
 }
 
-export async function refresh() {
-	const response = await api.get("api/auth/refresh");
+export async function refresh(): Promise<TokenResponseDTO | void> {
+	const response = await api.get<TokenResponseDTO>("api/auth/refresh");
 	return response.data;
 }

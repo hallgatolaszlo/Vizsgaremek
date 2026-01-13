@@ -36,6 +36,7 @@ catalog:
     expo-image: ~3.0.11
     expo-linking: ~8.0.11
     expo-router: ~6.0.21
+    expo-secure-store: ~14.2.0
     expo-splash-screen: ~31.0.13
     expo-status-bar: ~3.0.9
     expo-symbols: ~1.0.8

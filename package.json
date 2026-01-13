@@ -1,23 +1,27 @@
 {
-    "name": "repo",
-    "private": true,
-    "packageManager": "pnpm@10.27.0",
-    "scripts": {
-        "dev": "concurrently -n backend,frontend -c blue,magenta --kill-others \"pnpm backend:dev\" \"pnpm dev:frontend-chain\"",
-        "dev:frontend-chain": "node scripts/update-ip.js && pnpm generate-types && concurrently -n web,mobile -c green,yellow \"pnpm web:dev\" \"pnpm mobile:dev\"",
-        "generate-types": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts",
-        "backend:dev": "dotnet watch run --project apps/backend/backendAPI",
-        "web:dev": "turbo dev --filter=@repo/web",
-        "mobile:dev": "turbo dev --filter=@repo/mobile",
-        "build": "turbo build",
-        "clean": "powershell ./scripts/clean.ps1",
-        "reinstall": "pnpm clean && pnpm install"
-    },
-    "devDependencies": {
-        "concurrently": "catalog:",
-        "openapi-typescript": "catalog:",
-        "turbo": "catalog:",
-        "wait-on": "catalog:",
-        "address": "catalog:"
-    }
+	"name": "repo",
+	"private": true,
+	"packageManager": "pnpm@10.27.0",
+	"scripts": {
+		"dev": "node scripts/dev-interactive.js",
+		"dev:all": "concurrently -n backend,frontend -c blue,magenta --kill-others \"pnpm backend:dev\" \"pnpm dev:frontend-chain\"",
+		"dev:frontend-chain": "node scripts/update-ip.js && pnpm generate-types && concurrently -n web,mobile -c green,yellow \"pnpm web:dev\" \"pnpm mobile:dev\"",
+		"generate-types": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts",
+		"backend:dev": "dotnet watch run --project apps/backend/backendAPI",
+		"web:dev": "turbo dev --filter=@repo/web",
+		"mobile:dev": "taskkill /F /IM adb.exe /T /FI \"status eq running\" && turbo dev --filter=@repo/mobile",
+		"build": "turbo build",
+		"start": "concurrently -n backend,web -c blue,magenta --kill-others \"pnpm backend:dev\" \"pnpm start:web\"",
+		"start:web": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && cd apps/web && pnpm turbo start",
+		"clean:packages": "powershell ./scripts/clean_packages.ps1",
+		"clean:android": "powershell ./scripts/clean_android.ps1",
+		"reinstall": "pnpm clean:packages && pnpm install"
+	},
+	"devDependencies": {
+		"concurrently": "catalog:",
+		"openapi-typescript": "catalog:",
+		"turbo": "catalog:",
+		"wait-on": "catalog:",
+		"address": "catalog:"
+	}
 }

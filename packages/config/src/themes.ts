@@ -2,53 +2,52 @@ import * as Colors from "@tamagui/colors";
 import { createThemes, defaultComponentThemes } from "@tamagui/theme-builder";
 
 const darkPalette = [
-	"hsla(0, 15%, 1%, 1)",
-	"hsla(0, 15%, 6%, 1)",
-	"hsla(0, 15%, 12%, 1)",
-	"hsla(0, 15%, 17%, 1)",
-	"hsla(0, 15%, 23%, 1)",
-	"hsla(0, 15%, 28%, 1)",
-	"hsla(0, 15%, 34%, 1)",
-	"hsla(0, 15%, 39%, 1)",
-	"hsla(0, 15%, 45%, 1)",
-	"hsla(0, 15%, 50%, 1)",
-	"hsla(0, 15%, 93%, 1)",
-	"hsla(0, 15%, 99%, 1)",
+	"hsla(222, 14%, 6%, 1)", // 1 Background
+	"hsla(222, 14%, 10%, 1)", // 2 Subtle bg
+	"hsla(222, 14%, 15%, 1)", // 3 Inactive surface
+	"hsla(222, 14%, 21%, 1)", // 4 Default surface
+	"hsla(222, 14%, 28%, 1)", // 5 Hover surface
+	"hsla(222, 14%, 36%, 1)", // 6 Active surface
+	"hsla(222, 14%, 45%, 1)", // 7 Default border
+	"hsla(222, 14%, 54%, 1)", // 8 Hover border
+	"hsla(222, 14%, 64%, 1)", // 9 Muted fill
+	"hsla(222, 14%, 74%, 1)", // 10 Strong fill
+	"hsla(222, 18%, 84%, 1)", // 11 Secondary text
+	"hsla(222, 22%, 94%, 1)", // 12 Primary text
 ];
+
 const lightPalette = [
-	"hsla(0, 15%, 99%, 1)",
-	"hsla(0, 15%, 94%, 1)",
-	"hsla(0, 15%, 88%, 1)",
-	"hsla(0, 15%, 83%, 1)",
-	"hsla(0, 15%, 77%, 1)",
-	"hsla(0, 15%, 72%, 1)",
-	"hsla(0, 15%, 66%, 1)",
-	"hsla(0, 15%, 61%, 1)",
-	"hsla(0, 15%, 55%, 1)",
-	"hsla(0, 15%, 50%, 1)",
-	"hsla(0, 15%, 15%, 1)",
-	"hsla(0, 15%, 1%, 1)",
+	"hsla(222, 20%, 98%, 1)", // 1 Background
+	"hsla(222, 20%, 94%, 1)", // 2 Subtle bg
+	"hsla(222, 20%, 88%, 1)", // 3 Inactive surface
+	"hsla(222, 20%, 80%, 1)", // 4 Default surface
+	"hsla(222, 20%, 72%, 1)", // 5 Hover surface
+	"hsla(222, 16%, 63%, 1)", // 6 Active surface
+	"hsla(222, 16%, 54%, 1)", // 7 Default border
+	"hsla(222, 16%, 45%, 1)", // 8 Hover border
+	"hsla(222, 16%, 36%, 1)", // 9 Muted fill
+	"hsla(222, 16%, 28%, 1)", // 10 Strong fill
+	"hsla(222, 18%, 20%, 1)", // 11 Secondary text
+	"hsla(222, 20%, 10%, 1)", // 12 Primary text
 ];
 
 const lightShadows = {
-	shadow1: "rgba(0,0,0,0.04)",
-	shadow2: "rgba(0,0,0,0.08)",
-	shadow3: "rgba(0,0,0,0.16)",
-	shadow4: "rgba(0,0,0,0.24)",
-	shadow5: "rgba(0,0,0,0.32)",
-	shadow6: "rgba(0,0,0,0.4)",
+	shadow1: "rgba(0,0,0,0.03)",
+	shadow2: "rgba(0,0,0,0.06)",
+	shadow3: "rgba(0,0,0,0.12)",
+	shadow4: "rgba(0,0,0,0.18)",
+	shadow5: "rgba(0,0,0,0.24)",
+	shadow6: "rgba(0,0,0,0.3)",
 };
 
 const darkShadows = {
-	shadow1: "rgba(0,0,0,0.2)",
-	shadow2: "rgba(0,0,0,0.3)",
-	shadow3: "rgba(0,0,0,0.4)",
-	shadow4: "rgba(0,0,0,0.5)",
-	shadow5: "rgba(0,0,0,0.6)",
-	shadow6: "rgba(0,0,0,0.7)",
+	shadow1: "rgba(0,0,0,0.3)",
+	shadow2: "rgba(0,0,0,0.4)",
+	shadow3: "rgba(0,0,0,0.5)",
+	shadow4: "rgba(0,0,0,0.6)",
+	shadow5: "rgba(0,0,0,0.7)",
+	shadow6: "rgba(0,0,0,0.8)",
 };
-
-// we're adding some example sub-themes for you to show how they are done, "success" "warning", "error":
 
 const builtThemes = createThemes({
 	componentThemes: defaultComponentThemes,
@@ -61,16 +60,18 @@ const builtThemes = createThemes({
 
 		extra: {
 			light: {
+				...Colors.blue,
 				...Colors.green,
 				...Colors.red,
-				...Colors.yellow,
+				...Colors.amber,
 				...lightShadows,
 				shadowColor: lightShadows.shadow1,
 			},
 			dark: {
+				...Colors.blueDark,
 				...Colors.greenDark,
 				...Colors.redDark,
-				...Colors.yellowDark,
+				...Colors.amberDark,
 				...darkShadows,
 				shadowColor: darkShadows.shadow1,
 			},
@@ -80,32 +81,32 @@ const builtThemes = createThemes({
 	accent: {
 		palette: {
 			dark: [
-				"hsla(0, 66%, 35%, 1)",
-				"hsla(0, 66%, 38%, 1)",
-				"hsla(0, 66%, 41%, 1)",
-				"hsla(0, 66%, 43%, 1)",
-				"hsla(0, 66%, 46%, 1)",
-				"hsla(0, 66%, 49%, 1)",
-				"hsla(0, 66%, 52%, 1)",
-				"hsla(0, 66%, 54%, 1)",
-				"hsla(0, 66%, 57%, 1)",
-				"hsla(0, 66%, 60%, 1)",
-				"hsla(250, 50%, 90%, 1)",
-				"hsla(250, 50%, 95%, 1)",
+				"hsla(245, 60%, 10%, 1)",
+				"hsla(245, 60%, 15%, 1)",
+				"hsla(245, 60%, 20%, 1)",
+				"hsla(245, 60%, 30%, 1)",
+				"hsla(245, 60%, 40%, 1)",
+				"hsla(245, 70%, 50%, 1)", // Primary
+				"hsla(245, 75%, 55%, 1)",
+				"hsla(245, 80%, 60%, 1)",
+				"hsla(245, 85%, 70%, 1)",
+				"hsla(245, 90%, 80%, 1)",
+				"hsla(245, 100%, 95%, 1)",
+				"hsla(245, 100%, 98%, 1)",
 			],
 			light: [
-				"hsla(0, 66%, 41%, 1)",
-				"hsla(0, 66%, 44%, 1)",
-				"hsla(0, 66%, 46%, 1)",
-				"hsla(0, 66%, 49%, 1)",
-				"hsla(0, 66%, 52%, 1)",
-				"hsla(0, 66%, 54%, 1)",
-				"hsla(0, 66%, 57%, 1)",
-				"hsla(0, 66%, 60%, 1)",
-				"hsla(0, 66%, 62%, 1)",
-				"hsla(0, 66%, 65%, 1)",
-				"hsla(250, 50%, 95%, 1)",
-				"hsla(250, 50%, 95%, 1)",
+				"hsla(245, 100%, 98%, 1)",
+				"hsla(245, 100%, 95%, 1)",
+				"hsla(245, 90%, 85%, 1)",
+				"hsla(245, 85%, 75%, 1)",
+				"hsla(245, 80%, 65%, 1)",
+				"hsla(245, 70%, 55%, 1)", // Primary
+				"hsla(245, 65%, 45%, 1)",
+				"hsla(245, 60%, 35%, 1)",
+				"hsla(245, 60%, 25%, 1)",
+				"hsla(245, 60%, 15%, 1)",
+				"hsla(245, 60%, 10%, 1)",
+				"hsla(245, 60%, 5%, 1)",
 			],
 		},
 	},
@@ -113,8 +114,8 @@ const builtThemes = createThemes({
 	childrenThemes: {
 		warning: {
 			palette: {
-				dark: Object.values(Colors.yellowDark),
-				light: Object.values(Colors.yellow),
+				dark: Object.values(Colors.amberDark),
+				light: Object.values(Colors.amber),
 			},
 		},
 
@@ -131,36 +132,18 @@ const builtThemes = createThemes({
 				light: Object.values(Colors.green),
 			},
 		},
+
+		info: {
+			palette: {
+				dark: Object.values(Colors.blueDark),
+				light: Object.values(Colors.blue),
+			},
+		},
 	},
-
-	// optionally add more, can pass palette or template
-
-	// grandChildrenThemes: {
-	//   alt1: {
-	//     template: 'alt1',
-	//   },
-	//   alt2: {
-	//     template: 'alt2',
-	//   },
-	//   surface1: {
-	//     template: 'surface1',
-	//   },
-	//   surface2: {
-	//     template: 'surface2',
-	//   },
-	//   surface3: {
-	//     template: 'surface3',
-	//   },
-	// },
 });
 
 export type Themes = typeof builtThemes;
 
-// the process.env conditional here is optional but saves web client-side bundle
-// size by leaving out themes JS. tamagui automatically hydrates themes from CSS
-// back into JS for you, and the bundler plugins set TAMAGUI_ENVIRONMENT. so
-// long as you are using the Vite, Next, Webpack plugins this should just work,
-// but if not you can just export builtThemes directly as themes:
 export const themes: Themes =
 	process.env.TAMAGUI_ENVIRONMENT === "client" &&
 	process.env.NODE_ENV === "production"

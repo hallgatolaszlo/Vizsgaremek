@@ -1,10 +1,11 @@
 {
 	"name": "@repo/api",
 	"private": true,
-	"main": "./src/index.ts",
+	"main": "./index.ts",
 	"types": "./src",
 	"dependencies": {
 		"@repo/types": "workspace:*",
+		"@repo/utils": "workspace:*",
 		"axios": "catalog:"
 	}
 }
