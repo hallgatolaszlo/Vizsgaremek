@@ -1,103 +1,41 @@
 "use client";
 
+import { CalendarState } from "@repo/hooks";
 import { StyledButton } from "@repo/ui";
-import { Check } from "@tamagui/lucide-icons";
-import { useCallback, useMemo, useState } from "react";
+import { calculateCellBg, generateGrid, Month, Week } from "@repo/utils";
+import {
+	ArrowBigLeft,
+	ArrowBigLeftDash,
+	ArrowBigRight,
+	ArrowBigRightDash,
+	Check,
+} from "@tamagui/lucide-icons";
+import { useMemo } from "react";
 import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
 
-type MonthIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-type WeekStartDay = "sunday" | "monday";
-
-type CalendarCell = {
-	date: Date;
-	inCurrentMonth: boolean;
-};
-
-type GenerateDatesOptions = {
-	year: number;
-	month: MonthIndex;
-	weekStartsOn: WeekStartDay;
-};
-
-const WEEKDAY_LABELS = {
-	monday: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-	sunday: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-} as const satisfies Record<WeekStartDay, readonly string[]>;
-
-function generateCalendarCells(options: GenerateDatesOptions): CalendarCell[] {
-	const { year, weekStartsOn } = options;
-	const month0 = options.month - 1; // JS months are 0-based
-
-	const firstOfMonth = new Date(year, month0, 1);
-	const firstDay = firstOfMonth.getDay(); // 0..6 (Sun..Sat)
-
-	const weekStartIndex = weekStartsOn === "sunday" ? 0 : 1;
-	const leadingDays = (firstDay - weekStartIndex + 7) % 7;
-
-	const startDate = new Date(year, month0, 1 - leadingDays);
-
-	const cells: CalendarCell[] = [];
-	for (let i = 0; i < 42; i++) {
-		const d = new Date(startDate);
-		d.setDate(startDate.getDate() + i);
-
-		// optional: keep your “5th/6th row” optimization
-		if (i === 35 && d.getMonth() !== month0) break;
-
-		cells.push({
-			date: d,
-			inCurrentMonth: d.getMonth() === month0,
-		});
-	}
-
-	return cells;
+interface SidebarCalendarProps {
+	calendarState: CalendarState;
 }
 
-function generateGrid(options: GenerateDatesOptions): CalendarCell[][] {
-	const cells = generateCalendarCells(options);
-	const rows: CalendarCell[][] = [];
-	for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
-	return rows;
-}
-
-export default function SidebarCalendar() {
-	const [selectedYear, setSelectedYear] = useState(() =>
-		new Date().getFullYear()
-	);
-	const [selectedMonth, setSelectedMonth] = useState<MonthIndex>(
-		() => (new Date().getMonth() + 1) as MonthIndex
-	);
-	const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>("monday");
-
-	const decYear = useCallback(
-		(by: number) => setSelectedYear((y) => y - by),
-		[]
-	);
-	const incYear = useCallback(
-		(by: number) => setSelectedYear((y) => y + by),
-		[]
-	);
-	const decMonth = useCallback(() => {
-		setSelectedMonth((m) => {
-			if (m === 1) {
-				setSelectedYear((y) => y - 1);
-				return 12;
-			}
-			return (m - 1) as MonthIndex;
-		});
-	}, []);
-
-	const incMonth = useCallback(() => {
-		setSelectedMonth((m) => {
-			if (m === 12) {
-				setSelectedYear((y) => y + 1);
-				return 1;
-			}
-			return (m + 1) as MonthIndex;
-		});
-	}, []);
-
-	const weekdayLabels = WEEKDAY_LABELS[weekStartsOn];
+export default function SidebarCalendar({
+	calendarState,
+}: SidebarCalendarProps) {
+	const {
+		selectedYear,
+		selectedMonth,
+		selectedDate,
+		currentDate,
+		weekStartsOn,
+		setSelectedYear,
+		setSelectedMonth,
+		setSelectedDate,
+		setCurrentDate,
+		setWeekStartsOn,
+		decYear,
+		incYear,
+		decMonth,
+		incMonth,
+	} = calendarState;
 
 	const grid = useMemo(
 		() =>
@@ -109,126 +47,126 @@ export default function SidebarCalendar() {
 		[selectedYear, selectedMonth, weekStartsOn]
 	);
 
-	function SelectYear() {
-		const years = useMemo(() => generateYearItems(), [selectedYear]);
+	function handleDaySelect(date: Date) {
+		setSelectedDate(date);
+	}
 
-		function generateYearItems() {
-			const currentYear = selectedYear;
-			const years = [];
-			for (let y = currentYear - 10; y <= currentYear + 10; y++) {
-				years.push(y.toString());
-			}
-			return years;
-		}
+	type SelectElementProps = {
+		value: string;
+		onValueChange: (value: string) => void;
+		renderValue: (value: string) => React.ReactNode;
+		triggerPlaceholder: string;
+		groupItems: React.ReactNode[];
+	};
+
+	function SelectElement(props: SelectElementProps) {
+		const {
+			value,
+			onValueChange,
+			renderValue,
+			triggerPlaceholder,
+			groupItems,
+		} = props;
 
 		return (
 			<Select
-				value={selectedYear.toString()}
-				onValueChange={(val) => setSelectedYear(Number(val))}
+				value={value}
+				onValueChange={onValueChange}
 				disablePreventBodyScroll
 				// renderValue enables SSR support by providing the label synchronously
-				renderValue={(value) => <Text>{value}</Text>}
+				renderValue={renderValue}
 			>
 				<Select.Trigger
 					flex={1}
 					minWidth={0}
 					style={{ borderRadius: 0 }}
 				>
-					<Select.Value placeholder="Select year" />
+					<Select.Value placeholder={triggerPlaceholder} />
 				</Select.Trigger>
 
 				<Select.Content zIndex={200000}>
 					<Select.Viewport>
-						<Select.Group>
-							{useMemo(
-								() =>
-									years.map((year, i) => (
-										<Select.Item
-											index={i}
-											key={year}
-											value={year}
-										>
-											<Select.ItemText>
-												{year}
-											</Select.ItemText>
-											<Select.ItemIndicator marginLeft="auto">
-												<Check size={16} />
-											</Select.ItemIndicator>
-										</Select.Item>
-									)),
-								[years]
-							)}
-						</Select.Group>
+						<Select.Group>{groupItems}</Select.Group>
 					</Select.Viewport>
 				</Select.Content>
 			</Select>
 		);
 	}
 
-	function SelectMonth() {
-		const monthNames = {
-			1: "January",
-			2: "February",
-			3: "March",
-			4: "April",
-			5: "May",
-			6: "June",
-			7: "July",
-			8: "August",
-			9: "September",
-			10: "October",
-			11: "November",
-			12: "December",
-		} as const;
+	function SelectYear() {
+		const years = useMemo(() => {
+			const years: string[] = [];
+			for (let y = selectedYear - 10; y <= selectedYear + 10; y++)
+				years.push(String(y));
+			return years;
+		}, [selectedYear]);
 
 		return (
-			<Select
-				value={selectedMonth.toString()}
-				onValueChange={(val) =>
-					setSelectedMonth(Number(val) as MonthIndex)
-				}
-				disablePreventBodyScroll
-				// renderValue enables SSR support by providing the label synchronously
-				renderValue={(value) => (
-					<Text>{monthNames[Number(value) as MonthIndex]}</Text>
+			<SelectElement
+				value={selectedYear.toString()}
+				onValueChange={(val) => setSelectedYear(Number(val))}
+				renderValue={(value) => <Text>{value}</Text>}
+				triggerPlaceholder="Select year"
+				groupItems={useMemo(
+					() =>
+						years.map((year, i) => (
+							<Select.Item index={i} key={year} value={year}>
+								<Select.ItemText>{year}</Select.ItemText>
+								<Select.ItemIndicator marginLeft="auto">
+									<Check size={16} />
+								</Select.ItemIndicator>
+							</Select.Item>
+						)),
+					[years]
 				)}
-			>
-				<Select.Trigger
-					flex={1}
-					minWidth={0}
-					style={{ borderRadius: 0 }}
-				>
-					<Select.Value placeholder="Select month" />
-				</Select.Trigger>
+			/>
+		);
+	}
 
-				<Select.Content zIndex={200000}>
-					<Select.Viewport>
-						<Select.Group>
-							{/* for longer lists memoizing these is useful */}
-							{useMemo(
-								() =>
-									Object.entries(monthNames).map(
-										([key, monthName], i) => (
-											<Select.Item
-												index={i}
-												key={monthName}
-												value={key}
-											>
-												<Select.ItemText>
-													{monthName}
-												</Select.ItemText>
-												<Select.ItemIndicator marginLeft="auto">
-													<Check size={16} />
-												</Select.ItemIndicator>
-											</Select.Item>
-										)
-									),
-								[monthNames]
-							)}
-						</Select.Group>
-					</Select.Viewport>
-				</Select.Content>
-			</Select>
+	function SelectMonth() {
+		return (
+			<SelectElement
+				value={selectedMonth.monthLabel}
+				onValueChange={(val) =>
+					setSelectedMonth(
+						new Month(
+							1,
+							Number(
+								Object.keys(Month.months).find(
+									(key) =>
+										Month.months[
+											Number(
+												key
+											) as keyof typeof Month.months
+										] === val
+								)
+							)
+						)
+					)
+				}
+				renderValue={() => <Text>{selectedMonth.monthLabel}</Text>}
+				triggerPlaceholder="Select month"
+				groupItems={useMemo(
+					() =>
+						Object.entries(Month.months).map(
+							([monthIndex, monthName], i) => (
+								<Select.Item
+									index={i}
+									key={monthIndex}
+									value={monthName}
+								>
+									<Select.ItemText>
+										{monthName}
+									</Select.ItemText>
+									<Select.ItemIndicator marginLeft="auto">
+										<Check size={16} />
+									</Select.ItemIndicator>
+								</Select.Item>
+							)
+						),
+					[Month.months]
+				)}
+			/>
 		);
 	}
 
@@ -236,10 +174,13 @@ export default function SidebarCalendar() {
 		<View>
 			{/* Calendar Header */}
 			<YStack gap="$2" width="100%">
+				{/* Year Selector */}
 				<XGroup>
 					<XGroup.Item>
 						<StyledButton width="$2" onPress={() => decYear(10)}>
-							<Text>{"<<<"}</Text>
+							<Text>
+								<ArrowBigLeftDash />
+							</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -247,7 +188,7 @@ export default function SidebarCalendar() {
 
 					<XGroup.Item>
 						<StyledButton width="$2" onPress={() => decYear(1)}>
-							<Text>{"<"}</Text>
+							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -256,7 +197,7 @@ export default function SidebarCalendar() {
 					</XGroup.Item>
 					<XGroup.Item>
 						<StyledButton width="$2" onPress={() => incYear(1)}>
-							<Text>{">"}</Text>
+							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -264,17 +205,19 @@ export default function SidebarCalendar() {
 
 					<XGroup.Item>
 						<StyledButton width="$2" onPress={() => incYear(10)}>
-							<Text>{">>>"}</Text>
+							<Text>{<ArrowBigRightDash />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 				</XGroup>
+
+				{/* Month Selector */}
 				<XGroup>
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
 							onPress={decMonth}
 						>
-							<Text>{"<"}</Text>
+							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -286,15 +229,20 @@ export default function SidebarCalendar() {
 							style={{ width: "77px" }}
 							onPress={incMonth}
 						>
-							<Text>{">"}</Text>
+							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 				</XGroup>
 
 				{/* Weekday header */}
-				<XStack gap="$2" width="100%" style={{ textAlign: "center" }}>
-					{weekdayLabels.map((d) => (
-						<Text width="100%" key={d} flex={1} fontWeight="$2">
+				<XStack
+					mt="$2"
+					gap="$2"
+					width="100%"
+					style={{ textAlign: "center" }}
+				>
+					{Week.getWeekdayLabels(weekStartsOn).map((d, i) => (
+						<Text width="100%" key={i} flex={1} fontWeight="$2">
 							{d}
 						</Text>
 					))}
@@ -305,11 +253,19 @@ export default function SidebarCalendar() {
 					<XStack gap="$2" width="100%" key={rowIndex}>
 						{row.map((cell) => (
 							<StyledButton
-								bg={cell.inCurrentMonth ? "$color4" : "$color3"}
+								bg={
+									calculateCellBg(
+										cell.date,
+										cell.inCurrentMonth,
+										selectedDate,
+										currentDate
+									) as any
+								}
 								key={cell.date.getTime()}
 								flex={1}
 								minW={0}
 								aspectRatio={1}
+								onPress={() => handleDaySelect(cell.date)}
 							>
 								<Text fontSize="$3">{cell.date.getDate()}</Text>
 							</StyledButton>

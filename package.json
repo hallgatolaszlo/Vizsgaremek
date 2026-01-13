@@ -6,7 +6,7 @@
 		"dev": "node scripts/dev-interactive.js",
 		"dev:all": "concurrently -n backend,frontend -c blue,magenta --kill-others \"pnpm backend:dev\" \"pnpm dev:frontend-chain\"",
 		"dev:frontend-chain": "node scripts/update-ip.js && pnpm generate-types && concurrently -n web,mobile -c green,yellow \"pnpm web:dev\" \"pnpm mobile:dev\"",
-		"generate-types": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/index.ts",
+		"generate-types": "wait-on http-get://localhost:5273/swagger/v1/swagger.json && openapi-typescript http://localhost:5273/swagger/v1/swagger.json -o ./packages/types/src/swagger.ts",
 		"backend:dev": "dotnet watch run --project apps/backend/backendAPI",
 		"web:dev": "turbo dev --filter=@repo/web",
 		"mobile:dev": "taskkill /F /IM adb.exe /T /FI \"status eq running\" && turbo dev --filter=@repo/mobile",

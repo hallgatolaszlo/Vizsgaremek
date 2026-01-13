@@ -15,6 +15,7 @@
 		"@repo/hooks": "workspace:*",
 		"@repo/types": "workspace:*",
 		"@repo/ui": "workspace:*",
+		"@repo/utils": "workspace:*",
 		"@tamagui/config": "catalog:",
 		"@tamagui/lucide-icons": "catalog:",
 		"@tamagui/next-plugin": "catalog:",

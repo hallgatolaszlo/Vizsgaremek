@@ -2,5 +2,8 @@
 	"name": "@repo/utils",
 	"private": true,
 	"types": "./src",
-	"main": "./index.ts"
+	"main": "./index.ts",
+	"dependencies": {
+		"@repo/types": "workspace:*"
+	}
 }

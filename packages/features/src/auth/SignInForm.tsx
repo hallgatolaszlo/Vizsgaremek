@@ -1,31 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn, signUp } from "@repo/api";
+import { signIn } from "@repo/api";
 import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
-import { UserPlus } from "@tamagui/lucide-icons";
+import { LogIn } from "@tamagui/lucide-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Form, Spinner, Text, Theme, YStack } from "tamagui";
-import z from "zod";
+import { z } from "zod";
 
-type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
-const signUpSchema = z.object({
-	email: z
-		.email("Invalid email address")
-		.min(1, "The email field is required"),
-	password: z
-		.string()
-		.min(1, "The password field is required")
-		.min(8, "The password should be at least 8 characters long")
-		.max(128, "The password should be at most 128 characters long")
-		.regex(/[a-z]/, "At least 1 lowercase character")
-		.regex(/[A-Z]/, "At least 1 uppercase character")
-		.regex(/\d/, "At least 1 digit")
-		.regex(/[\W_]/, "At least 1 special character"),
+type SignInRequestDTO = components["schemas"]["SignInRequestDTO"];
+const signInSchema = z.object({
+	email: z.string().min(1, "The email field is required"),
+	password: z.string().min(1, "The password field is required"),
 });
 
 const ErrorText = ({ message }: { message: string | undefined }) => (
@@ -36,7 +26,11 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
-export function SignUpForm() {
+export function SignInForm({
+	onSuccessfulSignIn,
+}: {
+	onSuccessfulSignIn: () => void;
+}) {
 	const [error, setError] = useState<string | null>(null);
 	const passwordRef = useRef<any>(null);
 
@@ -46,7 +40,7 @@ export function SignUpForm() {
 		reset,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(signUpSchema),
+		resolver: zodResolver(signInSchema),
 		defaultValues: {
 			email: "",
 			password: "",
@@ -54,13 +48,11 @@ export function SignUpForm() {
 	});
 	0;
 
-	const signUpMutation = useMutation({
-		mutationFn: async (request: SignUpRequestDTO) => {
-			await signUp(request);
-			await signIn(request);
-		},
+	const signInMutation = useMutation({
+		mutationFn: signIn,
 		onSuccess: () => {
 			reset();
+			onSuccessfulSignIn();
 		},
 		onError: (err) => {
 			if (err instanceof AxiosError && err.status === 400) {
@@ -73,8 +65,8 @@ export function SignUpForm() {
 		},
 	});
 
-	async function onSubmit(request: SignUpRequestDTO) {
-		signUpMutation.mutate(request);
+	async function onSubmit(request: SignInRequestDTO) {
+		signInMutation.mutate(request);
 	}
 
 	return (
@@ -97,6 +89,7 @@ export function SignUpForm() {
 								onSubmitEditing={() =>
 									passwordRef.current?.focus()
 								}
+								autoFocus
 							/>
 						)}
 					/>
@@ -132,18 +125,18 @@ export function SignUpForm() {
 				</YStack>
 				<StyledButton
 					onPress={handleSubmit(onSubmit)}
-					disabled={signUpMutation.isPending}
+					disabled={signInMutation.isPending}
 					icon={
-						signUpMutation.isPending
+						signInMutation.isPending
 							? () => <Spinner color="$color12" />
 							: undefined
 					}
 					scaleIcon={1.5}
 					iconAfter={
-						!signUpMutation.isPending ? <UserPlus /> : undefined
+						!signInMutation.isPending ? <LogIn /> : undefined
 					}
 				>
-					{!signUpMutation.isPending && <Text>Sign Up</Text>}
+					{!signInMutation.isPending && <Text>Sign In</Text>}
 				</StyledButton>
 				{error && (
 					<Theme name="error">
