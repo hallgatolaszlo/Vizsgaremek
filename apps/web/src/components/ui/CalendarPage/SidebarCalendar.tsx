@@ -10,7 +10,7 @@ import {
 	ArrowBigRightDash,
 	Check,
 } from "@tamagui/lucide-icons";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
 
 interface SidebarCalendarProps {
@@ -20,35 +20,84 @@ interface SidebarCalendarProps {
 export default function SidebarCalendar({
 	calendarState,
 }: SidebarCalendarProps) {
-	const {
-		selectedYear,
-		selectedMonth,
-		selectedDate,
-		currentDate,
-		weekStartsOn,
-		setSelectedYear,
-		setSelectedMonth,
-		setSelectedDate,
-		setCurrentDate,
-		setWeekStartsOn,
-		decYear,
-		incYear,
-		decMonth,
-		incMonth,
-	} = calendarState;
+	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
+		calendarState;
+
+	const [sidebarDate, setSidebarDate] = useState<Date>(currentDate);
+
+	useEffect(() => {
+		setSidebarDate(selectedDate);
+	}, [selectedDate]);
+
+	function decYearSidebar(by: number) {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear() - by,
+					prev.getMonth(),
+					prev.getDate()
+				)
+		);
+	}
+
+	function incYearSidebar(by: number) {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear() + by,
+					prev.getMonth(),
+					prev.getDate()
+				)
+		);
+	}
+
+	function decMonthSidebar() {
+		if (sidebarDate.getMonth() === 0) {
+			setSidebarDate(
+				(prev) => new Date(prev.getFullYear() - 1, 11, prev.getDate())
+			);
+			return;
+		}
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear(),
+					prev.getMonth() - 1,
+					prev.getDate()
+				)
+		);
+	}
+
+	function incMonthSidebar() {
+		if (sidebarDate.getMonth() === 11) {
+			setSidebarDate(
+				(prev) => new Date(prev.getFullYear() + 1, 0, prev.getDate())
+			);
+			return;
+		}
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear(),
+					prev.getMonth() + 1,
+					prev.getDate()
+				)
+		);
+	}
 
 	const grid = useMemo(
 		() =>
 			generateGrid({
-				year: selectedYear,
-				month: selectedMonth,
+				selectedDate: sidebarDate,
 				weekStartsOn,
+				viewType: "month",
 			}),
-		[selectedYear, selectedMonth, weekStartsOn]
+		[sidebarDate, weekStartsOn]
 	);
 
 	function handleDaySelect(date: Date) {
 		setSelectedDate(date);
+		setSidebarDate(date);
 	}
 
 	type SelectElementProps = {
@@ -96,15 +145,27 @@ export default function SidebarCalendar({
 	function SelectYear() {
 		const years = useMemo(() => {
 			const years: string[] = [];
-			for (let y = selectedYear - 10; y <= selectedYear + 10; y++)
+			for (
+				let y = sidebarDate.getFullYear() - 10;
+				y <= sidebarDate.getFullYear() + 10;
+				y++
+			)
 				years.push(String(y));
 			return years;
-		}, [selectedYear]);
+		}, [sidebarDate]);
 
 		return (
 			<SelectElement
-				value={selectedYear.toString()}
-				onValueChange={(val) => setSelectedYear(Number(val))}
+				value={sidebarDate.getFullYear().toString()}
+				onValueChange={(val) =>
+					setSidebarDate(
+						new Date(
+							Number(val),
+							sidebarDate.getMonth(),
+							sidebarDate.getDate()
+						)
+					)
+				}
 				renderValue={(value) => <Text>{value}</Text>}
 				triggerPlaceholder="Select year"
 				groupItems={useMemo(
@@ -126,11 +187,11 @@ export default function SidebarCalendar({
 	function SelectMonth() {
 		return (
 			<SelectElement
-				value={selectedMonth.monthLabel}
+				value={new Month(0, sidebarDate.getMonth()).monthLabel}
 				onValueChange={(val) =>
-					setSelectedMonth(
-						new Month(
-							1,
+					setSidebarDate(
+						new Date(
+							sidebarDate.getFullYear(),
 							Number(
 								Object.keys(Month.months).find(
 									(key) =>
@@ -140,11 +201,16 @@ export default function SidebarCalendar({
 											) as keyof typeof Month.months
 										] === val
 								)
-							)
+							) - 1,
+							sidebarDate.getDate()
 						)
 					)
 				}
-				renderValue={() => <Text>{selectedMonth.monthLabel}</Text>}
+				renderValue={() => (
+					<Text>
+						{new Month(0, sidebarDate.getMonth()).monthLabel}
+					</Text>
+				)}
 				triggerPlaceholder="Select month"
 				groupItems={useMemo(
 					() =>
@@ -177,7 +243,10 @@ export default function SidebarCalendar({
 				{/* Year Selector */}
 				<XGroup>
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => decYear(10)}>
+						<StyledButton
+							width="$2"
+							onPress={() => decYearSidebar(10)}
+						>
 							<Text>
 								<ArrowBigLeftDash />
 							</Text>
@@ -187,7 +256,10 @@ export default function SidebarCalendar({
 					<Separator vertical />
 
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => decYear(1)}>
+						<StyledButton
+							width="$2"
+							onPress={() => decYearSidebar(1)}
+						>
 							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
 					</XGroup.Item>
@@ -196,7 +268,10 @@ export default function SidebarCalendar({
 						<SelectYear />
 					</XGroup.Item>
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => incYear(1)}>
+						<StyledButton
+							width="$2"
+							onPress={() => incYearSidebar(1)}
+						>
 							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
@@ -204,7 +279,10 @@ export default function SidebarCalendar({
 					<Separator vertical />
 
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => incYear(10)}>
+						<StyledButton
+							width="$2"
+							onPress={() => incYearSidebar(10)}
+						>
 							<Text>{<ArrowBigRightDash />}</Text>
 						</StyledButton>
 					</XGroup.Item>
@@ -215,7 +293,7 @@ export default function SidebarCalendar({
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
-							onPress={decMonth}
+							onPress={decMonthSidebar}
 						>
 							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
@@ -227,7 +305,7 @@ export default function SidebarCalendar({
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
-							onPress={incMonth}
+							onPress={incMonthSidebar}
 						>
 							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
@@ -249,7 +327,7 @@ export default function SidebarCalendar({
 				</XStack>
 
 				{/* Calendar grid */}
-				{grid.map((row, rowIndex) => (
+				{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
 					<XStack gap="$2" width="100%" key={rowIndex}>
 						{row.map((cell) => (
 							<StyledButton
@@ -258,7 +336,9 @@ export default function SidebarCalendar({
 										cell.date,
 										cell.inCurrentMonth,
 										selectedDate,
-										currentDate
+										currentDate,
+										"month",
+										true
 									) as any
 								}
 								key={cell.date.getTime()}

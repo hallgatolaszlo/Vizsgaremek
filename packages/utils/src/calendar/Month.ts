@@ -1,11 +1,16 @@
-import { MonthIndex, MonthLabel } from "@repo/types";
+import { MonthLabel, MonthLabelShort } from "@repo/types";
 
 export class Month {
-	public month0Index: MonthIndex;
-	public month1Index: MonthIndex;
+	// month0Index is 0-based like JS Date (0 = January, 11 = December)
+	public month0Index: number;
+	// month1Index is 1-based because we are not idiots (1 = January, 12 = December)
+	public month1Index: number;
+	// monthLabel is the full month name
 	public monthLabel: MonthLabel;
+	// monthLabelShort is the short month name
+	public monthLabelShort: MonthLabelShort;
 
-	public static months: Record<MonthIndex, MonthLabel> = {
+	public static months: Record<number, MonthLabel> = {
 		1: "January",
 		2: "February",
 		3: "March",
@@ -20,7 +25,7 @@ export class Month {
 		12: "December",
 	};
 
-	public static shortMonths: Record<MonthIndex, string> = {
+	public static shortMonths: Record<number, MonthLabelShort> = {
 		1: "Jan",
 		2: "Feb",
 		3: "Mar",
@@ -44,10 +49,11 @@ export class Month {
 			throw new Error("Month must be between 1 and 12");
 		}
 
-		const monthIndex = month as MonthIndex;
+		const monthIndex = month;
 
 		this.month1Index = monthIndex;
-		this.month0Index = (monthIndex - 1) as MonthIndex;
+		this.month0Index = monthIndex - 1;
 		this.monthLabel = Month.months[monthIndex];
+		this.monthLabelShort = Month.shortMonths[monthIndex];
 	}
 }

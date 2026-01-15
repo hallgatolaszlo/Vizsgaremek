@@ -1,56 +1,70 @@
 import { WeekStartDay } from "@repo/types";
-import { Month } from "@repo/utils";
 import { create } from "zustand";
 
 export interface CalendarState {
-	selectedYear: number;
-	selectedMonth: Month;
-	selectedDate: Date | null;
 	currentDate: Date;
+	selectedDate: Date;
 	weekStartsOn: WeekStartDay;
 
-	setSelectedYear: (year: number) => void;
-	setSelectedMonth: (month: Month) => void;
 	setSelectedDate: (date: Date) => void;
-	setCurrentDate: (date: Date) => void;
 	setWeekStartsOn: (day: WeekStartDay) => void;
+
+	resetToToday: () => void;
 
 	decYear: (by: number) => void;
 	incYear: (by: number) => void;
 	decMonth: () => void;
 	incMonth: () => void;
+	incWeek: () => void;
+	decWeek: () => void;
 }
 
 export const useCalendarStore = create<CalendarState>((set) => ({
-	selectedYear: new Date().getFullYear(),
-	selectedMonth: new Month(0, new Date().getMonth()),
-	selectedDate: null,
 	currentDate: new Date(),
+	selectedDate: new Date(),
 	weekStartsOn: "monday" as WeekStartDay,
 
-	setSelectedYear: (year: number) => set({ selectedYear: year }),
-	setSelectedMonth: (month: Month) => set({ selectedMonth: month }),
 	setSelectedDate: (date: Date) => set({ selectedDate: date }),
-	setCurrentDate: (date: Date) => set({ currentDate: date }),
 	setWeekStartsOn: (day: WeekStartDay) => set({ weekStartsOn: day }),
 
+	resetToToday: () =>
+		set((state) => ({
+			selectedDate: (state.selectedDate = new Date(state.currentDate)),
+		})),
+
 	decYear: (by: number) =>
-		set((state) => ({ selectedYear: state.selectedYear - by })),
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.getFullYear() - by,
+				state.selectedDate.getMonth(),
+				state.selectedDate.getDate()
+			),
+		})),
 	incYear: (by: number) =>
-		set((state) => ({ selectedYear: state.selectedYear + by })),
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.getFullYear() + by,
+				state.selectedDate.getMonth(),
+				state.selectedDate.getDate()
+			),
+		})),
 
 	decMonth: () => {
 		set((state) => {
-			if (state.selectedMonth.month1Index === 1) {
+			if (state.selectedDate.getMonth() === 0) {
 				return {
-					selectedYear: state.selectedYear - 1,
-					selectedMonth: new Month(1, 12),
+					selectedDate: new Date(
+						state.selectedDate.getFullYear() - 1,
+						11,
+						state.selectedDate.getDate()
+					),
 				};
 			}
 			return {
-				selectedMonth: new Month(
-					1,
-					state.selectedMonth.month1Index - 1
+				selectedDate: new Date(
+					state.selectedDate.getFullYear(),
+					state.selectedDate.getMonth() - 1,
+					state.selectedDate.getDate()
 				),
 			};
 		});
@@ -58,18 +72,42 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 
 	incMonth: () => {
 		set((state) => {
-			if (state.selectedMonth.month1Index === 12) {
+			if (state.selectedDate.getMonth() === 11) {
 				return {
-					selectedYear: state.selectedYear + 1,
-					selectedMonth: new Month(1, 1),
+					selectedDate: new Date(
+						state.selectedDate.getFullYear() + 1,
+						0,
+						state.selectedDate.getDate()
+					),
 				};
 			}
 			return {
-				selectedMonth: new Month(
-					1,
-					state.selectedMonth.month1Index + 1
+				selectedDate: new Date(
+					state.selectedDate.getFullYear(),
+					state.selectedDate.getMonth() + 1,
+					state.selectedDate.getDate()
 				),
 			};
 		});
+	},
+
+	incWeek: () => {
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.getFullYear(),
+				state.selectedDate.getMonth(),
+				state.selectedDate.getDate() + 7
+			),
+		}));
+	},
+
+	decWeek: () => {
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.getFullYear(),
+				state.selectedDate.getMonth(),
+				state.selectedDate.getDate() - 7
+			),
+		}));
 	},
 }));

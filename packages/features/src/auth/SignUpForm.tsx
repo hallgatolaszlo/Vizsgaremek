@@ -12,7 +12,10 @@ import { Controller, useForm } from "react-hook-form";
 import { Form, Spinner, Text, Theme, YStack } from "tamagui";
 import z from "zod";
 
+// Type for sign-up request data from Swagger
 type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
+
+// Zod schema for sign-up form validation
 const signUpSchema = z.object({
 	email: z
 		.email("Invalid email address")
@@ -28,6 +31,7 @@ const signUpSchema = z.object({
 		.regex(/[\W_]/, "At least 1 special character"),
 });
 
+// Component to display error messages
 const ErrorText = ({ message }: { message: string | undefined }) => (
 	<Theme name="error">
 		<Text pl="$1" fontSize="$1" color="$color9">
@@ -54,6 +58,7 @@ export function SignUpForm() {
 	});
 	0;
 
+	// Mutation for sign-up action
 	const signUpMutation = useMutation({
 		mutationFn: async (request: SignUpRequestDTO) => {
 			await signUp(request);

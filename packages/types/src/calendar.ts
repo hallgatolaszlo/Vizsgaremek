@@ -1,5 +1,3 @@
-export type MonthIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-
 export type MonthLabel =
 	| "January"
 	| "February"
@@ -14,9 +12,45 @@ export type MonthLabel =
 	| "November"
 	| "December";
 
+export type MonthLabelShort =
+	| "Jan"
+	| "Feb"
+	| "Mar"
+	| "Apr"
+	| "May"
+	| "Jun"
+	| "Jul"
+	| "Aug"
+	| "Sep"
+	| "Oct"
+	| "Nov"
+	| "Dec";
+
+export type WeekDayLabelShort = "S" | "M" | "T" | "W" | "T" | "F";
+
+export type WeekDayLabel =
+	| "Sun"
+	| "Mon"
+	| "Tue"
+	| "Wed"
+	| "Thu"
+	| "Fri"
+	| "Sat";
+
+export type WeekDayLabelLong =
+	| "Sunday"
+	| "Monday"
+	| "Tuesday"
+	| "Wednesday"
+	| "Thursday"
+	| "Friday"
+	| "Saturday";
+
 export type WeekStartDay = "sunday" | "monday";
 
 export type CalendarCellProps = {
 	date: Date;
 	inCurrentMonth: boolean;
 };
+
+export type CalendarViewType = "month" | "multiweek";

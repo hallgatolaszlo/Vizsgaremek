@@ -1,24 +1,22 @@
 import { CalendarState } from "@repo/hooks";
-import { calculateCellBg, generateGrid, Week } from "@repo/utils";
+import { CalendarViewType } from "@repo/types";
+import { calculateCellBg, generateGrid, isNative, Week } from "@repo/utils";
 import { useMemo } from "react";
 import { Text, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
 
 interface CalendarProps {
 	calendarState: CalendarState;
+	viewType?: CalendarViewType;
 }
 
-export function Calendar({ calendarState }: CalendarProps) {
+export function Calendar({ calendarState, viewType = "month" }: CalendarProps) {
+	// Get global state and actions from the calendar store
 	const {
-		selectedYear,
-		selectedMonth,
 		selectedDate,
 		currentDate,
 		weekStartsOn,
-		setSelectedYear,
-		setSelectedMonth,
 		setSelectedDate,
-		setCurrentDate,
 		setWeekStartsOn,
 		decYear,
 		incYear,
@@ -26,27 +24,45 @@ export function Calendar({ calendarState }: CalendarProps) {
 		incMonth,
 	} = calendarState;
 
+	// Memoized grid generation based on selected date, week start day, and view type
 	const grid = useMemo(
 		() =>
 			generateGrid({
-				year: selectedYear,
-				month: selectedMonth,
+				selectedDate: selectedDate,
 				weekStartsOn,
+				viewType: viewType,
 			}),
-		[selectedYear, selectedMonth, weekStartsOn]
+		[selectedDate, weekStartsOn, viewType]
 	);
 
+	// Determine styling based on platform
+	const weekDayLabels = isNative()
+		? Week.getWeekdayLabels(weekStartsOn, "normal")
+		: Week.getWeekdayLabels(weekStartsOn, "long");
+	const gap = isNative() ? "$1" : "$2";
+
 	return (
-		<YStack flex={1} width="100%" gap="$2">
-			<XStack gap="$2" width="100%" style={{ textAlign: "center" }}>
-				{Week.getWeekdayLabels(weekStartsOn, "long").map((d, i) => (
-					<Text width="100%" key={i} flex={1} fontWeight="$2">
+		<YStack flex={1} width="100%" gap={gap}>
+			{/* Weekday Labels Header */}
+			<XStack gap={gap} width="100%">
+				{/* Hidden week number header for alignment */}
+				<Text style={{ visibility: "hidden" }}>W00</Text>
+				{weekDayLabels.map((d, i) => (
+					<Text
+						width="100%"
+						key={i}
+						flex={1}
+						fontWeight="$2"
+						style={{ textAlign: "center" }}
+					>
 						{d}
 					</Text>
 				))}
 			</XStack>
-			{grid.map((row, rowIndex) => (
-				<XStack gap="$2" flex={1} width="100%" key={rowIndex}>
+			{/* Calendar Grid */}
+			{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
+				<XStack gap={gap} flex={1} width="100%" key={rowIndex}>
+					<Text fontWeight="$2">{weekNumber}</Text>
 					{row.map((cell, i) => (
 						<CalendarCell
 							key={i}
@@ -56,6 +72,8 @@ export function Calendar({ calendarState }: CalendarProps) {
 								cell.inCurrentMonth,
 								selectedDate,
 								currentDate,
+								viewType,
+								false,
 								"$color2",
 								"$color4",
 								"$color3",

@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
 import { TamaguiProvider, View } from "tamagui";
-import Navbar from "./ui/Navbar";
+import Navbar from "./ui/Navbar/Navbar";
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => new QueryClient());

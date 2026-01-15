@@ -12,12 +12,16 @@ import { Controller, useForm } from "react-hook-form";
 import { Form, Spinner, Text, Theme, YStack } from "tamagui";
 import { z } from "zod";
 
+// Type for sign-in request data from Swagger
 type SignInRequestDTO = components["schemas"]["SignInRequestDTO"];
+
+// Zod schema for sign-in form validation
 const signInSchema = z.object({
 	email: z.string().min(1, "The email field is required"),
 	password: z.string().min(1, "The password field is required"),
 });
 
+// Component to display error messages
 const ErrorText = ({ message }: { message: string | undefined }) => (
 	<Theme name="error">
 		<Text pl="$1" fontSize="$1" color="$color9">
@@ -48,6 +52,7 @@ export function SignInForm({
 	});
 	0;
 
+	// Mutation for sign-in action
 	const signInMutation = useMutation({
 		mutationFn: signIn,
 		onSuccess: () => {

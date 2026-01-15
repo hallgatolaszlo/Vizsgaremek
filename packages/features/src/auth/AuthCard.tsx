@@ -1,14 +1,10 @@
 "use client";
 
+import { ToggleGroupItemText } from "@repo/ui";
 import { CSSProperties, useState } from "react";
-import { Card, Text, ToggleGroup } from "tamagui";
+import { Card, ToggleGroup } from "tamagui";
 import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
-
-// Component for ToggleGroup Item Text to avoid console errors
-const ToggleGroupItemText = ({ text }: { text: string }) => {
-	return <Text>{text}</Text>;
-};
 
 interface AuthCardProps {
 	onSignIn?: () => void;

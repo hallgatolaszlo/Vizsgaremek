@@ -8,7 +8,7 @@ export default function SignIn() {
 			<AuthCard
 				style={{ margin: "auto" }}
 				onSignIn={() => {
-					router.push("/(protected)/protected");
+					router.push("/(protected)/calendar");
 				}}
 			/>
 		</View>
