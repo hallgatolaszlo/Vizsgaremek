@@ -11,17 +11,17 @@ import {
 	ArrowBigRight,
 	CalendarDays,
 } from "@tamagui/lucide-icons";
-import type { ComponentProps, ReactElement, WheelEventHandler } from "react";
+import type { ComponentProps, WheelEventHandler } from "react";
 import { useState } from "react";
 import { Text, ToggleGroup, XGroup, XStack, YStack } from "tamagui";
 
-type WheelableYStackProps = ComponentProps<typeof YStack> & {
+type WheelableProps = ComponentProps<typeof YStack> & {
 	onWheel?: WheelEventHandler;
 };
 
-const WheelableYStack = YStack as unknown as (
-	props: WheelableYStackProps
-) => ReactElement;
+const WheelableYStack = (props: WheelableProps) => {
+	return <YStack {...props}>{props.children}</YStack>;
+};
 
 export default function CalendarPage() {
 	const calendarStore = useCalendarStore();

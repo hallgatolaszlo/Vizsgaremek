@@ -19,7 +19,7 @@ export default function CalendarCell({ cell, bg }: CalendarCellComponentProps) {
 		// Web: show month abbreviation if first of month...
 		if (cell.date.getDate() === 1) {
 			return `${
-				Month.shortMonths[cell.date.getMonth() + 1]
+				Month.shortMonths[cell.date.getMonth()]
 			} ${cell.date.getDate()}`;
 		}
 
@@ -28,7 +28,7 @@ export default function CalendarCell({ cell, bg }: CalendarCellComponentProps) {
 		date.setDate(date.getDate() + 1);
 		if (date.getMonth() !== cell.date.getMonth()) {
 			return `${
-				Month.shortMonths[cell.date.getMonth() + 1]
+				Month.shortMonths[cell.date.getMonth()]
 			} ${cell.date.getDate()}`;
 		}
 

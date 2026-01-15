@@ -10,12 +10,34 @@ import {
 	ArrowBigRightDash,
 	Check,
 } from "@tamagui/lucide-icons";
-import { useEffect, useMemo, useState } from "react";
+import {
+	ComponentProps,
+	useEffect,
+	useMemo,
+	useState,
+	WheelEventHandler,
+} from "react";
 import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
 
 interface SidebarCalendarProps {
 	calendarState: CalendarState;
 }
+
+type WheelableYStackProps = ComponentProps<typeof YStack> & {
+	onWheel?: WheelEventHandler;
+};
+
+type WheelableXGroupProps = ComponentProps<typeof XGroup> & {
+	onWheel?: WheelEventHandler;
+};
+
+const WheelableYStack = (props: WheelableYStackProps) => {
+	return <YStack {...props}>{props.children}</YStack>;
+};
+
+const WheelableXGroup = (props: WheelableXGroupProps) => {
+	return <XGroup {...props}>{props.children}</XGroup>;
+};
 
 export default function SidebarCalendar({
 	calendarState,
@@ -31,58 +53,22 @@ export default function SidebarCalendar({
 
 	function decYearSidebar(by: number) {
 		setSidebarDate(
-			(prev) =>
-				new Date(
-					prev.getFullYear() - by,
-					prev.getMonth(),
-					prev.getDate()
-				)
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() - by))
 		);
 	}
 
 	function incYearSidebar(by: number) {
 		setSidebarDate(
-			(prev) =>
-				new Date(
-					prev.getFullYear() + by,
-					prev.getMonth(),
-					prev.getDate()
-				)
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() + by))
 		);
 	}
 
 	function decMonthSidebar() {
-		if (sidebarDate.getMonth() === 0) {
-			setSidebarDate(
-				(prev) => new Date(prev.getFullYear() - 1, 11, prev.getDate())
-			);
-			return;
-		}
-		setSidebarDate(
-			(prev) =>
-				new Date(
-					prev.getFullYear(),
-					prev.getMonth() - 1,
-					prev.getDate()
-				)
-		);
+		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() - 1)));
 	}
 
 	function incMonthSidebar() {
-		if (sidebarDate.getMonth() === 11) {
-			setSidebarDate(
-				(prev) => new Date(prev.getFullYear() + 1, 0, prev.getDate())
-			);
-			return;
-		}
-		setSidebarDate(
-			(prev) =>
-				new Date(
-					prev.getFullYear(),
-					prev.getMonth() + 1,
-					prev.getDate()
-				)
-		);
+		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() + 1)));
 	}
 
 	const grid = useMemo(
@@ -97,7 +83,6 @@ export default function SidebarCalendar({
 
 	function handleDaySelect(date: Date) {
 		setSelectedDate(date);
-		setSidebarDate(date);
 	}
 
 	type SelectElementProps = {
@@ -187,7 +172,7 @@ export default function SidebarCalendar({
 	function SelectMonth() {
 		return (
 			<SelectElement
-				value={new Month(0, sidebarDate.getMonth()).monthLabel}
+				value={Month.months[sidebarDate.getMonth()]}
 				onValueChange={(val) =>
 					setSidebarDate(
 						new Date(
@@ -201,15 +186,13 @@ export default function SidebarCalendar({
 											) as keyof typeof Month.months
 										] === val
 								)
-							) - 1,
+							),
 							sidebarDate.getDate()
 						)
 					)
 				}
 				renderValue={() => (
-					<Text>
-						{new Month(0, sidebarDate.getMonth()).monthLabel}
-					</Text>
+					<Text>{Month.months[sidebarDate.getMonth()]}</Text>
 				)}
 				triggerPlaceholder="Select month"
 				groupItems={useMemo(
@@ -236,12 +219,42 @@ export default function SidebarCalendar({
 		);
 	}
 
+	const handleMonthWheel: WheelEventHandler = (e) => {
+		// Only triggers while the cursor is over this Calendar wrapper.
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (e.deltaY > 0) {
+			incMonthSidebar();
+			return;
+		}
+
+		if (e.deltaY < 0) {
+			decMonthSidebar();
+		}
+	};
+
+	const handleYearWheel: WheelEventHandler = (e) => {
+		// Only triggers while the cursor is over this Calendar wrapper.
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (e.deltaY > 0) {
+			incYearSidebar(1);
+			return;
+		}
+
+		if (e.deltaY < 0) {
+			decYearSidebar(1);
+		}
+	};
+
 	return (
 		<View>
 			{/* Calendar Header */}
 			<YStack gap="$2" width="100%">
 				{/* Year Selector */}
-				<XGroup>
+				<WheelableXGroup onWheel={handleYearWheel}>
 					<XGroup.Item>
 						<StyledButton
 							width="$2"
@@ -286,10 +299,10 @@ export default function SidebarCalendar({
 							<Text>{<ArrowBigRightDash />}</Text>
 						</StyledButton>
 					</XGroup.Item>
-				</XGroup>
+				</WheelableXGroup>
 
 				{/* Month Selector */}
-				<XGroup>
+				<WheelableXGroup onWheel={handleMonthWheel}>
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
@@ -310,48 +323,58 @@ export default function SidebarCalendar({
 							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
-				</XGroup>
+				</WheelableXGroup>
 
-				{/* Weekday header */}
-				<XStack
-					mt="$2"
+				<WheelableYStack
+					onWheel={handleMonthWheel}
+					flex={1}
+					minW={0}
 					gap="$2"
-					width="100%"
-					style={{ textAlign: "center" }}
 				>
-					{Week.getWeekdayLabels(weekStartsOn).map((d, i) => (
-						<Text width="100%" key={i} flex={1} fontWeight="$2">
-							{d}
-						</Text>
-					))}
-				</XStack>
-
-				{/* Calendar grid */}
-				{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
-					<XStack gap="$2" width="100%" key={rowIndex}>
-						{row.map((cell) => (
-							<StyledButton
-								bg={
-									calculateCellBg(
-										cell.date,
-										cell.inCurrentMonth,
-										selectedDate,
-										currentDate,
-										"month",
-										true
-									) as any
-								}
-								key={cell.date.getTime()}
-								flex={1}
-								minW={0}
-								aspectRatio={1}
-								onPress={() => handleDaySelect(cell.date)}
-							>
-								<Text fontSize="$3">{cell.date.getDate()}</Text>
-							</StyledButton>
+					{/* Weekday header */}
+					<XStack
+						mt="$2"
+						gap="$2"
+						width="100%"
+						style={{ textAlign: "center" }}
+					>
+						{Week.getWeekdayLabels(weekStartsOn).map((d, i) => (
+							<Text width="100%" key={i} flex={1} fontWeight="$2">
+								{d}
+							</Text>
 						))}
 					</XStack>
-				))}
+
+					{/* Calendar grid */}
+					{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
+						<XStack gap="$2" width="100%" key={rowIndex}>
+							{row.map((cell) => (
+								<StyledButton
+									bg={
+										calculateCellBg(
+											cell.date,
+											cell.inCurrentMonth,
+											selectedDate,
+											currentDate,
+											"month",
+											true
+										) as any
+									}
+									key={cell.date.getTime()}
+									flex={1}
+									minW={0}
+									aspectRatio={1}
+									onPress={() => handleDaySelect(cell.date)}
+								>
+									<Text fontSize="$3">
+										{cell.date.getDate()}
+									</Text>
+								</StyledButton>
+							))}
+						</XStack>
+					))}
+				</WheelableYStack>
+				<Text>{sidebarDate.toDateString()}</Text>
 			</YStack>
 		</View>
 	);

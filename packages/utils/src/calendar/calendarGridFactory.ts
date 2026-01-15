@@ -1,5 +1,5 @@
 import { CalendarCellProps, CalendarViewType, WeekStartDay } from "@repo/types";
-import { getDayNumber, getWeekNumberISO } from "./dateMethods";
+import { getFirstDayOfMonth, getWeekNumberISO } from "./dateMethods";
 
 type GenerateDatesOptions = {
 	selectedDate: Date;
@@ -17,7 +17,7 @@ export function generateCalendarCells(
 	const month0 = selectedDate.getMonth();
 	const day = viewType === "month" ? 1 : selectedDate.getDate();
 
-	const firstDay = getDayNumber(new Date(year, month0, day));
+	const firstDay = getFirstDayOfMonth(new Date(year, month0, day));
 
 	// Calculate leading days based on week start day
 	const weekStartIndex = weekStartsOn === "sunday" ? 0 : 1;
@@ -26,13 +26,16 @@ export function generateCalendarCells(
 	// Start date for the grid
 	const startDate = new Date(year, month0, day - leadingDays);
 
+	const totalCells = viewType === "multiweek" ? 28 : 42;
+
 	const cells: CalendarCellProps[] = [];
-	for (let i = 0; i < 42; i++) {
+	for (let i = 0; i < totalCells; i++) {
 		const d = new Date(startDate);
 		d.setDate(startDate.getDate() + i);
 
-		// For month view, stop adding cells after the month ends
-		if (i === 35 && d.getMonth() !== month0) break;
+		if (i === 35 && d.getMonth() !== month0) {
+			break;
+		}
 
 		cells.push({
 			date: d,

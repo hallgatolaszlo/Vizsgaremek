@@ -2,9 +2,8 @@
 
 import { FullscreenView } from "@/src/components/ui/FullscreenView";
 import { AuthCard } from "@repo/features";
-import { type JSX } from "react";
 
-export default function SignIn(): JSX.Element {
+export default function SignIn() {
 	return (
 		<FullscreenView justify="center">
 			<AuthCard

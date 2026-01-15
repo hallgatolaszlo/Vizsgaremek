@@ -35,68 +35,40 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 	decYear: (by: number) =>
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.getFullYear() - by,
-				state.selectedDate.getMonth(),
-				state.selectedDate.getDate()
+				state.selectedDate.setFullYear(
+					state.selectedDate.getFullYear() - by
+				)
 			),
 		})),
 	incYear: (by: number) =>
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.getFullYear() + by,
-				state.selectedDate.getMonth(),
-				state.selectedDate.getDate()
+				state.selectedDate.setFullYear(
+					state.selectedDate.getFullYear() + by
+				)
 			),
 		})),
 
 	decMonth: () => {
-		set((state) => {
-			if (state.selectedDate.getMonth() === 0) {
-				return {
-					selectedDate: new Date(
-						state.selectedDate.getFullYear() - 1,
-						11,
-						state.selectedDate.getDate()
-					),
-				};
-			}
-			return {
-				selectedDate: new Date(
-					state.selectedDate.getFullYear(),
-					state.selectedDate.getMonth() - 1,
-					state.selectedDate.getDate()
-				),
-			};
-		});
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.setMonth(state.selectedDate.getMonth() - 1)
+			),
+		}));
 	},
 
 	incMonth: () => {
-		set((state) => {
-			if (state.selectedDate.getMonth() === 11) {
-				return {
-					selectedDate: new Date(
-						state.selectedDate.getFullYear() + 1,
-						0,
-						state.selectedDate.getDate()
-					),
-				};
-			}
-			return {
-				selectedDate: new Date(
-					state.selectedDate.getFullYear(),
-					state.selectedDate.getMonth() + 1,
-					state.selectedDate.getDate()
-				),
-			};
-		});
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.setMonth(state.selectedDate.getMonth() + 1)
+			),
+		}));
 	},
 
 	incWeek: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.getFullYear(),
-				state.selectedDate.getMonth(),
-				state.selectedDate.getDate() + 7
+				state.selectedDate.setDate(state.selectedDate.getDate() + 7)
 			),
 		}));
 	},
@@ -104,9 +76,7 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 	decWeek: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.getFullYear(),
-				state.selectedDate.getMonth(),
-				state.selectedDate.getDate() - 7
+				state.selectedDate.setDate(state.selectedDate.getDate() - 7)
 			),
 		}));
 	},
