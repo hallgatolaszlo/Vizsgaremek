@@ -14,7 +14,6 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [theme] = useRootTheme();
 
 	const verifyAuth = useAuthStore((state) => state.verifyAuth);
-	const isAuthorized = useAuthStore((state) => state.isAuthorized);
 	const isLoading = useAuthStore((state) => state.isLoading);
 
 	useEffect(() => {

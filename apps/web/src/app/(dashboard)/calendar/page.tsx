@@ -1,19 +1,14 @@
 "use client";
 
+import CalendarHeader from "@/src/components/ui/CalendarPage/CalendarHeader";
 import SidebarCalendar from "@/src/components/ui/CalendarPage/SidebarCalendar";
 import { FullscreenView } from "@/src/components/ui/FullscreenView";
 import { Calendar } from "@repo/features";
 import { useCalendarStore } from "@repo/hooks";
-import { CalendarViewType } from "@repo/types";
-import { StyledButton, ToggleGroupItemText } from "@repo/ui";
-import {
-	ArrowBigLeft,
-	ArrowBigRight,
-	CalendarDays,
-} from "@tamagui/lucide-icons";
+import { generateGrid } from "@repo/utils";
 import type { ComponentProps, WheelEventHandler } from "react";
-import { useState } from "react";
-import { Text, ToggleGroup, XGroup, XStack, YStack } from "tamagui";
+import { useMemo } from "react";
+import { Separator, YStack } from "tamagui";
 
 type WheelableProps = ComponentProps<typeof YStack> & {
 	onWheel?: WheelEventHandler;
@@ -24,23 +19,51 @@ const WheelableYStack = (props: WheelableProps) => {
 };
 
 export default function CalendarPage() {
-	const calendarStore = useCalendarStore();
-	const [viewType, setViewType] = useState<CalendarViewType>("month");
+	const {
+		selectedDate,
+		weekStartsOn,
+		viewType,
+		setViewType,
+		decMonth,
+		incMonth,
+		decWeek,
+		incWeek,
+		decDay,
+		incDay,
+	} = useCalendarStore();
+
+	const grid = useMemo(
+		() =>
+			generateGrid({
+				selectedDate: selectedDate,
+				weekStartsOn: weekStartsOn,
+				viewType: viewType,
+			}),
+		[selectedDate, weekStartsOn, viewType],
+	);
 
 	function decreaseView() {
 		if (viewType === "month") {
-			calendarStore.decMonth();
+			decMonth();
 			return;
 		}
-		calendarStore.decWeek();
+		if (viewType === "day") {
+			decDay();
+			return;
+		}
+		decWeek();
 	}
 
 	function increaseView() {
 		if (viewType === "month") {
-			calendarStore.incMonth();
+			incMonth();
 			return;
 		}
-		calendarStore.incWeek();
+		if (viewType === "day") {
+			incDay();
+			return;
+		}
+		incWeek();
 	}
 
 	const handleCalendarWheel: WheelEventHandler = (e) => {
@@ -59,62 +82,30 @@ export default function CalendarPage() {
 
 	return (
 		<FullscreenView stack="XStack">
-			<YStack p="$4" bg="$color2" minH="100%" style={{ width: 400 }}>
-				<SidebarCalendar
-					calendarState={calendarStore}
-				></SidebarCalendar>
+			<YStack
+				flex={1}
+				p="$4"
+				bg="$color2"
+				minH="100%"
+				style={{ minWidth: 350, maxWidth: 400 }}
+			>
+				<SidebarCalendar />
 				{/* My calendars */}
 			</YStack>
 			<YStack p="$2" gap="$2" minW={0} flex={1}>
-				<XStack>
-					<XGroup>
-						<XGroup.Item>
-							<StyledButton onPress={decreaseView}>
-								<Text>
-									<ArrowBigLeft />
-								</Text>
-							</StyledButton>
-						</XGroup.Item>
-						<XGroup.Item>
-							<StyledButton onPress={calendarStore.resetToToday}>
-								<Text>
-									<CalendarDays />
-								</Text>
-							</StyledButton>
-						</XGroup.Item>
-						<XGroup.Item>
-							<StyledButton onPress={increaseView}>
-								<Text>
-									<ArrowBigRight />
-								</Text>
-							</StyledButton>
-						</XGroup.Item>
-					</XGroup>
-
-					<ToggleGroup type="single" defaultValue="month">
-						<ToggleGroup.Item
-							value="month"
-							onPress={() => setViewType("month")}
-						>
-							<ToggleGroupItemText text="Month" />
-						</ToggleGroup.Item>
-						<ToggleGroup.Item
-							value="multiweek"
-							onPress={() => setViewType("multiweek")}
-						>
-							<ToggleGroupItemText text="Multiweek" />
-						</ToggleGroup.Item>
-					</ToggleGroup>
-				</XStack>
+				{/* Calendar Header */}
+				<CalendarHeader
+					grid={grid}
+					decreaseView={decreaseView}
+					increaseView={increaseView}
+				/>
+				<Separator mb="$2"></Separator>
 				<WheelableYStack
 					onWheel={handleCalendarWheel}
 					flex={1}
 					minW={0}
 				>
-					<Calendar
-						calendarState={calendarStore}
-						viewType={viewType}
-					/>
+					<Calendar grid={grid} />
 				</WheelableYStack>
 			</YStack>
 		</FullscreenView>

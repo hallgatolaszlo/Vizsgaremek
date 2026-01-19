@@ -1,4 +1,3 @@
-export * from "./src/calendar/calculateCellBg";
 export * from "./src/calendar/calendarGridFactory";
 export * from "./src/calendar/dateMethods";
 export * from "./src/calendar/Month";

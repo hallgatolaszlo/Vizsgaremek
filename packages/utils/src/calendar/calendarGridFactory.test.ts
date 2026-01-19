@@ -1,30 +1,15 @@
 import { describe, expect, test } from "@jest/globals";
-import { generateCalendarCells, generateGrid } from "./calendarGridFactory";
+import { generateGrid, generateMonthCells } from "./calendarGridFactory";
 
-describe("generateCalendarCells", () => {
+describe("generateMonthCells", () => {
 	test("generates 42 cells for a 6 week month", () => {
-		const cells = generateCalendarCells({
-			selectedDate: new Date("2026-03-01"),
-			weekStartsOn: "monday",
-			viewType: "month",
-		});
+		generateMonthCells(new Date("2026-03-01"), "monday");
+		const cells = generateMonthCells(new Date("2026-03-01"), "monday");
 		expect(cells.length).toBe(42);
 	});
 	test("generates 35 cells for a 5 week month", () => {
-		const cells = generateCalendarCells({
-			selectedDate: new Date("2026-01-01"),
-			weekStartsOn: "monday",
-			viewType: "month",
-		});
+		const cells = generateMonthCells(new Date("2026-01-01"), "monday");
 		expect(cells.length).toBe(35);
-	});
-	test("generate 28 cells for multiweek view", () => {
-		const cells = generateCalendarCells({
-			selectedDate: new Date("2026-03-23"),
-			weekStartsOn: "monday",
-			viewType: "multiweek",
-		});
-		expect(cells.length).toBe(28);
 	});
 });
 

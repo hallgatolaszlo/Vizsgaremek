@@ -1,14 +1,18 @@
+import { useCalendarStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { isNative, Month } from "@repo/utils";
-import { Card, Text } from "tamagui";
+import { Card, CardProps, Text } from "tamagui";
 
-interface CalendarCellComponentProps {
-	key: any;
+interface CalendarCellComponentProps extends CardProps {
 	cell: CalendarCellProps;
-	bg: string;
 }
 
-export default function CalendarCell({ cell, bg }: CalendarCellComponentProps) {
+export default function CalendarCell(props: CalendarCellComponentProps) {
+	const { selectedDate, viewType, setSelectedDate, currentDate } =
+		useCalendarStore();
+
+	const { cell } = props;
+
 	// Determine header label to show
 	const headerLabel = () => {
 		// Native: just show the date number
@@ -36,8 +40,41 @@ export default function CalendarCell({ cell, bg }: CalendarCellComponentProps) {
 		return cell.date.getDate();
 	};
 
+	function decideStyling(cell: CalendarCellProps): CardProps {
+		// Day view returns default styling
+		if (viewType === "day") {
+			return { bg: "$color3" };
+		}
+		// Selected date styling
+		if (cell.date.toDateString() === selectedDate.toDateString()) {
+			return {
+				bg: "$accent3",
+				outlineWidth: 2,
+				outlineColor: "$accent9",
+				outlineStyle: "solid",
+			};
+		}
+		// Current date styling
+		if (cell.date.toDateString() === currentDate.toDateString()) {
+			return { bg: "$color4" };
+		}
+		// Out-of-month styling for month view
+		if (viewType === "month" && !cell.inCurrentMonth) {
+			return { bg: "$color2" };
+		}
+		// Default styling
+		return { bg: "$color3" };
+	}
+
 	return (
-		<Card bg={bg as any} flex={1} flexBasis={0} minW={0}>
+		<Card
+			{...decideStyling(cell)}
+			{...props}
+			flex={1}
+			flexBasis={0}
+			minW={0}
+			onPress={() => setSelectedDate(new Date(cell.date))}
+		>
 			<Card.Header>
 				<Text style={{ fontWeight: "bold", textAlign: "center" }}>
 					{headerLabel()}

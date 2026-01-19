@@ -1,8 +1,9 @@
 "use client";
 
-import { CalendarState } from "@repo/hooks";
+import { useCalendarStore } from "@repo/hooks";
+import { CalendarCellProps } from "@repo/types";
 import { StyledButton } from "@repo/ui";
-import { calculateCellBg, generateGrid, Month, Week } from "@repo/utils";
+import { generateGrid, Month, Week } from "@repo/utils";
 import {
 	ArrowBigLeft,
 	ArrowBigLeftDash,
@@ -17,11 +18,16 @@ import {
 	useState,
 	WheelEventHandler,
 } from "react";
-import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
-
-interface SidebarCalendarProps {
-	calendarState: CalendarState;
-}
+import {
+	ButtonProps,
+	Select,
+	Separator,
+	Text,
+	View,
+	XGroup,
+	XStack,
+	YStack,
+} from "tamagui";
 
 type WheelableYStackProps = ComponentProps<typeof YStack> & {
 	onWheel?: WheelEventHandler;
@@ -39,27 +45,27 @@ const WheelableXGroup = (props: WheelableXGroupProps) => {
 	return <XGroup {...props}>{props.children}</XGroup>;
 };
 
-export default function SidebarCalendar({
-	calendarState,
-}: SidebarCalendarProps) {
+export default function SidebarCalendar() {
 	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
-		calendarState;
+		useCalendarStore();
 
-	const [sidebarDate, setSidebarDate] = useState<Date>(currentDate);
+	const [sidebarDate, setSidebarDate] = useState<Date>(
+		new Date(selectedDate),
+	);
 
 	useEffect(() => {
-		setSidebarDate(selectedDate);
+		setSidebarDate(new Date(selectedDate));
 	}, [selectedDate]);
 
 	function decYearSidebar(by: number) {
 		setSidebarDate(
-			(prev) => new Date(prev.setFullYear(prev.getFullYear() - by))
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() - by)),
 		);
 	}
 
 	function incYearSidebar(by: number) {
 		setSidebarDate(
-			(prev) => new Date(prev.setFullYear(prev.getFullYear() + by))
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() + by)),
 		);
 	}
 
@@ -78,11 +84,11 @@ export default function SidebarCalendar({
 				weekStartsOn,
 				viewType: "month",
 			}),
-		[sidebarDate, weekStartsOn]
+		[sidebarDate, weekStartsOn],
 	);
 
 	function handleDaySelect(date: Date) {
-		setSelectedDate(date);
+		setSelectedDate(new Date(date));
 	}
 
 	type SelectElementProps = {
@@ -147,8 +153,8 @@ export default function SidebarCalendar({
 						new Date(
 							Number(val),
 							sidebarDate.getMonth(),
-							sidebarDate.getDate()
-						)
+							sidebarDate.getDate(),
+						),
 					)
 				}
 				renderValue={(value) => <Text>{value}</Text>}
@@ -163,7 +169,7 @@ export default function SidebarCalendar({
 								</Select.ItemIndicator>
 							</Select.Item>
 						)),
-					[years]
+					[years],
 				)}
 			/>
 		);
@@ -182,13 +188,13 @@ export default function SidebarCalendar({
 									(key) =>
 										Month.months[
 											Number(
-												key
+												key,
 											) as keyof typeof Month.months
-										] === val
-								)
+										] === val,
+								),
 							),
-							sidebarDate.getDate()
-						)
+							sidebarDate.getDate(),
+						),
 					)
 				}
 				renderValue={() => (
@@ -211,9 +217,9 @@ export default function SidebarCalendar({
 										<Check size={16} />
 									</Select.ItemIndicator>
 								</Select.Item>
-							)
+							),
 						),
-					[Month.months]
+					[Month.months],
 				)}
 			/>
 		);
@@ -248,6 +254,24 @@ export default function SidebarCalendar({
 			decYearSidebar(1);
 		}
 	};
+
+	function decideBgColor(cell: CalendarCellProps): ButtonProps {
+		if (cell.date.toDateString() === selectedDate.toDateString()) {
+			return {
+				bg: "$accent4",
+				outlineWidth: 2,
+				outlineColor: "$accent9",
+				outlineStyle: "solid",
+			};
+		}
+		if (cell.date.toDateString() === currentDate.toDateString()) {
+			return { bg: "$color5" };
+		}
+		if (!cell.inCurrentMonth) {
+			return { bg: "$color3" };
+		}
+		return { bg: "$color4" };
+	}
 
 	return (
 		<View>
@@ -350,17 +374,8 @@ export default function SidebarCalendar({
 						<XStack gap="$2" width="100%" key={rowIndex}>
 							{row.map((cell) => (
 								<StyledButton
-									bg={
-										calculateCellBg(
-											cell.date,
-											cell.inCurrentMonth,
-											selectedDate,
-											currentDate,
-											"month",
-											true
-										) as any
-									}
 									key={cell.date.getTime()}
+									{...decideBgColor(cell)}
 									flex={1}
 									minW={0}
 									aspectRatio={1}
@@ -374,7 +389,6 @@ export default function SidebarCalendar({
 						</XStack>
 					))}
 				</WheelableYStack>
-				<Text>{sidebarDate.toDateString()}</Text>
 			</YStack>
 		</View>
 	);

@@ -1,13 +1,15 @@
-import { WeekStartDay } from "@repo/types";
+import { CalendarViewType, WeekStartDay } from "@repo/types";
 import { create } from "zustand";
 
 export interface CalendarState {
 	currentDate: Date;
 	selectedDate: Date;
 	weekStartsOn: WeekStartDay;
+	viewType: CalendarViewType;
 
 	setSelectedDate: (date: Date) => void;
 	setWeekStartsOn: (day: WeekStartDay) => void;
+	setViewType: (view: CalendarViewType) => void;
 
 	resetToToday: () => void;
 
@@ -17,15 +19,19 @@ export interface CalendarState {
 	incMonth: () => void;
 	incWeek: () => void;
 	decWeek: () => void;
+	incDay: () => void;
+	decDay: () => void;
 }
 
 export const useCalendarStore = create<CalendarState>((set) => ({
 	currentDate: new Date(),
 	selectedDate: new Date(),
 	weekStartsOn: "monday" as WeekStartDay,
+	viewType: "month" as CalendarViewType,
 
-	setSelectedDate: (date: Date) => set({ selectedDate: date }),
+	setSelectedDate: (date: Date) => set({ selectedDate: new Date(date) }),
 	setWeekStartsOn: (day: WeekStartDay) => set({ weekStartsOn: day }),
+	setViewType: (view: CalendarViewType) => set({ viewType: view }),
 
 	resetToToday: () =>
 		set((state) => ({
@@ -36,23 +42,23 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 		set((state) => ({
 			selectedDate: new Date(
 				state.selectedDate.setFullYear(
-					state.selectedDate.getFullYear() - by
-				)
+					state.selectedDate.getFullYear() - by,
+				),
 			),
 		})),
 	incYear: (by: number) =>
 		set((state) => ({
 			selectedDate: new Date(
 				state.selectedDate.setFullYear(
-					state.selectedDate.getFullYear() + by
-				)
+					state.selectedDate.getFullYear() + by,
+				),
 			),
 		})),
 
 	decMonth: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.setMonth(state.selectedDate.getMonth() - 1)
+				state.selectedDate.setMonth(state.selectedDate.getMonth() - 1),
 			),
 		}));
 	},
@@ -60,7 +66,7 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 	incMonth: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.setMonth(state.selectedDate.getMonth() + 1)
+				state.selectedDate.setMonth(state.selectedDate.getMonth() + 1),
 			),
 		}));
 	},
@@ -68,7 +74,7 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 	incWeek: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.setDate(state.selectedDate.getDate() + 7)
+				state.selectedDate.setDate(state.selectedDate.getDate() + 7),
 			),
 		}));
 	},
@@ -76,7 +82,21 @@ export const useCalendarStore = create<CalendarState>((set) => ({
 	decWeek: () => {
 		set((state) => ({
 			selectedDate: new Date(
-				state.selectedDate.setDate(state.selectedDate.getDate() - 7)
+				state.selectedDate.setDate(state.selectedDate.getDate() - 7),
+			),
+		}));
+	},
+	incDay: () => {
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.setDate(state.selectedDate.getDate() + 1),
+			),
+		}));
+	},
+	decDay: () => {
+		set((state) => ({
+			selectedDate: new Date(
+				state.selectedDate.setDate(state.selectedDate.getDate() - 1),
 			),
 		}));
 	},

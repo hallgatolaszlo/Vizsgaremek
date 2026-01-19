@@ -53,4 +53,4 @@ export type CalendarCellProps = {
 	inCurrentMonth: boolean;
 };
 
-export type CalendarViewType = "month" | "multiweek";
+export type CalendarViewType = "month" | "multiweek" | "week" | "day";

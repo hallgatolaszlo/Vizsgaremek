@@ -17,18 +17,18 @@ const darkPalette = [
 ];
 
 const lightPalette = [
-	"hsla(222, 20%, 99%, 1)", // 1 Background
-	"hsla(222, 20%, 97%, 1)", // 2 Subtle bg
-	"hsla(222, 20%, 94%, 1)", // 3 Inactive surface
-	"hsla(222, 20%, 91%, 1)", // 4 Default surface
-	"hsla(222, 20%, 86%, 1)", // 5 Hover surface
-	"hsla(222, 18%, 80%, 1)", // 6 Active surface
-	"hsla(222, 16%, 72%, 1)", // 7 Default border
-	"hsla(222, 16%, 60%, 1)", // 8 Hover border
-	"hsla(222, 16%, 48%, 1)", // 9 Muted fill
-	"hsla(222, 16%, 35%, 1)", // 10 Strong fill
-	"hsla(222, 18%, 22%, 1)", // 11 Secondary text
-	"hsla(222, 20%, 10%, 1)", // 12 Primary text
+	"hsla(0, 0%, 100%, 1)", // 1 Background - Pure White (Main Grid)
+	"hsla(210, 17%, 98%, 1)", // 2 Subtle bg - (Sidebar background)
+	"hsla(210, 14%, 95%, 1)", // 3 Inactive surface
+	"hsla(210, 12%, 92%, 1)", // 4 Default surface
+	"hsla(214, 11%, 89%, 1)", // 5 Hover surface
+	"hsla(214, 10%, 85%, 1)", // 6 Active surface
+	"hsla(214, 12%, 87%, 1)", // 7 Default border - (Thin #DADCE0 grid lines)
+	"hsla(214, 10%, 75%, 1)", // 8 Hover border
+	"hsla(214, 6%, 60%, 1)", // 9 Muted fill
+	"hsla(214, 6%, 45%, 1)", // 10 Strong fill
+	"hsla(210, 6%, 46%, 1)", // 11 Secondary text - (#70757A)
+	"hsla(225, 6%, 25%, 1)", // 12 Primary text - (#3C4043)
 ];
 
 const lightShadows = {
@@ -95,18 +95,18 @@ const builtThemes = createThemes({
 				"hsla(245, 100%, 98%, 1)",
 			],
 			light: [
-				"hsla(245, 100%, 99%, 1)",
-				"hsla(245, 100%, 97%, 1)",
-				"hsla(245, 90%, 92%, 1)",
-				"hsla(245, 85%, 85%, 1)",
-				"hsla(245, 80%, 75%, 1)",
-				"hsla(245, 70%, 55%, 1)", // Primary
-				"hsla(245, 65%, 48%, 1)",
-				"hsla(245, 60%, 40%, 1)",
-				"hsla(245, 60%, 30%, 1)",
-				"hsla(245, 60%, 20%, 1)",
-				"hsla(245, 60%, 12%, 1)",
-				"hsla(245, 60%, 7%, 1)",
+				"hsla(214, 100%, 98%, 1)",
+				"hsla(214, 95%, 96%, 1)",
+				"hsla(214, 90%, 93%, 1)",
+				"hsla(214, 85%, 88%, 1)",
+				"hsla(214, 80%, 80%, 1)",
+				"hsla(214, 82%, 51%, 1)", // 6 Primary - Google Blue (#1A73E8)
+				"hsla(214, 85%, 45%, 1)",
+				"hsla(214, 90%, 38%, 1)",
+				"hsla(214, 90%, 30%, 1)",
+				"hsla(214, 90%, 22%, 1)",
+				"hsla(214, 90%, 14%, 1)",
+				"hsla(214, 90%, 8%, 1)",
 			],
 		},
 	},

@@ -24,7 +24,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 				await refresh();
 				set({ isAuthorized: true });
 			} catch {
-				// Handle refresh failure if needed
 				set({ isAuthorized: false });
 			}
 		} finally {
