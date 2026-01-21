@@ -10,7 +10,9 @@ namespace backend.Context.ModelConfigurations
         {
             public void Configure(EntityTypeBuilder<EventContributor> builder)
             {
-
+                builder
+                    .Property(p => p.Status)
+                    .HasConversion<int>();
             }
         }
     }

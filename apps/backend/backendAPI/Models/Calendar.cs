@@ -12,8 +12,7 @@ namespace backend.Models
         public int Color { get; set; } = 1;
         public Guid ProfileId { get; set; }
         public Profile? Profile { get; set; }
-        public ICollection<Event>? Events { get; set; }
-        public ICollection<TaskItem>? TaskItems { get; set; }
+        public ICollection<CalendarEntry>? CalendarEntries { get; set; }
         public ICollection<SharedCalendar>? SharedCalendars { get; set; }
     }
 }

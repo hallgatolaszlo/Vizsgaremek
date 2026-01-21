@@ -24,8 +24,7 @@ namespace backend.Models
         public ICollection<Habit>? Habits { get; set; }
         public ICollection<Calendar>? Calendars { get; set; }
         public ICollection<SharedCalendar>? SharedCalendars { get; set; }
-        public ICollection<Event>? Events { get; set; }
-        public ICollection<TaskItem>? TaskItems { get; set; }
+        public ICollection<CalendarEntry>? CalendarEntries { get; set; }
         public ICollection<EventContributor>? EventContributors { get; set; }
         public ICollection<Friend>? FriendAsUser1 { get; set; }
         public ICollection<Friend>? FriendAsUser2 { get; set; }
