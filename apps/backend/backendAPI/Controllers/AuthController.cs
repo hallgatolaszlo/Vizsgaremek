@@ -3,6 +3,7 @@ using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
 using backend.Services;
+using backend.Services.Registration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -16,20 +17,19 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(IAuthService authService) : ControllerBase
+    public class AuthController(IAuthService authService, IUserRegistration userRegistration) : ControllerBase
     {
         [HttpPost("sign-up")]
         public async Task<ActionResult<string>> SignUp(SignUpRequestDTO request)
         {
             // Call the service to sign up
-            string? error = await authService.SignUpAsync(request);
+            ServiceResponse<bool> error = await userRegistration.RegisterUserWithProfileAndCalendarAsync(request);
 
             // Validate response
-            if (error is not null)
+            if (error.Success == false)
             {
-                return BadRequest(error);
+                return BadRequest(error.Message);
             }
-
             return Ok();
         }
 

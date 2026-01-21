@@ -39,18 +39,5 @@ namespace backend.Controllers
 
             return Ok(profile);
         }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> CreateUserProfile()
-        {
-            var userId = this.GetUserId();
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-
-        }
     }
 }

@@ -1,6 +1,7 @@
 
 using backend.Context;
 using backend.Services;
+using backend.Services.Registration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -79,6 +80,7 @@ namespace backend
             });
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IUserRegistration, UserRegistration>();
 
             var app = builder.Build();
 

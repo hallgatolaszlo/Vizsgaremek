@@ -1,5 +1,6 @@
 ﻿using backend.Common;
 using backend.Context;
+using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
 using Microsoft.AspNetCore.Identity;
@@ -17,40 +18,27 @@ namespace backend.Services
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<string?> SignUpAsync(SignUpRequestDTO request)
+        public async Task<ServiceResponse<bool>> SignUpAsync(SignUpRequestDTO request)
         {
             // Validate email
             if (!IsValidEmail(request.Email))
             {
-                return AuthErrors.InvalidEmail;
+                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.InvalidEmail }; 
             }
 
             // Validate password
             if (!IsValidPassword(request.Password))
             {
-                return AuthErrors.InvalidPassword;
+                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.InvalidPassword };
             }
 
             // Check if user with the same email already exists
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return AuthErrors.UserAlreadyExists;
+                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.UserAlreadyExists };
             }
 
-            // Create new user
-            User user = new User();
-            user.Email = request.Email;
-
-            // Hash password
-            string? hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
-            user.PasswordHash = hashedPassword!;
-
-            // Save user to database
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
-            // Successful registration returns null
-            return null;
+            return new ServiceResponse<bool> { Success = true };
         }
 
         public async Task<TokenResponseDTO?> SignInAsync(SignInRequestDTO request)

@@ -31,7 +31,7 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<GetCalendarDto>>> GetAllCalendars()
         {
-            var userId = this.GetUserId();
+            /*var userId = this.GetUserId();
             if (userId == null)
             {
                 return Unauthorized();
@@ -52,7 +52,8 @@ namespace backend.Controllers
 
             IEnumerable<GetCalendarDto> calendars = [.. owncalendars, .. sharedCalendars];
 
-            return Ok(calendars);
+            return Ok(calendars);*/
+            return Ok();
         }
     }
 }
