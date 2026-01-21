@@ -38,7 +38,7 @@ export class Week {
 
 	static getWeekdayLabels(
 		weekStartsOn: WeekStartDay,
-		format: "short" | "long" | "normal" = "normal"
+		format: "short" | "long" | "normal" = "normal",
 	): readonly string[] {
 		switch (format) {
 			case "short":

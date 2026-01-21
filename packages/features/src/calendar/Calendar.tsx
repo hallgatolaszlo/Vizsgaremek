@@ -27,49 +27,116 @@ export function Calendar({ grid = undefined }: CalendarProps) {
 		);
 	}
 
-	// Determine styling based on platform amd view type
+	// Determine styling based on platform
 	const weekDayLabels = isNative()
 		? Week.getWeekdayLabels(weekStartsOn, "normal")
 		: Week.getWeekdayLabels(weekStartsOn, "long");
-	const dayLabel = Week.getWeekdayLabels("sunday", "long")[
-		selectedDate.getDay()
-	];
-	const gap = isNative() ? "$1" : "$2";
 
-	return (
-		<YStack flex={1} width="100%" gap={gap}>
-			{/* Weekday Labels Header */}
-			<XStack gap={gap} width="100%">
-				{/* Hidden week number header for alignment */}
-				<Text style={{ visibility: "hidden" }}>W00</Text>
-				{viewType === "day" ? (
-					<Text
-						width="100%"
-						fontWeight="$2"
-						style={{ textAlign: "center" }}
-					>
-						{dayLabel}
-					</Text>
-				) : (
-					weekDayLabels.map((d, i) => (
+	const gap = isNative() ? "$1" : 0;
+
+	if (viewType === "month" || viewType === "multiweek") {
+		return (
+			<YStack flex={1} width="100%">
+				{/* Weekday Labels Header */}
+				<XStack width="100%">
+					{/* Hidden week number header for alignment */}
+					{weekDayLabels.map((d, i) => (
 						<Text
-							width="100%"
 							key={i}
+							py={"$2"}
 							flex={1}
+							flexBasis={0}
 							fontWeight="$2"
-							style={{ textAlign: "center" }}
+							style={{
+								textAlign: "center",
+								border: "2px solid var(--color5)",
+								borderBottomWidth: 0,
+								borderLeftWidth: 2,
+								borderRightWidth:
+									i === weekDayLabels.length - 1 ? 2 : 0,
+							}}
 						>
 							{d}
 						</Text>
-					))
-				)}
+					))}
+				</XStack>
+				{/* Calendar Grid */}
+				<YStack flex={1} gap={gap} flexBasis={0}>
+					{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
+						<XStack gap={gap} flex={1} flexBasis={0} key={rowIndex}>
+							{row.map((cell, i) => (
+								<CalendarCell
+									key={i}
+									cell={cell}
+									weekNumber={i == 0 ? weekNumber : ""}
+									style={{
+										borderRadius: 0,
+										borderLeftWidth: 2,
+										borderTopWidth: 2,
+										borderRightWidth:
+											i === row.length - 1 ? 2 : 0,
+										borderBottomWidth:
+											rowIndex ===
+											Object.keys(grid).length - 1
+												? 2
+												: 0,
+										borderColor: "var(--color5)",
+									}}
+								/>
+							))}
+						</XStack>
+					))}
+				</YStack>
+			</YStack>
+		);
+	}
+
+	return (
+		<YStack flex={1} width="100%">
+			{/* Weekday Labels Header */}
+			<XStack width="100%">
+				{/* Hidden week number header for alignment */}
+				{viewType === "week" &&
+					weekDayLabels.map((d, i) => (
+						<Text
+							key={i}
+							py={"$2"}
+							flex={1}
+							flexBasis={0}
+							fontWeight="$2"
+							style={{
+								textAlign: "center",
+								border: "2px solid var(--color5)",
+								borderBottomWidth: 0,
+								borderLeftWidth: 2,
+								borderRightWidth:
+									i === weekDayLabels.length - 1 ? 2 : 0,
+							}}
+						>
+							{d}
+						</Text>
+					))}
 			</XStack>
 			{/* Calendar Grid */}
 			{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
-				<XStack gap={gap} flex={1} width="100%" key={rowIndex}>
-					<Text fontWeight="$2">{weekNumber}</Text>
+				<XStack flex={1} flexBasis={0} key={rowIndex}>
 					{row.map((cell, i) => (
-						<CalendarCell key={i} cell={cell} />
+						<CalendarCell
+							key={i}
+							cell={cell}
+							style={{
+								maxHeight: "fit-content",
+								borderRadius: 0,
+								borderLeftWidth: 2,
+								borderTopWidth: 2,
+								borderRightWidth: i === row.length - 1 ? 2 : 0,
+								borderBottomWidth:
+									rowIndex === Object.keys(grid).length - 1
+										? 2
+										: 0,
+								borderColor: "var(--color5)",
+							}}
+						/>
 					))}
 				</XStack>
 			))}

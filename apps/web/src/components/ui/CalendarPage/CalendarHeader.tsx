@@ -1,13 +1,13 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
-import { StyledButton, ToggleGroupItemText } from "@repo/ui";
+import { StyledButton } from "@repo/ui";
 import {
 	ArrowBigLeft,
 	ArrowBigRight,
 	CalendarDays,
 } from "@tamagui/lucide-icons";
 import { useEffect, useRef, useState } from "react";
-import { Separator, Text, ToggleGroup, View, XGroup, XStack } from "tamagui";
+import { Button, Separator, Text, XGroup, XStack } from "tamagui";
 
 interface CalendarHeaderProps {
 	grid: Record<string, CalendarCellProps[]>;
@@ -153,34 +153,35 @@ export default function CalendarHeader({
 
 	const ViewTypeToggle = () => {
 		return (
-			<View>
-				<ToggleGroup type="single" defaultValue="month">
-					<ToggleGroup.Item
-						value="day"
-						onPress={() => setViewType("day")}
-					>
-						<ToggleGroupItemText text="Day" />
-					</ToggleGroup.Item>
-					<ToggleGroup.Item
-						value="week"
-						onPress={() => setViewType("week")}
-					>
-						<ToggleGroupItemText text="Week" />
-					</ToggleGroup.Item>
-					<ToggleGroup.Item
-						value="multiweek"
-						onPress={() => setViewType("multiweek")}
-					>
-						<ToggleGroupItemText text="Multiweek" />
-					</ToggleGroup.Item>
-					<ToggleGroup.Item
-						value="month"
-						onPress={() => setViewType("month")}
-					>
-						<ToggleGroupItemText text="Month" />
-					</ToggleGroup.Item>
-				</ToggleGroup>
-			</View>
+			<XGroup>
+				<Button
+					bg={viewType === "day" ? "$color5" : "$color4"}
+					onPress={() => setViewType("day")}
+				>
+					<Text>Day</Text>
+				</Button>
+				<Separator vertical />
+				<Button
+					bg={viewType === "week" ? "$color5" : "$color4"}
+					onPress={() => setViewType("week")}
+				>
+					<Text>Week</Text>
+				</Button>
+				<Separator vertical />
+				<Button
+					bg={viewType === "multiweek" ? "$color5" : "$color4"}
+					onPress={() => setViewType("multiweek")}
+				>
+					<Text>Multiweek</Text>
+				</Button>
+				<Separator vertical />
+				<Button
+					bg={viewType === "month" ? "$color5" : "$color4"}
+					onPress={() => setViewType("month")}
+				>
+					<Text>Month</Text>
+				</Button>
+			</XGroup>
 		);
 	};
 
@@ -189,7 +190,8 @@ export default function CalendarHeader({
 			ref={headerRef}
 			flex={1}
 			flexBasis={0}
-			py="$2"
+			bg={"$color2"}
+			p="$4"
 			gap="$2"
 			style={{
 				maxHeight: "fit-content",
@@ -203,7 +205,7 @@ export default function CalendarHeader({
 				style={{
 					justifyContent: "start",
 					alignItems: "center",
-					gap: 10,
+					gap: 20,
 				}}
 			>
 				<HeaderDateButtonGroup />
@@ -214,7 +216,7 @@ export default function CalendarHeader({
 				style={{
 					justifyContent: isWrapped ? "start" : "end",
 					alignItems: "center",
-					gap: 10,
+					gap: 20,
 				}}
 			>
 				{isWrapped && <ViewTypeToggle />}

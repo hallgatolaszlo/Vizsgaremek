@@ -6,17 +6,8 @@ import { FullscreenView } from "@/src/components/ui/FullscreenView";
 import { Calendar } from "@repo/features";
 import { useCalendarStore } from "@repo/hooks";
 import { generateGrid } from "@repo/utils";
-import type { ComponentProps, WheelEventHandler } from "react";
-import { useMemo } from "react";
-import { Separator, YStack } from "tamagui";
-
-type WheelableProps = ComponentProps<typeof YStack> & {
-	onWheel?: WheelEventHandler;
-};
-
-const WheelableYStack = (props: WheelableProps) => {
-	return <YStack {...props}>{props.children}</YStack>;
-};
+import { useEffect, useMemo, useRef } from "react";
+import { XStack, YStack } from "tamagui";
 
 export default function CalendarPage() {
 	const {
@@ -66,22 +57,33 @@ export default function CalendarPage() {
 		incWeek();
 	}
 
-	const handleCalendarWheel: WheelEventHandler = (e) => {
-		// Only triggers while the cursor is over this Calendar wrapper.
-		e.preventDefault();
-		e.stopPropagation();
+	// Attach a non-passive wheel listener to allow preventDefault
+	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
 
-		if (e.deltaY > 0) {
-			increaseView();
-			return;
-		}
-		if (e.deltaY < 0) {
-			decreaseView();
-		}
-	};
+	useEffect(() => {
+		const el = wheelableYStackRef.current;
+		if (!el) return;
+
+		const handleWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.deltaY > 0) {
+				increaseView();
+				return;
+			}
+			if (e.deltaY < 0) {
+				decreaseView();
+			}
+		};
+
+		el.addEventListener("wheel", handleWheel, { passive: false });
+		return () => el.removeEventListener("wheel", handleWheel);
+	}, [increaseView, decreaseView]);
 
 	return (
-		<FullscreenView stack="XStack">
+		<FullscreenView stack="XStack" style={{ overflow: "hidden" }}>
 			<YStack
 				flex={1}
 				p="$4"
@@ -92,21 +94,16 @@ export default function CalendarPage() {
 				<SidebarCalendar />
 				{/* My calendars */}
 			</YStack>
-			<YStack p="$2" gap="$2" minW={0} flex={1}>
+			<YStack minW={0} flex={1}>
 				{/* Calendar Header */}
 				<CalendarHeader
 					grid={grid}
 					decreaseView={decreaseView}
 					increaseView={increaseView}
 				/>
-				<Separator mb="$2"></Separator>
-				<WheelableYStack
-					onWheel={handleCalendarWheel}
-					flex={1}
-					minW={0}
-				>
+				<XStack ref={wheelableYStackRef} flex={1} minW={0}>
 					<Calendar grid={grid} />
-				</WheelableYStack>
+				</XStack>
 			</YStack>
 		</FullscreenView>
 	);

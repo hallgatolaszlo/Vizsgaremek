@@ -11,13 +11,7 @@ import {
 	ArrowBigRightDash,
 	Check,
 } from "@tamagui/lucide-icons";
-import {
-	ComponentProps,
-	useEffect,
-	useMemo,
-	useState,
-	WheelEventHandler,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	ButtonProps,
 	Select,
@@ -29,22 +23,6 @@ import {
 	YStack,
 } from "tamagui";
 
-type WheelableYStackProps = ComponentProps<typeof YStack> & {
-	onWheel?: WheelEventHandler;
-};
-
-type WheelableXGroupProps = ComponentProps<typeof XGroup> & {
-	onWheel?: WheelEventHandler;
-};
-
-const WheelableYStack = (props: WheelableYStackProps) => {
-	return <YStack {...props}>{props.children}</YStack>;
-};
-
-const WheelableXGroup = (props: WheelableXGroupProps) => {
-	return <XGroup {...props}>{props.children}</XGroup>;
-};
-
 export default function SidebarCalendar() {
 	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
 		useCalendarStore();
@@ -52,6 +30,64 @@ export default function SidebarCalendar() {
 	const [sidebarDate, setSidebarDate] = useState<Date>(
 		new Date(selectedDate),
 	);
+
+	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
+	const wheelableYearXGroupRef = useRef<HTMLDivElement | null>(null);
+	const wheelableMonthXGroupRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const wheelableYStack = wheelableYStackRef.current;
+		const wheelableYearXGroup = wheelableYearXGroupRef.current;
+		const wheelableMonthXGroup = wheelableMonthXGroupRef.current;
+		if (!wheelableYStack || !wheelableYearXGroup || !wheelableMonthXGroup)
+			return;
+
+		const handleMonthWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.deltaY > 0) {
+				incMonthSidebar();
+				return;
+			}
+
+			if (e.deltaY < 0) {
+				decMonthSidebar();
+			}
+		};
+
+		const handleYearWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.deltaY > 0) {
+				incYearSidebar(1);
+				return;
+			}
+
+			if (e.deltaY < 0) {
+				decYearSidebar(1);
+			}
+		};
+
+		wheelableYStack.addEventListener("wheel", handleMonthWheel, {
+			passive: false,
+		});
+		wheelableYearXGroup.addEventListener("wheel", handleYearWheel, {
+			passive: false,
+		});
+		wheelableMonthXGroup.addEventListener("wheel", handleMonthWheel, {
+			passive: false,
+		});
+
+		return () => {
+			wheelableYStack.removeEventListener("wheel", handleMonthWheel);
+			wheelableYearXGroup.removeEventListener("wheel", handleYearWheel);
+			wheelableMonthXGroup.removeEventListener("wheel", handleMonthWheel);
+		};
+	}, [incMonthSidebar, decMonthSidebar, incYearSidebar, decYearSidebar]);
 
 	useEffect(() => {
 		setSidebarDate(new Date(selectedDate));
@@ -225,36 +261,6 @@ export default function SidebarCalendar() {
 		);
 	}
 
-	const handleMonthWheel: WheelEventHandler = (e) => {
-		// Only triggers while the cursor is over this Calendar wrapper.
-		e.preventDefault();
-		e.stopPropagation();
-
-		if (e.deltaY > 0) {
-			incMonthSidebar();
-			return;
-		}
-
-		if (e.deltaY < 0) {
-			decMonthSidebar();
-		}
-	};
-
-	const handleYearWheel: WheelEventHandler = (e) => {
-		// Only triggers while the cursor is over this Calendar wrapper.
-		e.preventDefault();
-		e.stopPropagation();
-
-		if (e.deltaY > 0) {
-			incYearSidebar(1);
-			return;
-		}
-
-		if (e.deltaY < 0) {
-			decYearSidebar(1);
-		}
-	};
-
 	function decideBgColor(cell: CalendarCellProps): ButtonProps {
 		if (cell.date.toDateString() === selectedDate.toDateString()) {
 			return {
@@ -265,7 +271,7 @@ export default function SidebarCalendar() {
 			};
 		}
 		if (cell.date.toDateString() === currentDate.toDateString()) {
-			return { bg: "$color5" };
+			return { bg: "$accent3" };
 		}
 		if (!cell.inCurrentMonth) {
 			return { bg: "$color3" };
@@ -278,7 +284,7 @@ export default function SidebarCalendar() {
 			{/* Calendar Header */}
 			<YStack gap="$2" width="100%">
 				{/* Year Selector */}
-				<WheelableXGroup onWheel={handleYearWheel}>
+				<XGroup ref={wheelableYearXGroupRef}>
 					<XGroup.Item>
 						<StyledButton
 							width="$2"
@@ -323,10 +329,10 @@ export default function SidebarCalendar() {
 							<Text>{<ArrowBigRightDash />}</Text>
 						</StyledButton>
 					</XGroup.Item>
-				</WheelableXGroup>
+				</XGroup>
 
 				{/* Month Selector */}
-				<WheelableXGroup onWheel={handleMonthWheel}>
+				<XGroup ref={wheelableMonthXGroupRef}>
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
@@ -347,14 +353,11 @@ export default function SidebarCalendar() {
 							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
-				</WheelableXGroup>
+				</XGroup>
 
-				<WheelableYStack
-					onWheel={handleMonthWheel}
-					flex={1}
-					minW={0}
-					gap="$2"
-				>
+				<Separator />
+
+				<YStack ref={wheelableYStackRef} flex={1} minW={0} gap="$2">
 					{/* Weekday header */}
 					<XStack
 						mt="$2"
@@ -388,7 +391,7 @@ export default function SidebarCalendar() {
 							))}
 						</XStack>
 					))}
-				</WheelableYStack>
+				</YStack>
 			</YStack>
 		</View>
 	);
