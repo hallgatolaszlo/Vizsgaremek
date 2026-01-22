@@ -26,32 +26,19 @@ namespace backend.Services.Registration
             try
             {
                 // Call the service to sign up
-                ServiceResponse<bool> error = await _authService.SignUpAsync(request);
+                ServiceResponse<Guid> user = await _authService.SignUpAsync(request);
 
-                // Validate response
-                if (error.Success == false)
+                if (user.Success == false)
                 {
-                    throw new Exception(error.Message);
+                    throw new Exception(user.Message);
                 }
-
-                // Create new user
-                User user = new User();
-                user.Email = request.Email;
-
-                // Hash password
-                string? hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
-                user.PasswordHash = hashedPassword!;
-
-                // Save user to database
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
 
                 var profile = new Profile
                 {
                     Username = request.Email,
                     Avatar = "placeholder",
                     IsPrivate = false,
-                    UserId = user.Id,
+                    UserId = user.Data,
                 };
 
                 _context.Profiles.Add(profile);

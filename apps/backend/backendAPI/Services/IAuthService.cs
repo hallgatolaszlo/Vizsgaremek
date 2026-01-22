@@ -6,7 +6,7 @@ namespace backend.Services
 {
     public interface IAuthService
     {
-        Task<ServiceResponse<bool>> SignUpAsync(SignUpRequestDTO request);
+        Task<ServiceResponse<Guid>> SignUpAsync(SignUpRequestDTO request);
         Task<TokenResponseDTO?> SignInAsync(SignInRequestDTO request);
         Task<TokenResponseDTO?> RefreshTokensAsync(TokenResponseDTO request);
     }

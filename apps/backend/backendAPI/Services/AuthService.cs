@@ -1,4 +1,11 @@
-﻿using backend.Common;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using backend.Common;
 using backend.Context;
 using backend.DTOs;
 using backend.DTOs.Auth;
@@ -6,39 +13,45 @@ using backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Mail;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend.Services
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<ServiceResponse<bool>> SignUpAsync(SignUpRequestDTO request)
+        public async Task<ServiceResponse<Guid>> SignUpAsync(SignUpRequestDTO request)
         {
             // Validate email
             if (!IsValidEmail(request.Email))
             {
-                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.InvalidEmail }; 
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.InvalidEmail }; 
             }
 
             // Validate password
             if (!IsValidPassword(request.Password))
             {
-                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.InvalidPassword };
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.InvalidPassword };
             }
 
             // Check if user with the same email already exists
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return new ServiceResponse<bool> { Success = false, Message = AuthErrors.UserAlreadyExists };
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.UserAlreadyExists };
             }
 
-            return new ServiceResponse<bool> { Success = true };
+            // Create new user
+            User user = new User();
+            user.Email = request.Email;
+
+            // Hash password
+            string? hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+            user.PasswordHash = hashedPassword!;
+
+            // Save user to database
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            return new ServiceResponse<Guid> { Data = user.Id, Success = true };
         }
 
         public async Task<TokenResponseDTO?> SignInAsync(SignInRequestDTO request)
