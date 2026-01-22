@@ -62,7 +62,7 @@ namespace backend.Services
             // Create and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
-                AccessToken = CreateToken(user),
+                AccessToken = await CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             return tokenDTO;
@@ -95,7 +95,7 @@ namespace backend.Services
             // Generate and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
-                AccessToken = CreateToken(user),
+                AccessToken = await CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             return tokenDTO;
@@ -170,15 +170,17 @@ namespace backend.Services
         }
 
         // Create JWT access token
-        private string CreateToken(User user)
+        private async Task<string> CreateToken(User user)
         {
             DateTime now = DateTime.UtcNow;
 
+            var profileId = await context.Profiles.Where(x=>x.UserId==user.Id).Select(x=>x.Id).FirstOrDefaultAsync();
             // Define claims
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim("ProfileId", profileId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(now).ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String)
             };

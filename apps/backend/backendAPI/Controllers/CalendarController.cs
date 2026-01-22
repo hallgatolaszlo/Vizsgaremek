@@ -1,7 +1,7 @@
 ﻿using backend.Common;
 using backend.Context;
-using backend.DTOs;
 using backend.DTOs.Auth;
+using backend.DTOs.Calendar;
 using backend.Extensions;
 using backend.Models;
 using backend.Services;
@@ -29,34 +29,53 @@ namespace backend.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarDto>>> GetAllCalendars()
+        public async Task<ActionResult<IEnumerable<GetCalendarDto>>> GetAllCalendarsForUser()
         {
-            /*var userId = this.GetUserId();
-            if (userId == null)
+            var profileId = this.GetProfileId();
+            if (profileId == null) 
             {
                 return Unauthorized();
             }
-            var profileId = await _context.Profiles.Where(x=>x.UserId == new Guid(userId)).Select(x=>x.Id).FirstOrDefaultAsync();
-
-            IEnumerable<GetCalendarDto> owncalendars = await _context.Calendars.Where(x => x.ProfileId == profileId).Select(x=> new GetCalendarDto
+            IEnumerable<GetCalendarDto> owncalendars = await _context.Calendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDto
             {
+                Id = x.Id,
                 Color = x.Color,
                 Name = x.Name,
             }).ToListAsync();
 
-            IEnumerable<GetCalendarDto> sharedCalendars = await _context.SharedCalendars.Where(x=>x.ProfileId==profileId).Select(x=> new GetCalendarDto
+            IEnumerable<GetCalendarDto> sharedCalendars = await _context.SharedCalendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDto
             {
+                Id = x.CalendarId,
                 Name = x.Calendar!.Name,
                 Color = x.Calendar!.Color,
             }).ToListAsync();
 
             IEnumerable<GetCalendarDto> calendars = [.. owncalendars, .. sharedCalendars];
 
-            return Ok(calendars);*/
+            return Ok(calendars);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> CreateCalendar(CreateCalendarDto request)
+        {
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
+            var calendar = new Calendar
+            {
+                Name = request.Name,
+                Color = request.Color,
+                ProfileId = profileId.Value,
+            };
+
+            _context.Calendars.Add(calendar);
+            await _context.SaveChangesAsync();
+
             return Ok();
         }
     }
 }
-
-
-//SELECT c."Name", c."Color" FROM "Calendars" AS c INNER JOIN "SharedCalendars" AS sc ON c."ProfileId" = sc."ProfileId";

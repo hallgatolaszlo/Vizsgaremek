@@ -29,6 +29,7 @@ namespace backend.Controllers
 
             var profile = await _context.Profiles.Where(x => x.UserId == userId).Select(x => new GetProfileDto
             {
+                Id = x.Id,
                 Username = x.Username,
                 Avatar = x.Avatar,
                 IsPrivate = x.IsPrivate,
