@@ -1,33 +1,28 @@
-import { MonthLabel, MonthLabelShort } from "@repo/types";
-
 export class Month {
-	public static months: MonthLabel[] = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December",
-	];
+	static getMonthLabel(
+		locale: Intl.Locale,
+		monthIndex: number,
+		format: Intl.DateTimeFormatOptions["month"],
+	): string {
+		return new Date(2025, monthIndex).toLocaleString(locale, {
+			month: format,
+		});
+	}
 
-	public static shortMonths: MonthLabelShort[] = [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec",
-	];
+	public static getMonthsLabels: (
+		locale: Intl.Locale,
+		format: Intl.DateTimeFormatOptions["month"],
+	) => string[] = (locale, format) => {
+		return [...Array(12).keys()].map((monthIndex) =>
+			Month.getMonthLabel(locale, monthIndex, format),
+		);
+	};
+
+	public static getMonthLabels: (
+		locale: Intl.Locale,
+		monthIndex: number,
+		format: Intl.DateTimeFormatOptions["month"],
+	) => string = (locale, monthIndex, format) => {
+		return Month.getMonthLabel(locale, monthIndex, format);
+	};
 }

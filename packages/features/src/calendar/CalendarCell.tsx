@@ -5,7 +5,6 @@ import { Card, CardProps, Text } from "tamagui";
 
 interface CalendarCellComponentProps extends CardProps {
 	cell: CalendarCellProps;
-	weekNumber?: string;
 }
 
 export default function CalendarCell(props: CalendarCellComponentProps) {
@@ -13,7 +12,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		useCalendarStore();
 	const { locale } = useProfileStore();
 
-	const { cell, weekNumber } = props;
+	const { cell } = props;
 
 	// Determine header label to show
 	const headerLabel = () => {
@@ -92,7 +91,6 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			flex={1}
 			flexBasis={0}
 			minW={0}
-			padding={5}
 			onPress={() => setSelectedDate(new Date(cell.date))}
 		>
 			<Card.Header
@@ -104,13 +102,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			>
 				<Text
 					fontWeight="$2"
-					style={{ position: "absolute", left: 7, top: 7 }}
-				>
-					{weekNumber}
-				</Text>
-				<Text
 					style={{
-						fontWeight: "bold",
 						textAlign: "center",
 						textWrap: "none",
 						wordBreak: "unset",

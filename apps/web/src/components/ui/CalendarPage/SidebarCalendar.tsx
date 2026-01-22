@@ -1,6 +1,6 @@
 "use client";
 
-import { useCalendarStore } from "@repo/hooks";
+import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { StyledButton } from "@repo/ui";
 import { generateGrid, Month, Week } from "@repo/utils";
@@ -26,6 +26,8 @@ import {
 export default function SidebarCalendar() {
 	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
 		useCalendarStore();
+
+	const { locale } = useProfileStore();
 
 	const [sidebarDate, setSidebarDate] = useState<Date>(
 		new Date(selectedDate),
@@ -212,50 +214,37 @@ export default function SidebarCalendar() {
 	}
 
 	function SelectMonth() {
+		const months = useMemo(() => {
+			return Month.getMonthsLabels(locale, "long");
+		}, [locale]);
+
 		return (
 			<SelectElement
-				value={Month.months[sidebarDate.getMonth()]}
+				value={months[sidebarDate.getMonth()]}
 				onValueChange={(val) =>
 					setSidebarDate(
 						new Date(
 							sidebarDate.getFullYear(),
-							Number(
-								Object.keys(Month.months).find(
-									(key) =>
-										Month.months[
-											Number(
-												key,
-											) as keyof typeof Month.months
-										] === val,
-								),
-							),
+							months.indexOf(val),
 							sidebarDate.getDate(),
 						),
 					)
 				}
 				renderValue={() => (
-					<Text>{Month.months[sidebarDate.getMonth()]}</Text>
+					<Text>{months[sidebarDate.getMonth()]}</Text>
 				)}
 				triggerPlaceholder="Select month"
 				groupItems={useMemo(
 					() =>
-						Object.entries(Month.months).map(
-							([monthIndex, monthName], i) => (
-								<Select.Item
-									index={i}
-									key={monthIndex}
-									value={monthName}
-								>
-									<Select.ItemText>
-										{monthName}
-									</Select.ItemText>
-									<Select.ItemIndicator marginLeft="auto">
-										<Check size={16} />
-									</Select.ItemIndicator>
-								</Select.Item>
-							),
-						),
-					[Month.months],
+						months.map((monthName, i) => (
+							<Select.Item index={i} key={i} value={monthName}>
+								<Select.ItemText>{monthName}</Select.ItemText>
+								<Select.ItemIndicator marginLeft="auto">
+									<Check size={16} />
+								</Select.ItemIndicator>
+							</Select.Item>
+						)),
+					[months],
 				)}
 			/>
 		);
@@ -365,7 +354,11 @@ export default function SidebarCalendar() {
 						width="100%"
 						style={{ textAlign: "center" }}
 					>
-						{Week.getWeekdayLabels(weekStartsOn).map((d, i) => (
+						{Week.getWeekdayLabels(
+							locale,
+							"short",
+							weekStartsOn,
+						).map((d, i) => (
 							<Text width="100%" key={i} flex={1} fontWeight="$2">
 								{d}
 							</Text>

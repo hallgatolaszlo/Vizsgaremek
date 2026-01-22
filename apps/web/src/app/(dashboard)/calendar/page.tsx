@@ -62,7 +62,7 @@ export default function CalendarPage() {
 
 	useEffect(() => {
 		const el = wheelableYStackRef.current;
-		if (!el) return;
+		if (!el || viewType === "day" || viewType === "week") return;
 
 		const handleWheel = (e: WheelEvent) => {
 			// Only triggers while the cursor is over this Calendar wrapper.
@@ -80,7 +80,7 @@ export default function CalendarPage() {
 
 		el.addEventListener("wheel", handleWheel, { passive: false });
 		return () => el.removeEventListener("wheel", handleWheel);
-	}, [increaseView, decreaseView]);
+	}, [increaseView, decreaseView, viewType]);
 
 	return (
 		<FullscreenView stack="XStack" style={{ overflow: "hidden" }}>

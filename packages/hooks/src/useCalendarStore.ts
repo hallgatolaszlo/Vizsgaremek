@@ -26,7 +26,7 @@ export interface CalendarState {
 export const useCalendarStore = create<CalendarState>((set) => ({
 	currentDate: new Date(),
 	selectedDate: new Date(),
-	weekStartsOn: "monday" as WeekStartDay,
+	weekStartsOn: "month" as WeekStartDay,
 	viewType: "month" as CalendarViewType,
 
 	setSelectedDate: (date: Date) => set({ selectedDate: new Date(date) }),
