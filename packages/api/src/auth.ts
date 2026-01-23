@@ -12,11 +12,11 @@ export async function signUp(request: SignUpRequestDTO) {
 }
 
 export async function signIn(
-	request: SignInRequestDTO
+	request: SignInRequestDTO,
 ): Promise<TokenResponseDTO | void> {
 	const response = await api.post<TokenResponseDTO>(
 		"api/auth/sign-in",
-		request
+		request,
 	);
 	return response.data;
 }

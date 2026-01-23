@@ -17,18 +17,18 @@ const darkPalette = [
 ];
 
 const lightPalette = [
-	"hsla(0, 0%, 100%, 1)", // 1 Background - Pure White (Main Grid)
-	"hsla(210, 17%, 98%, 1)", // 2 Subtle bg - (Sidebar background)
+	"hsla(0, 0%, 100%, 1)", // 1 Background
+	"hsla(210, 17%, 98%, 1)", // 2 Subtle bg
 	"hsla(210, 14%, 95%, 1)", // 3 Inactive surface
 	"hsla(210, 12%, 92%, 1)", // 4 Default surface
 	"hsla(214, 11%, 89%, 1)", // 5 Hover surface
 	"hsla(214, 10%, 85%, 1)", // 6 Active surface
-	"hsla(214, 12%, 87%, 1)", // 7 Default border - (Thin #DADCE0 grid lines)
+	"hsla(214, 12%, 87%, 1)", // 7 Default border
 	"hsla(214, 10%, 75%, 1)", // 8 Hover border
 	"hsla(214, 6%, 60%, 1)", // 9 Muted fill
 	"hsla(214, 6%, 45%, 1)", // 10 Strong fill
-	"hsla(210, 6%, 46%, 1)", // 11 Secondary text - (#70757A)
-	"hsla(225, 6%, 25%, 1)", // 12 Primary text - (#3C4043)
+	"hsla(210, 6%, 46%, 1)", // 11 Secondary text
+	"hsla(225, 6%, 25%, 1)", // 12 Primary text
 ];
 
 const lightShadows = {

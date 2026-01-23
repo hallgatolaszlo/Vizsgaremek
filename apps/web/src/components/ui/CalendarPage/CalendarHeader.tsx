@@ -7,7 +7,7 @@ import {
 	CalendarDays,
 } from "@tamagui/lucide-icons";
 import { useEffect, useRef, useState } from "react";
-import { Button, Separator, Text, XGroup, XStack } from "tamagui";
+import { Separator, Text, XGroup, XStack } from "tamagui";
 
 interface CalendarHeaderProps {
 	grid: Record<string, CalendarCellProps[]>;
@@ -154,33 +154,39 @@ export default function CalendarHeader({
 	const ViewTypeToggle = () => {
 		return (
 			<XGroup>
-				<Button
+				<StyledButton
 					bg={viewType === "day" ? "$color5" : "$color4"}
 					onPress={() => setViewType("day")}
 				>
-					<Text>Day</Text>
-				</Button>
+					<Text style={{ userSelect: "none" }}>Day</Text>
+				</StyledButton>
+
 				<Separator vertical />
-				<Button
+
+				<StyledButton
 					bg={viewType === "week" ? "$color5" : "$color4"}
 					onPress={() => setViewType("week")}
 				>
-					<Text>Week</Text>
-				</Button>
+					<Text style={{ userSelect: "none" }}>Week</Text>
+				</StyledButton>
+
 				<Separator vertical />
-				<Button
+
+				<StyledButton
 					bg={viewType === "multiweek" ? "$color5" : "$color4"}
 					onPress={() => setViewType("multiweek")}
 				>
-					<Text>Multiweek</Text>
-				</Button>
+					<Text style={{ userSelect: "none" }}>Multiweek</Text>
+				</StyledButton>
+
 				<Separator vertical />
-				<Button
+
+				<StyledButton
 					bg={viewType === "month" ? "$color5" : "$color4"}
 					onPress={() => setViewType("month")}
 				>
-					<Text>Month</Text>
-				</Button>
+					<Text style={{ userSelect: "none" }}>Month</Text>
+				</StyledButton>
 			</XGroup>
 		);
 	};

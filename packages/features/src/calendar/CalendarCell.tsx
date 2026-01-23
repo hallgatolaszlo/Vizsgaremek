@@ -66,6 +66,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			return {
 				bg: "$accent3",
 				outlineWidth: 2,
+				outlineOffset: -2,
 				outlineColor: "$accent9",
 				outlineStyle: "solid",
 				position: "relative",

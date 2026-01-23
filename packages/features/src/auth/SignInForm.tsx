@@ -50,7 +50,6 @@ export function SignInForm({
 			password: "",
 		},
 	});
-	0;
 
 	// Mutation for sign-in action
 	const signInMutation = useMutation({
@@ -64,7 +63,7 @@ export function SignInForm({
 				setError(err.response?.data);
 			} else {
 				setError(
-					"An unexpected error occurred. Please try again later."
+					"An unexpected error occurred. Please try again later.",
 				);
 			}
 		},
@@ -141,7 +140,9 @@ export function SignInForm({
 						!signInMutation.isPending ? <LogIn /> : undefined
 					}
 				>
-					{!signInMutation.isPending && <Text>Sign In</Text>}
+					{!signInMutation.isPending && (
+						<Text style={{ userSelect: "none" }}>Sign In</Text>
+					)}
 				</StyledButton>
 				{error && (
 					<Theme name="error">

@@ -72,7 +72,7 @@ export function SignUpForm() {
 				setError(err.response?.data);
 			} else {
 				setError(
-					"An unexpected error occurred. Please try again later."
+					"An unexpected error occurred. Please try again later.",
 				);
 			}
 		},
@@ -149,7 +149,9 @@ export function SignUpForm() {
 						!signUpMutation.isPending ? <UserPlus /> : undefined
 					}
 				>
-					{!signUpMutation.isPending && <Text>Sign Up</Text>}
+					{!signUpMutation.isPending && (
+						<Text style={{ userSelect: "none" }}>Sign Up</Text>
+					)}
 				</StyledButton>
 				{error && (
 					<Theme name="error">

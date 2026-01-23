@@ -377,7 +377,10 @@ export default function SidebarCalendar() {
 									aspectRatio={1}
 									onPress={() => handleDaySelect(cell.date)}
 								>
-									<Text fontSize="$3">
+									<Text
+										style={{ userSelect: "none" }}
+										fontSize="$3"
+									>
 										{cell.date.getDate()}
 									</Text>
 								</StyledButton>

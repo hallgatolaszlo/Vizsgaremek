@@ -25,7 +25,9 @@ function PublicNavbar() {
 					iconAfter={<LogIn />}
 					onPress={handleNavigation}
 				>
-					<Text>Sign In / Sign Up</Text>
+					<Text style={{ userSelect: "none" }}>
+						Sign In / Sign Up
+					</Text>
 				</StyledButton>
 				<ThemeToggle />
 			</XStack>
@@ -46,7 +48,7 @@ function PrivateNavbar() {
 						window.location.href = "/sign-in";
 					}}
 				>
-					<Text>Sign Out</Text>
+					<Text style={{ userSelect: "none" }}>Sign Out</Text>
 				</StyledButton>
 				<ThemeToggle />
 			</XStack>
