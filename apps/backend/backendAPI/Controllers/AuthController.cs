@@ -2,7 +2,7 @@
 using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
-using backend.Services;
+using backend.Services.Auth;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

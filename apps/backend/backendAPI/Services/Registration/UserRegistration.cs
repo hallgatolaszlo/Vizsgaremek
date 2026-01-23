@@ -3,6 +3,7 @@ using backend.Context;
 using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
+using backend.Services.Auth;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

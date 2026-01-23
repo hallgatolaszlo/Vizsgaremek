@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace backend.Services
+namespace backend.Services.Auth
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {

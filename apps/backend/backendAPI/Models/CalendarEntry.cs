@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using backend.Models.Enums;
+using backend.Services;
 
 namespace backend.Models
 {
-    public class CalendarEntry
+    public class CalendarEntry : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]

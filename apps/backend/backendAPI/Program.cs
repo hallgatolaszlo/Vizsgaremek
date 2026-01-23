@@ -1,7 +1,7 @@
 
 using System.Text;
 using backend.Context;
-using backend.Services;
+using backend.Services.Auth;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

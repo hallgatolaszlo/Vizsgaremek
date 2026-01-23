@@ -1,5 +1,5 @@
 ﻿using backend.Context;
-using backend.Services;
+using backend.Services.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
