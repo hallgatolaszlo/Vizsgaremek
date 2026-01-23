@@ -68,13 +68,16 @@ export default function TestPage(): JSX.Element {
             </Button>
             <Button onPress={() => console.log(getCalendar())}>Naptárak</Button>
             <Button
-                onPress={() =>
+                onPress={() => {
+                    let date = new Date();
+                    date = new Date(date.setDate(date.getDate() - 5));
                     console.log(
                         getCalendarEntry(
                             "d95faf01-e1e5-4c5a-b7e1-c68a5f930b3f",
+                            { startDate: date.toISOString() },
                         ),
-                    )
-                }
+                    );
+                }}
             >
                 Entryk
             </Button>
