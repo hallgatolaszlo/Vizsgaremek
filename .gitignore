@@ -87,3 +87,5 @@ Thumbs.db
 
 # Tamagui
 .tamagui/
+apps/web/public/tamagui.css
+packages/types/src/swagger.ts
