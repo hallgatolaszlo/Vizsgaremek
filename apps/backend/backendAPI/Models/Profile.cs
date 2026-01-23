@@ -8,7 +8,7 @@ namespace backend.Models
     {
         public Guid Id { get; set; }
         [Required]
-        [StringLength(20, MinimumLength = 3)]
+        [StringLength(64, MinimumLength = 3)]
         public string Username { get; set; } = string.Empty;
         [Required]
         public string Avatar { get; set; } = string.Empty;
