@@ -1,23 +1,37 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "@repo/api";
+import { signIn, signUp } from "@repo/api";
 import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
-import { LogIn } from "@tamagui/lucide-icons";
+import { UserPlus } from "@tamagui/lucide-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Form, Spinner, Text, Theme, YStack } from "tamagui";
-import { z } from "zod";
+import z from "zod";
 
-type SignInRequestDTO = components["schemas"]["SignInRequestDTO"];
-const signInSchema = z.object({
-	email: z.string().min(1, "The email field is required"),
-	password: z.string().min(1, "The password field is required"),
+// Type for sign-up request data from Swagger
+type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
+
+// Zod schema for sign-up form validation
+const signUpSchema = z.object({
+	email: z
+		.email("Invalid email address")
+		.min(1, "The email field is required"),
+	password: z
+		.string()
+		.min(1, "The password field is required")
+		.min(8, "The password should be at least 8 characters long")
+		.max(128, "The password should be at most 128 characters long")
+		.regex(/[a-z]/, "At least 1 lowercase character")
+		.regex(/[A-Z]/, "At least 1 uppercase character")
+		.regex(/\d/, "At least 1 digit")
+		.regex(/[\W_]/, "At least 1 special character"),
 });
 
+// Component to display error messages
 const ErrorText = ({ message }: { message: string | undefined }) => (
 	<Theme name="error">
 		<Text pl="$1" fontSize="$1" color="$color9">
@@ -26,11 +40,7 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
-export function SignInForm({
-	onSuccessfulSignIn,
-}: {
-	onSuccessfulSignIn: () => void;
-}) {
+export function SignUpForm() {
 	const [error, setError] = useState<string | null>(null);
 	const passwordRef = useRef<any>(null);
 
@@ -40,7 +50,7 @@ export function SignInForm({
 		reset,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(signInSchema),
+		resolver: zodResolver(signUpSchema),
 		defaultValues: {
 			email: "",
 			password: "",
@@ -48,25 +58,28 @@ export function SignInForm({
 	});
 	0;
 
-	const signInMutation = useMutation({
-		mutationFn: signIn,
+	// Mutation for sign-up action
+	const signUpMutation = useMutation({
+		mutationFn: async (request: SignUpRequestDTO) => {
+			await signUp(request);
+			await signIn(request);
+		},
 		onSuccess: () => {
 			reset();
-			onSuccessfulSignIn();
 		},
 		onError: (err) => {
 			if (err instanceof AxiosError && err.status === 400) {
 				setError(err.response?.data);
 			} else {
 				setError(
-					"An unexpected error occurred. Please try again later."
+					"An unexpected error occurred. Please try again later.",
 				);
 			}
 		},
 	});
 
-	async function onSubmit(request: SignInRequestDTO) {
-		signInMutation.mutate(request);
+	async function onSubmit(request: SignUpRequestDTO) {
+		signUpMutation.mutate(request);
 	}
 
 	return (
@@ -89,6 +102,7 @@ export function SignInForm({
 								onSubmitEditing={() =>
 									passwordRef.current?.focus()
 								}
+								autoFocus
 							/>
 						)}
 					/>
@@ -124,18 +138,20 @@ export function SignInForm({
 				</YStack>
 				<StyledButton
 					onPress={handleSubmit(onSubmit)}
-					disabled={signInMutation.isPending}
+					disabled={signUpMutation.isPending}
 					icon={
-						signInMutation.isPending
+						signUpMutation.isPending
 							? () => <Spinner color="$color12" />
 							: undefined
 					}
 					scaleIcon={1.5}
 					iconAfter={
-						!signInMutation.isPending ? <LogIn /> : undefined
+						!signUpMutation.isPending ? <UserPlus /> : undefined
 					}
 				>
-					{!signInMutation.isPending && <Text>Sign In</Text>}
+					{!signUpMutation.isPending && (
+						<Text style={{ userSelect: "none" }}>Sign Up</Text>
+					)}
 				</StyledButton>
 				{error && (
 					<Theme name="error">

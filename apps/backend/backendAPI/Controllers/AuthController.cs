@@ -134,7 +134,7 @@ namespace backend.Controllers
                 HttpOnly = true,
                 Secure = false, // Set to true in production
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(7)
             };
 
             // Append cookies to the response

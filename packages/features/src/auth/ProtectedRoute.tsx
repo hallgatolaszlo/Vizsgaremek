@@ -1,12 +1,7 @@
 import { useAuthStore } from "@repo/hooks";
-import { JSX } from "react";
 import { H1, View } from "tamagui";
 
-export function ProtectedRoute({
-	children,
-}: {
-	children: React.ReactNode;
-}): JSX.Element {
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 	const isAuthorized = useAuthStore((state) => state.isAuthorized);
 
 	if (!isAuthorized) {

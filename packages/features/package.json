@@ -8,6 +8,7 @@
 		"@repo/hooks": "workspace:*",
 		"@repo/types": "workspace:*",
 		"@repo/ui": "workspace:*",
+		"@repo/utils": "workspace:*",
 		"@hookform/resolvers": "catalog:",
 		"@tamagui/lucide-icons": "catalog:",
 		"@tanstack/react-query": "catalog:",

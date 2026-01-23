@@ -8,12 +8,16 @@
 		},
 		"build": {
 			"dependsOn": ["^build"],
+			"cache": false,
 			"outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
 		},
 		"start": {
 			"dependsOn": ["build"],
 			"cache": false,
 			"persistent": true
+		},
+		"test": {
+			"cache": false
 		}
 	}
 }

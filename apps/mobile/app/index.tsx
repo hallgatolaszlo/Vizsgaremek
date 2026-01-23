@@ -5,7 +5,7 @@ export default function Index() {
 	const isAuthorized = useAuthStore((state) => state.isAuthorized);
 
 	if (isAuthorized) {
-		return <Redirect href="/(protected)/protected" />;
+		return <Redirect href="/(protected)/calendar" />;
 	}
 
 	return <Redirect href="/(guest)/sign-in" />;

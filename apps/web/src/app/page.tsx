@@ -1,10 +1,11 @@
 "use client";
-import { H1, View } from "tamagui";
+import { FullscreenView } from "@/src/components/ui/FullscreenView";
+import { H1 } from "tamagui";
 
 export default function Home() {
 	return (
-		<View>
+		<FullscreenView>
 			<H1>Welcome to the Home Page</H1>
-		</View>
+		</FullscreenView>
 	);
 }

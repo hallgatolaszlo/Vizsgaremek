@@ -7,14 +7,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
 import { TamaguiProvider, View } from "tamagui";
-import Navbar from "./ui/Navbar";
+import Navbar from "./ui/Navbar/Navbar";
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => new QueryClient());
 	const [theme] = useRootTheme();
 
 	const verifyAuth = useAuthStore((state) => state.verifyAuth);
-	const isAuthorized = useAuthStore((state) => state.isAuthorized);
 	const isLoading = useAuthStore((state) => state.isLoading);
 
 	useEffect(() => {
