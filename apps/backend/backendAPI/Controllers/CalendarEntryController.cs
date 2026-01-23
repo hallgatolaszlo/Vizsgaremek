@@ -11,19 +11,26 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController : ControllerBase
+    public class CalendarEntryController(AppDbContext context) : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public CalendarEntryController(AppDbContext context)
-        {
-            _context = context;
-        }
 
         [HttpGet("{id}")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid id)
+        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid id, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
-            var result = await _context.CalendarEntries
+            var query = context.CalendarEntries.AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(x => x.StartDate >= startDate);
+            }
+
+            if (endDate.HasValue) 
+            {
+                query = query.Where(x => x.EndDate <= endDate);
+            }
+
+            var result = await query
                 .Where(x => x.CalendarId == id)
                 .Select(x => new GetCalendarEntryDTO
                 {
@@ -62,7 +69,7 @@ namespace backend.Controllers
             var cEntry = new CalendarEntry
             {
                 EntryCategory = dto.EntryCategory,
-                Name = dto.Name,
+                Name = dto.Name!,
                 Description = dto.Description,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
@@ -73,8 +80,8 @@ namespace backend.Controllers
                 CreatedBy = profileId.Value,
             };
 
-            _context.CalendarEntries.Add(cEntry);
-            await _context.SaveChangesAsync();
+            context.CalendarEntries.Add(cEntry);
+            await context.SaveChangesAsync();
             return Ok();
         }
 
@@ -88,14 +95,14 @@ namespace backend.Controllers
                 return BadRequest();
             }
 
-            var calendarEntry = await _context.CalendarEntries.FindAsync(id);
+            var calendarEntry = await context.CalendarEntries.FindAsync(id);
             if (calendarEntry == null)
             {
                 return NotFound();
             }
 
             calendarEntry.EntryCategory = dto.EntryCategory;
-            calendarEntry.Name = dto.Name;
+            calendarEntry.Name = dto.Name!;
             calendarEntry.Description = dto.Description;
             calendarEntry.StartDate = dto.StartDate;
             calendarEntry.EndDate = dto.EndDate;
@@ -105,7 +112,7 @@ namespace backend.Controllers
             calendarEntry.IsCompleted = dto.IsCompleted;
             calendarEntry.CreatedBy = dto.CreatedBy;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return Ok();
         }
 
@@ -114,13 +121,13 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteCalendarEntry(Guid id)
         {
-            var calendarEntry = await _context.CalendarEntries.FindAsync(id);
+            var calendarEntry = await context.CalendarEntries.FindAsync(id);
             if (calendarEntry == null)
             {
                 return NotFound();
             }
-            _context.CalendarEntries.Remove(calendarEntry);
-            await _context.SaveChangesAsync();
+            context.CalendarEntries.Remove(calendarEntry);
+            await context.SaveChangesAsync();
             return NoContent();
 
         }
