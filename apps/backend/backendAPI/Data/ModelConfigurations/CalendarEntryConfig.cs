@@ -4,32 +4,26 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace backend.Context.ModelConfigurations
 {
-    public class EventConfig
+    public class CalendarEntryConfig
     {
-        public class EventEntityTypeConfiguration : IEntityTypeConfiguration<Event>
+        public class CalendarEntryEntityTypeConfiguration : IEntityTypeConfiguration<CalendarEntry>
         {
-            public void Configure(EntityTypeBuilder<Event> builder)
+            public void Configure(EntityTypeBuilder<CalendarEntry> builder)
             {
                 builder
-                    .Property(p => p.EventCategory)
+                    .Property(p => p.EntryCategory)
                     .HasConversion<int>();
 
                 builder
                     .Property(p => p.Color)
                     .HasDefaultValue(1);
 
-
-
-                builder
-                    .Property(p => p.IsAllDay)
-                    .HasDefaultValue(false);
-
                 builder
                     .HasIndex(e => e.StartDate);
 
                 builder
                     .HasOne(e => e.Profile)
-                    .WithMany(p => p.Events)
+                    .WithMany(p => p.CalendarEntries)
                     .HasForeignKey(e => e.CreatedBy);
 
             }

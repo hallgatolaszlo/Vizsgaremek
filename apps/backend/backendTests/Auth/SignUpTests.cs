@@ -30,7 +30,7 @@ namespace Auth
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(AuthErrors.InvalidEmail, result);
+            Assert.Equal(AuthErrors.InvalidEmail, result.Message);
         }
 
         // 2.
@@ -56,7 +56,7 @@ namespace Auth
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(AuthErrors.InvalidPassword, result);
+            Assert.Equal(AuthErrors.InvalidPassword, result.Message);
         }
 
         // 3.
@@ -80,7 +80,7 @@ namespace Auth
             var result = await authService.SignUpAsync(signUpRequest);
 
             // Assert
-            Assert.Null(result); // Null indicates success
+            Assert.True(result.Success);
 
             // Verify user was created in database
             using var context = new AppDbContext(options);
@@ -113,7 +113,7 @@ namespace Auth
             var result = await authService.SignUpAsync(signUpRequest);
 
             // Assert
-            Assert.Null(result);
+            Assert.True(result.Success);
 
             using var context = new AppDbContext(options);
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == "hashtest@example.com");
@@ -144,7 +144,7 @@ namespace Auth
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(AuthErrors.UserAlreadyExists, result);
+            Assert.Equal(AuthErrors.UserAlreadyExists, result.Message);
         }
     }
 }

@@ -1,40 +1,42 @@
-﻿using backend.Common;
-using backend.Context;
-using backend.DTOs.Auth;
-using backend.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using backend.Common;
+using backend.Context;
+using backend.DTOs;
+using backend.DTOs.Auth;
+using backend.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend.Services
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<string?> SignUpAsync(SignUpRequestDTO request)
+        public async Task<ServiceResponse<Guid>> SignUpAsync(SignUpRequestDTO request)
         {
             // Validate email
             if (!IsValidEmail(request.Email))
             {
-                return AuthErrors.InvalidEmail;
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.InvalidEmail }; 
             }
 
             // Validate password
             if (!IsValidPassword(request.Password))
             {
-                return AuthErrors.InvalidPassword;
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.InvalidPassword };
             }
 
             // Check if user with the same email already exists
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return AuthErrors.UserAlreadyExists;
+                return new ServiceResponse<Guid> { Success = false, Message = AuthErrors.UserAlreadyExists };
             }
 
             // Create new user
@@ -49,8 +51,7 @@ namespace backend.Services
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            // Successful registration returns null
-            return null;
+            return new ServiceResponse<Guid> { Data = user.Id, Success = true };
         }
 
         public async Task<TokenResponseDTO?> SignInAsync(SignInRequestDTO request)
@@ -74,7 +75,7 @@ namespace backend.Services
             // Create and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
-                AccessToken = CreateToken(user),
+                AccessToken = await CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             return tokenDTO;
@@ -107,7 +108,7 @@ namespace backend.Services
             // Generate and return new tokens
             TokenResponseDTO tokenDTO = new TokenResponseDTO
             {
-                AccessToken = CreateToken(user),
+                AccessToken = await CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
             return tokenDTO;
@@ -182,15 +183,17 @@ namespace backend.Services
         }
 
         // Create JWT access token
-        private string CreateToken(User user)
+        private async Task<string> CreateToken(User user)
         {
             DateTime now = DateTime.UtcNow;
 
+            var profileId = await context.Profiles.Where(x=>x.UserId==user.Id).Select(x=>x.Id).FirstOrDefaultAsync();
             // Define claims
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim("ProfileId", profileId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(now).ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String)
             };
