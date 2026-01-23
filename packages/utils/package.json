@@ -2,5 +2,16 @@
 	"name": "@repo/utils",
 	"private": true,
 	"types": "./src",
-	"main": "./index.ts"
+	"main": "./index.ts",
+	"scripts": {
+		"test": "jest"
+	},
+	"dependencies": {
+		"@repo/types": "workspace:*"
+	},
+	"devDependencies": {
+		"@jest/globals": "catalog:",
+		"jest": "catalog:",
+		"ts-jest": "catalog:"
+	}
 }

@@ -4,6 +4,7 @@ interface StyledInputProps extends InputProps {
 	ref: React.RefObject<any> | React.RefCallback<any>;
 }
 
+// Styled Input component with hover and focus styles
 export function StyledInput(props: StyledInputProps) {
 	return (
 		<Input

@@ -1,5 +1,6 @@
 import { Button, ButtonProps } from "tamagui";
 
+// Styled Button component with default and hover styles
 export function StyledButton(props: ButtonProps) {
 	return (
 		<Button

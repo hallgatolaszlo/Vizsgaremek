@@ -1,18 +1,24 @@
 "use client";
 
+import { FullscreenView } from "@/src/components/ui/FullscreenView";
 import { AuthCard } from "@repo/features";
-import { type JSX } from "react";
-import { YStack } from "tamagui";
+import { useAuthStore } from "@repo/hooks";
 
-export default function SignIn(): JSX.Element {
+export default function SignIn() {
+	const { isAuthorized } = useAuthStore();
+
+	if (isAuthorized) {
+		window.location.href = "/calendar";
+	}
+
 	return (
-		<YStack justify="center" minH="calc(100vh - var(--navbar-height))">
+		<FullscreenView justify="center">
 			<AuthCard
 				style={{ margin: "0px auto 50px auto" }}
 				onSignIn={() => {
 					window.location.href = "/calendar";
 				}}
 			/>
-		</YStack>
+		</FullscreenView>
 	);
 }

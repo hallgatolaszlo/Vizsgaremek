@@ -5,6 +5,8 @@
 	"types": "./src",
 	"dependencies": {
 		"@repo/api": "workspace:*",
+		"@repo/types": "workspace:*",
+		"@repo/utils": "workspace:*",
 		"zustand": "catalog:"
 	}
 }

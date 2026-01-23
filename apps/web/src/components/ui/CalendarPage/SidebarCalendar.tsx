@@ -1,253 +1,298 @@
 "use client";
 
+import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import { CalendarCellProps } from "@repo/types";
 import { StyledButton } from "@repo/ui";
-import { Check } from "@tamagui/lucide-icons";
-import { useCallback, useMemo, useState } from "react";
-import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
-
-type MonthIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-type WeekStartDay = "sunday" | "monday";
-
-type CalendarCell = {
-	date: Date;
-	inCurrentMonth: boolean;
-};
-
-type GenerateDatesOptions = {
-	year: number;
-	month: MonthIndex;
-	weekStartsOn: WeekStartDay;
-};
-
-const WEEKDAY_LABELS = {
-	monday: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-	sunday: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-} as const satisfies Record<WeekStartDay, readonly string[]>;
-
-function generateCalendarCells(options: GenerateDatesOptions): CalendarCell[] {
-	const { year, weekStartsOn } = options;
-	const month0 = options.month - 1; // JS months are 0-based
-
-	const firstOfMonth = new Date(year, month0, 1);
-	const firstDay = firstOfMonth.getDay(); // 0..6 (Sun..Sat)
-
-	const weekStartIndex = weekStartsOn === "sunday" ? 0 : 1;
-	const leadingDays = (firstDay - weekStartIndex + 7) % 7;
-
-	const startDate = new Date(year, month0, 1 - leadingDays);
-
-	const cells: CalendarCell[] = [];
-	for (let i = 0; i < 42; i++) {
-		const d = new Date(startDate);
-		d.setDate(startDate.getDate() + i);
-
-		// optional: keep your “5th/6th row” optimization
-		if (i === 35 && d.getMonth() !== month0) break;
-
-		cells.push({
-			date: d,
-			inCurrentMonth: d.getMonth() === month0,
-		});
-	}
-
-	return cells;
-}
-
-function generateGrid(options: GenerateDatesOptions): CalendarCell[][] {
-	const cells = generateCalendarCells(options);
-	const rows: CalendarCell[][] = [];
-	for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
-	return rows;
-}
+import { generateGrid, Month, Week } from "@repo/utils";
+import {
+	ArrowBigLeft,
+	ArrowBigLeftDash,
+	ArrowBigRight,
+	ArrowBigRightDash,
+	Check,
+} from "@tamagui/lucide-icons";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+	ButtonProps,
+	Select,
+	Separator,
+	Text,
+	View,
+	XGroup,
+	XStack,
+	YStack,
+} from "tamagui";
 
 export default function SidebarCalendar() {
-	const [selectedYear, setSelectedYear] = useState(() =>
-		new Date().getFullYear()
-	);
-	const [selectedMonth, setSelectedMonth] = useState<MonthIndex>(
-		() => (new Date().getMonth() + 1) as MonthIndex
-	);
-	const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>("monday");
+	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
+		useCalendarStore();
 
-	const decYear = useCallback(
-		(by: number) => setSelectedYear((y) => y - by),
-		[]
+	const { locale } = useProfileStore();
+
+	const [sidebarDate, setSidebarDate] = useState<Date>(
+		new Date(selectedDate),
 	);
-	const incYear = useCallback(
-		(by: number) => setSelectedYear((y) => y + by),
-		[]
-	);
-	const decMonth = useCallback(() => {
-		setSelectedMonth((m) => {
-			if (m === 1) {
-				setSelectedYear((y) => y - 1);
-				return 12;
+
+	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
+	const wheelableYearXGroupRef = useRef<HTMLDivElement | null>(null);
+	const wheelableMonthXGroupRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const wheelableYStack = wheelableYStackRef.current;
+		const wheelableYearXGroup = wheelableYearXGroupRef.current;
+		const wheelableMonthXGroup = wheelableMonthXGroupRef.current;
+		if (!wheelableYStack || !wheelableYearXGroup || !wheelableMonthXGroup)
+			return;
+
+		const handleMonthWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.deltaY > 0) {
+				incMonthSidebar();
+				return;
 			}
-			return (m - 1) as MonthIndex;
-		});
-	}, []);
 
-	const incMonth = useCallback(() => {
-		setSelectedMonth((m) => {
-			if (m === 12) {
-				setSelectedYear((y) => y + 1);
-				return 1;
+			if (e.deltaY < 0) {
+				decMonthSidebar();
 			}
-			return (m + 1) as MonthIndex;
-		});
-	}, []);
+		};
 
-	const weekdayLabels = WEEKDAY_LABELS[weekStartsOn];
+		const handleYearWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.deltaY > 0) {
+				incYearSidebar(1);
+				return;
+			}
+
+			if (e.deltaY < 0) {
+				decYearSidebar(1);
+			}
+		};
+
+		wheelableYStack.addEventListener("wheel", handleMonthWheel, {
+			passive: false,
+		});
+		wheelableYearXGroup.addEventListener("wheel", handleYearWheel, {
+			passive: false,
+		});
+		wheelableMonthXGroup.addEventListener("wheel", handleMonthWheel, {
+			passive: false,
+		});
+
+		return () => {
+			wheelableYStack.removeEventListener("wheel", handleMonthWheel);
+			wheelableYearXGroup.removeEventListener("wheel", handleYearWheel);
+			wheelableMonthXGroup.removeEventListener("wheel", handleMonthWheel);
+		};
+	}, [incMonthSidebar, decMonthSidebar, incYearSidebar, decYearSidebar]);
+
+	useEffect(() => {
+		setSidebarDate(new Date(selectedDate));
+	}, [selectedDate]);
+
+	function decYearSidebar(by: number) {
+		setSidebarDate(
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() - by)),
+		);
+	}
+
+	function incYearSidebar(by: number) {
+		setSidebarDate(
+			(prev) => new Date(prev.setFullYear(prev.getFullYear() + by)),
+		);
+	}
+
+	function decMonthSidebar() {
+		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() - 1)));
+	}
+
+	function incMonthSidebar() {
+		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() + 1)));
+	}
 
 	const grid = useMemo(
 		() =>
 			generateGrid({
-				year: selectedYear,
-				month: selectedMonth,
+				selectedDate: sidebarDate,
 				weekStartsOn,
+				viewType: "month",
 			}),
-		[selectedYear, selectedMonth, weekStartsOn]
+		[sidebarDate, weekStartsOn],
 	);
 
-	function SelectYear() {
-		const years = useMemo(() => generateYearItems(), [selectedYear]);
+	function handleDaySelect(date: Date) {
+		setSelectedDate(new Date(date));
+	}
 
-		function generateYearItems() {
-			const currentYear = selectedYear;
-			const years = [];
-			for (let y = currentYear - 10; y <= currentYear + 10; y++) {
-				years.push(y.toString());
-			}
-			return years;
-		}
+	type SelectElementProps = {
+		value: string;
+		onValueChange: (value: string) => void;
+		renderValue: (value: string) => React.ReactNode;
+		triggerPlaceholder: string;
+		groupItems: React.ReactNode[];
+	};
+
+	function SelectElement(props: SelectElementProps) {
+		const {
+			value,
+			onValueChange,
+			renderValue,
+			triggerPlaceholder,
+			groupItems,
+		} = props;
 
 		return (
 			<Select
-				value={selectedYear.toString()}
-				onValueChange={(val) => setSelectedYear(Number(val))}
+				value={value}
+				onValueChange={onValueChange}
 				disablePreventBodyScroll
 				// renderValue enables SSR support by providing the label synchronously
-				renderValue={(value) => <Text>{value}</Text>}
+				renderValue={renderValue}
 			>
 				<Select.Trigger
 					flex={1}
 					minWidth={0}
 					style={{ borderRadius: 0 }}
 				>
-					<Select.Value placeholder="Select year" />
+					<Select.Value placeholder={triggerPlaceholder} />
 				</Select.Trigger>
 
 				<Select.Content zIndex={200000}>
 					<Select.Viewport>
-						<Select.Group>
-							{useMemo(
-								() =>
-									years.map((year, i) => (
-										<Select.Item
-											index={i}
-											key={year}
-											value={year}
-										>
-											<Select.ItemText>
-												{year}
-											</Select.ItemText>
-											<Select.ItemIndicator marginLeft="auto">
-												<Check size={16} />
-											</Select.ItemIndicator>
-										</Select.Item>
-									)),
-								[years]
-							)}
-						</Select.Group>
+						<Select.Group>{groupItems}</Select.Group>
 					</Select.Viewport>
 				</Select.Content>
 			</Select>
 		);
 	}
 
-	function SelectMonth() {
-		const monthNames = {
-			1: "January",
-			2: "February",
-			3: "March",
-			4: "April",
-			5: "May",
-			6: "June",
-			7: "July",
-			8: "August",
-			9: "September",
-			10: "October",
-			11: "November",
-			12: "December",
-		} as const;
+	function SelectYear() {
+		const years = useMemo(() => {
+			const years: string[] = [];
+			for (
+				let y = sidebarDate.getFullYear() - 10;
+				y <= sidebarDate.getFullYear() + 10;
+				y++
+			)
+				years.push(String(y));
+			return years;
+		}, [sidebarDate]);
 
 		return (
-			<Select
-				value={selectedMonth.toString()}
+			<SelectElement
+				value={sidebarDate.getFullYear().toString()}
 				onValueChange={(val) =>
-					setSelectedMonth(Number(val) as MonthIndex)
+					setSidebarDate(
+						new Date(
+							Number(val),
+							sidebarDate.getMonth(),
+							sidebarDate.getDate(),
+						),
+					)
 				}
-				disablePreventBodyScroll
-				// renderValue enables SSR support by providing the label synchronously
-				renderValue={(value) => (
-					<Text>{monthNames[Number(value) as MonthIndex]}</Text>
+				renderValue={(value) => <Text>{value}</Text>}
+				triggerPlaceholder="Select year"
+				groupItems={useMemo(
+					() =>
+						years.map((year, i) => (
+							<Select.Item index={i} key={year} value={year}>
+								<Select.ItemText>{year}</Select.ItemText>
+								<Select.ItemIndicator marginLeft="auto">
+									<Check size={16} />
+								</Select.ItemIndicator>
+							</Select.Item>
+						)),
+					[years],
 				)}
-			>
-				<Select.Trigger
-					flex={1}
-					minWidth={0}
-					style={{ borderRadius: 0 }}
-				>
-					<Select.Value placeholder="Select month" />
-				</Select.Trigger>
-
-				<Select.Content zIndex={200000}>
-					<Select.Viewport>
-						<Select.Group>
-							{/* for longer lists memoizing these is useful */}
-							{useMemo(
-								() =>
-									Object.entries(monthNames).map(
-										([key, monthName], i) => (
-											<Select.Item
-												index={i}
-												key={monthName}
-												value={key}
-											>
-												<Select.ItemText>
-													{monthName}
-												</Select.ItemText>
-												<Select.ItemIndicator marginLeft="auto">
-													<Check size={16} />
-												</Select.ItemIndicator>
-											</Select.Item>
-										)
-									),
-								[monthNames]
-							)}
-						</Select.Group>
-					</Select.Viewport>
-				</Select.Content>
-			</Select>
+			/>
 		);
+	}
+
+	function SelectMonth() {
+		const months = useMemo(() => {
+			return Month.getMonthsLabels(locale, "long");
+		}, [locale]);
+
+		return (
+			<SelectElement
+				value={months[sidebarDate.getMonth()]}
+				onValueChange={(val) =>
+					setSidebarDate(
+						new Date(
+							sidebarDate.getFullYear(),
+							months.indexOf(val),
+							sidebarDate.getDate(),
+						),
+					)
+				}
+				renderValue={() => (
+					<Text>{months[sidebarDate.getMonth()]}</Text>
+				)}
+				triggerPlaceholder="Select month"
+				groupItems={useMemo(
+					() =>
+						months.map((monthName, i) => (
+							<Select.Item index={i} key={i} value={monthName}>
+								<Select.ItemText>{monthName}</Select.ItemText>
+								<Select.ItemIndicator marginLeft="auto">
+									<Check size={16} />
+								</Select.ItemIndicator>
+							</Select.Item>
+						)),
+					[months],
+				)}
+			/>
+		);
+	}
+
+	function decideBgColor(cell: CalendarCellProps): ButtonProps {
+		if (cell.date.toDateString() === selectedDate.toDateString()) {
+			return {
+				bg: "$accent4",
+				outlineWidth: 2,
+				outlineColor: "$accent9",
+				outlineStyle: "solid",
+			};
+		}
+		if (cell.date.toDateString() === currentDate.toDateString()) {
+			return { bg: "$accent3" };
+		}
+		if (!cell.inCurrentMonth) {
+			return { bg: "$color3" };
+		}
+		return { bg: "$color4" };
 	}
 
 	return (
 		<View>
 			{/* Calendar Header */}
 			<YStack gap="$2" width="100%">
-				<XGroup>
+				{/* Year Selector */}
+				<XGroup ref={wheelableYearXGroupRef}>
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => decYear(10)}>
-							<Text>{"<<<"}</Text>
+						<StyledButton
+							width="$2"
+							onPress={() => decYearSidebar(10)}
+						>
+							<Text>
+								<ArrowBigLeftDash />
+							</Text>
 						</StyledButton>
 					</XGroup.Item>
 
 					<Separator vertical />
 
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => decYear(1)}>
-							<Text>{"<"}</Text>
+						<StyledButton
+							width="$2"
+							onPress={() => decYearSidebar(1)}
+						>
+							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -255,26 +300,34 @@ export default function SidebarCalendar() {
 						<SelectYear />
 					</XGroup.Item>
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => incYear(1)}>
-							<Text>{">"}</Text>
+						<StyledButton
+							width="$2"
+							onPress={() => incYearSidebar(1)}
+						>
+							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
 					<Separator vertical />
 
 					<XGroup.Item>
-						<StyledButton width="$2" onPress={() => incYear(10)}>
-							<Text>{">>>"}</Text>
+						<StyledButton
+							width="$2"
+							onPress={() => incYearSidebar(10)}
+						>
+							<Text>{<ArrowBigRightDash />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 				</XGroup>
-				<XGroup>
+
+				{/* Month Selector */}
+				<XGroup ref={wheelableMonthXGroupRef}>
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
-							onPress={decMonth}
+							onPress={decMonthSidebar}
 						>
-							<Text>{"<"}</Text>
+							<Text>{<ArrowBigLeft />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 
@@ -284,38 +337,57 @@ export default function SidebarCalendar() {
 					<XGroup.Item>
 						<StyledButton
 							style={{ width: "77px" }}
-							onPress={incMonth}
+							onPress={incMonthSidebar}
 						>
-							<Text>{">"}</Text>
+							<Text>{<ArrowBigRight />}</Text>
 						</StyledButton>
 					</XGroup.Item>
 				</XGroup>
 
-				{/* Weekday header */}
-				<XStack gap="$2" width="100%" style={{ textAlign: "center" }}>
-					{weekdayLabels.map((d) => (
-						<Text width="100%" key={d} flex={1} fontWeight="$2">
-							{d}
-						</Text>
-					))}
-				</XStack>
+				<Separator />
 
-				{/* Calendar grid */}
-				{grid.map((row, rowIndex) => (
-					<XStack gap="$2" width="100%" key={rowIndex}>
-						{row.map((cell) => (
-							<StyledButton
-								bg={cell.inCurrentMonth ? "$color4" : "$color3"}
-								key={cell.date.getTime()}
-								flex={1}
-								minW={0}
-								aspectRatio={1}
-							>
-								<Text fontSize="$3">{cell.date.getDate()}</Text>
-							</StyledButton>
+				<YStack ref={wheelableYStackRef} flex={1} minW={0} gap="$2">
+					{/* Weekday header */}
+					<XStack
+						mt="$2"
+						gap="$2"
+						width="100%"
+						style={{ textAlign: "center" }}
+					>
+						{Week.getWeekdayLabels(
+							locale,
+							"short",
+							weekStartsOn,
+						).map((d, i) => (
+							<Text width="100%" key={i} flex={1} fontWeight="$2">
+								{d}
+							</Text>
 						))}
 					</XStack>
-				))}
+
+					{/* Calendar grid */}
+					{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
+						<XStack gap="$2" width="100%" key={rowIndex}>
+							{row.map((cell) => (
+								<StyledButton
+									key={cell.date.getTime()}
+									{...decideBgColor(cell)}
+									flex={1}
+									minW={0}
+									aspectRatio={1}
+									onPress={() => handleDaySelect(cell.date)}
+								>
+									<Text
+										style={{ userSelect: "none" }}
+										fontSize="$3"
+									>
+										{cell.date.getDate()}
+									</Text>
+								</StyledButton>
+							))}
+						</XStack>
+					))}
+				</YStack>
 			</YStack>
 		</View>
 	);
