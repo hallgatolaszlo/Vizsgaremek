@@ -1,6 +1,6 @@
 ﻿namespace backend.DTOs.Calendar
 {
-    public class GetCalendarDto
+    public class GetCalendarDTO
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }

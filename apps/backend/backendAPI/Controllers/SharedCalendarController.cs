@@ -1,5 +1,6 @@
 ﻿using backend.Context;
 using backend.DTOs.Calendar;
+using backend.Extensions;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,17 @@ namespace backend.Controllers
     {
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> CreateSharedCalendar(CreateSharedCalendarDto request)
+        public async Task<ActionResult> CreateSharedCalendar(CreateSharedCalendarDTO request)
         {
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
             var sharedCalendar = new SharedCalendar
             {
-                ProfileId = request.ProfileId,
+                ProfileId = profileId.Value,
                 CalendarId = request.CalendarId,
                 Role = request.Role,
             };

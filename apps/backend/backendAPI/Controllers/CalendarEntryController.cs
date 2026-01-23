@@ -19,12 +19,12 @@ namespace backend.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid calendarId)
+        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid id)
         {
             var result = await _context.CalendarEntries
-                .Where(x => x.CalendarId == calendarId)
+                .Where(x => x.CalendarId == id)
                 .Select(x => new GetCalendarEntryDTO
                 {
                     Id = x.Id,
@@ -52,8 +52,13 @@ namespace backend.Controllers
             if (dto == null)
             {
                 return BadRequest();
-
             }
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
             var cEntry = new CalendarEntry
             {
                 EntryCategory = dto.EntryCategory,
@@ -65,7 +70,7 @@ namespace backend.Controllers
                 NotificationTime = dto.NotificationTime,
                 Color = dto.Color,
                 CalendarId = dto.CalendarId,
-                CreatedBy = dto.CreatedBy,
+                CreatedBy = profileId.Value,
             };
 
             _context.CalendarEntries.Add(cEntry);

@@ -29,35 +29,35 @@ namespace backend.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarDto>>> GetAllCalendarsForUser()
+        public async Task<ActionResult<IEnumerable<GetCalendarDTO>>> GetAllCalendarsForUser()
         {
             var profileId = this.GetProfileId();
             if (profileId == null) 
             {
                 return Unauthorized();
             }
-            IEnumerable<GetCalendarDto> owncalendars = await _context.Calendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDto
+            IEnumerable<GetCalendarDTO> owncalendars = await _context.Calendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDTO
             {
                 Id = x.Id,
                 Color = x.Color,
                 Name = x.Name,
             }).ToListAsync();
 
-            IEnumerable<GetCalendarDto> sharedCalendars = await _context.SharedCalendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDto
+            IEnumerable<GetCalendarDTO> sharedCalendars = await _context.SharedCalendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDTO
             {
                 Id = x.CalendarId,
                 Name = x.Calendar!.Name,
                 Color = x.Calendar!.Color,
             }).ToListAsync();
 
-            IEnumerable<GetCalendarDto> calendars = [.. owncalendars, .. sharedCalendars];
+            IEnumerable<GetCalendarDTO> calendars = [.. owncalendars, .. sharedCalendars];
 
             return Ok(calendars);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult> CreateCalendar(CreateCalendarDto request)
+        public async Task<ActionResult> CreateCalendar(CreateCalendarDTO request)
         {
             var profileId = this.GetProfileId();
             if (profileId == null)
@@ -67,7 +67,7 @@ namespace backend.Controllers
 
             var calendar = new Calendar
             {
-                Name = request.Name,
+                Name = request.Name!,
                 Color = request.Color,
                 ProfileId = profileId.Value,
             };

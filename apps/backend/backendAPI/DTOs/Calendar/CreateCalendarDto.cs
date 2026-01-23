@@ -3,10 +3,9 @@ using backend.Models;
 
 namespace backend.DTOs.Calendar
 {
-    public class CreateCalendarDto
+    public class CreateCalendarDTO
     {
         public string? Name { get; set; }
         public int Color { get; set; }
-        public Guid ProfileId { get; set; }
     }
 }
