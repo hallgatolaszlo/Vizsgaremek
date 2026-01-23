@@ -87,7 +87,7 @@ export function SignInForm({
 								ref={ref}
 								placeholder="Email address"
 								onBlur={onBlur}
-								onChangeText={onChange}
+								onChange={onChange}
 								value={value}
 								returnKeyType="next"
 								onSubmitEditing={() =>
@@ -116,7 +116,7 @@ export function SignInForm({
 								placeholder="Password"
 								secureTextEntry
 								onBlur={onBlur}
-								onChangeText={onChange}
+								onChange={onChange}
 								value={value}
 								returnKeyType="done"
 								onSubmitEditing={handleSubmit(onSubmit)}

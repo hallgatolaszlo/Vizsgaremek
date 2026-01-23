@@ -96,7 +96,7 @@ export function SignUpForm() {
 								ref={ref}
 								placeholder="Email address"
 								onBlur={onBlur}
-								onChangeText={onChange}
+								onChange={onChange}
 								value={value}
 								returnKeyType="next"
 								onSubmitEditing={() =>
@@ -125,7 +125,7 @@ export function SignUpForm() {
 								placeholder="Password"
 								secureTextEntry
 								onBlur={onBlur}
-								onChangeText={onChange}
+								onChange={onChange}
 								value={value}
 								returnKeyType="done"
 								onSubmitEditing={handleSubmit(onSubmit)}
