@@ -8,14 +8,14 @@ namespace backend.Services.Profile
 {
     public class ProfileValidationService(AppDbContext context, ICommonValidationService commonValidation) : IProfileValidationService
     {
-        public async Task<ServiceResponse<bool>> ValidateProfileCreationAsync(CreateProfileDTO profileDTO)
+        public async Task<ServiceResponse<bool>> ValidateProfileCreationAsync(Models.Profile profileDTO)
         {
             if (await ValidateUniqueUsername(profileDTO.Username))
             {
                 return new ServiceResponse<bool> { Success = false, Message = "Username already exists" };
             }
 
-            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.userId, profileDTO.BirthDate);
+            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.UserId, profileDTO.BirthDate);
         }
 
         public async Task<ServiceResponse<bool>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO)
@@ -32,7 +32,7 @@ namespace backend.Services.Profile
             var response = new ServiceResponse<bool>();
 
             //database logic
-            var validationResponse = await commonValidation.FindByIdAsync<User>(userId);
+            var validationResponse = await commonValidation.EntityExists<User>(userId);
             if (!validationResponse.Success)
             {
                 response.Success = false;

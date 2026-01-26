@@ -4,6 +4,7 @@ using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
 using backend.Services.Auth;
+using backend.Services.Profile;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,7 +12,7 @@ using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 namespace backend.Services.Registration
 {
-    public class UserRegistration(AppDbContext context, IAuthService authService) : IUserRegistration
+    public class UserRegistration(AppDbContext context, IAuthService authService, IProfileValidationService profileValidationService) : IUserRegistration
     {
         public async Task<ServiceResponse<bool>> RegisterUserWithProfileAndCalendarAsync(SignUpRequestDTO request)
         {
@@ -34,10 +35,16 @@ namespace backend.Services.Registration
                     UserId = user.Data,
                 };
 
+                var profileValidationResponse = await profileValidationService.ValidateProfileCreationAsync(profile);
+                if (!profileValidationResponse.Success)
+                {
+                    throw new Exception(profileValidationResponse.Message);
+                }
+
                 context.Profiles.Add(profile);
                 await context.SaveChangesAsync();
 
-                var calendar = new Calendar
+                var calendar = new Models.Calendar
                 {
                     Name = request.Email,
                     Color = 1,

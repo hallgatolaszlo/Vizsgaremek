@@ -5,7 +5,7 @@ namespace backend.Services
 {
     public class CommonValidationService(AppDbContext context) : ICommonValidationService
     {
-        public async Task<ServiceResponse<T?>> FindByIdAsync<T>(Guid id) where T : class, IEntityWithId
+        public async Task<ServiceResponse<T?>> EntityExists<T>(Guid id) where T : class, IEntityWithId
         {
             var data = await context.Set<T>().FindAsync(id);
 
