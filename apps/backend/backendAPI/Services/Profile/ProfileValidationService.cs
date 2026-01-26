@@ -32,7 +32,7 @@ namespace backend.Services.Profile
             var response = new ServiceResponse<bool>();
 
             //database logic
-            var validationResponse = await commonValidation.FindByIdAsync<User>(userId);
+            var validationResponse = await commonValidation.EntityExists<User>(userId);
             if (!validationResponse.Success)
             {
                 response.Success = false;
@@ -47,7 +47,7 @@ namespace backend.Services.Profile
                 return response;
             }
 
-            if(birthDate.HasValue && (birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow).AddYears(-13)))
+            if (birthDate.HasValue && (birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow).AddYears(-13)))
             {
                 response.Success = false;
                 response.Message = "You must be at least 13 years old";
@@ -58,11 +58,11 @@ namespace backend.Services.Profile
 
         private async Task<bool> ValidateUniqueUsername(string name, Guid? id = null)
         {
-            var query = context.Profiles.Where(p=>p.Username==name);
+            var query = context.Profiles.Where(p => p.Username == name);
 
             if (id.HasValue)
             {
-                query = query.Where(p=>p.Id!=id);
+                query = query.Where(p => p.Id != id);
             }
 
             return await query.AnyAsync();
