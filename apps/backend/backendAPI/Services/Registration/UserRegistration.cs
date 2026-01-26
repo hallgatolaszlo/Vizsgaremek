@@ -11,30 +11,22 @@ using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 namespace backend.Services.Registration
 {
-    public class UserRegistration : IUserRegistration
+    public class UserRegistration(AppDbContext context, IAuthService authService) : IUserRegistration
     {
-        private readonly AppDbContext _context;
-        private readonly IAuthService _authService;
-        public UserRegistration(AppDbContext context, IAuthService authService)
-        {
-            _context = context;
-            _authService = authService;
-        }
-
         public async Task<ServiceResponse<bool>> RegisterUserWithProfileAndCalendarAsync(SignUpRequestDTO request)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 // Call the service to sign up
-                ServiceResponse<Guid> user = await _authService.SignUpAsync(request);
+                ServiceResponse<Guid> user = await authService.SignUpAsync(request);
 
                 if (user.Success == false)
                 {
                     throw new Exception(user.Message);
                 }
 
-                var profile = new Profile
+                var profile = new Models.Profile
                 {
                     Username = request.Email,
                     Avatar = "placeholder",
@@ -42,8 +34,8 @@ namespace backend.Services.Registration
                     UserId = user.Data,
                 };
 
-                _context.Profiles.Add(profile);
-                await _context.SaveChangesAsync();
+                context.Profiles.Add(profile);
+                await context.SaveChangesAsync();
 
                 var calendar = new Calendar
                 {
@@ -52,8 +44,8 @@ namespace backend.Services.Registration
                     ProfileId = profile.Id,
                 };
 
-                _context.Calendars.Add(calendar);
-                await _context.SaveChangesAsync();
+                context.Calendars.Add(calendar);
+                await context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 

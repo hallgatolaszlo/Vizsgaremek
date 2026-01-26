@@ -1,6 +1,8 @@
 
 using System.Text;
+using System.Text.Json.Serialization;
 using backend.Context;
+using backend.Services;
 using backend.Services.Auth;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +20,10 @@ namespace backend
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options => 
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             //for quick endpoint test that needed authorization 
@@ -33,19 +38,19 @@ namespace backend
                     Scheme = "Bearer"
                 });
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
 
             //add context; username and password is in user-secrets - configuration needed
@@ -105,8 +110,10 @@ namespace backend
                 };
             });
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IUserRegistration, UserRegistration>();
+            builder.Services
+                .AddScoped<IAuthService, AuthService>()
+                .AddScoped<IUserRegistration, UserRegistration>()
+                .AddScoped<ICommonValidationService, CommonValidationService>();
 
             var app = builder.Build();
 

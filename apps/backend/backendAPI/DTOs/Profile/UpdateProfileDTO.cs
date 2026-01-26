@@ -1,6 +1,6 @@
 ﻿namespace backend.DTOs.Profile
 {
-    public class CreateProfileDTO
+    public class UpdateProfileDTO
     {
     }
 }

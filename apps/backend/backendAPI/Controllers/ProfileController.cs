@@ -19,7 +19,7 @@ namespace backend.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<GetProfileDto>> GetUserProfile()
+        public async Task<ActionResult<GetProfileDTO>> GetUserProfile()
         {
             var userId = this.GetUserId();
             if (userId == null)
@@ -27,7 +27,7 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var profile = await _context.Profiles.Where(x => x.UserId == userId).Select(x => new GetProfileDto
+            var profile = await _context.Profiles.Where(x => x.UserId == userId).Select(x => new GetProfileDTO
             {
                 Id = x.Id,
                 Username = x.Username,

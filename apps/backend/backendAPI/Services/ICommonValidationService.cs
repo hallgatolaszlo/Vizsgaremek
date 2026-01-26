@@ -1,7 +1,10 @@
-﻿namespace backend.Services
+﻿using backend.DTOs;
+
+namespace backend.Services
 {
     public interface ICommonValidationService
     {
-        Task<T?> FindByIdAsync<T>(Guid id) where T : class, IEntityWithId;
+        Task<ServiceResponse<T?>> FindByIdAsync<T>(Guid id) where T : class, IEntityWithId;
+        ServiceResponse<TEnum> ValidateEnum<TEnum>(string value) where TEnum : struct, Enum;
     }
 }

@@ -3,7 +3,7 @@ using backend.Models;
 
 namespace backend.DTOs.Profile
 {
-    public class GetProfileDto
+    public class GetProfileDTO
     {
         public Guid Id { get; set; }
         public string? Username { get; set; }

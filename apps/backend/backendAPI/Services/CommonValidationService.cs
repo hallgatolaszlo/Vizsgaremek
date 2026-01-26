@@ -1,18 +1,37 @@
-﻿
-using backend.Context;
+﻿using backend.Context;
+using backend.DTOs;
 
 namespace backend.Services
 {
-    public class CommonValidationService : ICommonValidationService
+    public class CommonValidationService(AppDbContext context) : ICommonValidationService
     {
-        private readonly AppDbContext _context;
-        public CommonValidationService(AppDbContext context)
+        public async Task<ServiceResponse<T?>> FindByIdAsync<T>(Guid id) where T : class, IEntityWithId
         {
-            _context = context;
+            var data = await context.Set<T>().FindAsync(id);
+
+            if (data == null)
+            {
+                return new ServiceResponse<T?>
+                {
+                    Success = false,
+                    Message = $"{typeof(T).Name} not found",
+                };
+            }
+
+            return new ServiceResponse<T?> { Success = true, Data = data };
         }
-        public async Task<T?> FindByIdAsync<T>(Guid id) where T : class, IEntityWithId
+
+        public ServiceResponse<TEnum> ValidateEnum<TEnum>(string value) where TEnum : struct, Enum
         {
-            return await _context.Set<T>().FindAsync(id);
+            if(!Enum.TryParse<TEnum>(value, ignoreCase: true, out var parsedEnum) || !Enum.IsDefined(typeof(TEnum), parsedEnum))
+            {
+                return new ServiceResponse<TEnum> { 
+                    Success = false,
+                    Message = $"Invalid {typeof(TEnum).Name} value"
+                };
+            }
+
+            return new ServiceResponse<TEnum> { Success = true, Data = parsedEnum };
         }
     }
 }
