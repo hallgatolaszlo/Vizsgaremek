@@ -1,13 +1,114 @@
 "use client";
 
 import { config } from "@repo/config";
-import { useAuthStore } from "@repo/hooks";
+import { useAuthStore, useContextMenuStore } from "@repo/hooks";
 import { NextThemeProvider, useRootTheme } from "@tamagui/next-theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
 import { TamaguiProvider, View } from "tamagui";
+import ContextMenu from "./ui/CalendarPage/ContextMenu";
+import CreateCalendarEntryDialog from "./ui/CalendarPage/CreateCalendarEntryDialog";
 import Navbar from "./ui/Navbar/Navbar";
+
+function MainView({ children }: { children: React.ReactNode }) {
+	const viewRef = useRef<HTMLElement>(null);
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const {
+		contextMenuOpen,
+		position,
+		menuWidth,
+		menuHeight,
+		setPosition,
+		showMenu,
+		hideMenu,
+		setFieldType,
+	} = useContextMenuStore();
+
+	// Store position in a ref to access current value in event handlers
+	const positionRef = useRef(position);
+	const isOpenRef = useRef(contextMenuOpen);
+
+	useEffect(() => {
+		positionRef.current = position;
+	}, [position]);
+
+	useEffect(() => {
+		isOpenRef.current = contextMenuOpen;
+	}, [contextMenuOpen]);
+
+	useEffect(() => {
+		const element = viewRef.current;
+		if (!element) return;
+
+		function clickedOutside(e: MouseEvent) {
+			const pos = positionRef.current;
+			if (e.pageX < pos.x || e.pageX > pos.x + menuWidth) {
+				return true;
+			}
+			if (e.pageY < pos.y || e.pageY > pos.y + menuHeight) {
+				return true;
+			}
+			return false;
+		}
+
+		function handleContextMenu(e: MouseEvent) {
+			e.preventDefault();
+		}
+
+		function rightClick(e: MouseEvent) {
+			if (clickedOutside(e) && isOpenRef.current) {
+				hideMenu();
+			}
+
+			if (isOpenRef.current && !clickedOutside(e)) {
+				e.preventDefault();
+				e.stopPropagation();
+				return;
+			}
+
+			if (e.button === 2) {
+				e.preventDefault();
+				e.stopPropagation();
+				setFieldType(null);
+
+				let posX = e.pageX;
+				let posY = e.pageY;
+
+				if (posX + menuWidth > window.innerWidth) {
+					posX = window.innerWidth - menuWidth;
+				}
+
+				if (posY + menuHeight > window.innerHeight) {
+					posY = window.innerHeight - menuHeight;
+				}
+
+				setPosition({ x: posX, y: posY });
+				showMenu();
+			}
+		}
+
+		element.addEventListener("contextmenu", handleContextMenu);
+		element.addEventListener("mousedown", rightClick);
+
+		// Cleanup event listeners
+		return () => {
+			element.removeEventListener("contextmenu", handleContextMenu);
+			element.removeEventListener("mousedown", rightClick);
+		};
+	}, [menuWidth, menuHeight, hideMenu, setPosition, showMenu, setFieldType]);
+
+	return (
+		<View background="$color1" ref={viewRef}>
+			<CreateCalendarEntryDialog
+				dialogOpen={dialogOpen}
+				setDialogOpen={setDialogOpen}
+			>
+				{children}
+			</CreateCalendarEntryDialog>
+		</View>
+	);
+}
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => new QueryClient());
@@ -40,10 +141,11 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<TamaguiProvider config={config} defaultTheme={theme}>
-				<View background="$color1">
+				<MainView>
+					<ContextMenu />
 					<Navbar />
 					{children}
-				</View>
+				</MainView>
 			</TamaguiProvider>
 		</QueryClientProvider>
 	);

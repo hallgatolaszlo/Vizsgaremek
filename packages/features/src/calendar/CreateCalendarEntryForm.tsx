@@ -1,10 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn, signUp } from "@repo/api";
 import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
-import { UserPlus } from "@tamagui/lucide-icons";
+import { CalendarPlus2 } from "@tamagui/lucide-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
@@ -13,22 +12,18 @@ import { Form, Spinner, Text, Theme, YStack } from "tamagui";
 import z from "zod";
 
 // Type for sign-up request data from Swagger
-type SignUpRequestDTO = components["schemas"]["SignUpRequestDTO"];
+type CreateCalendarEntryDTO = components["schemas"]["CreateCalendarEntryDTO"];
 
 // Zod schema for sign-up form validation
-const signUpSchema = z.object({
-	email: z
-		.email("Invalid email address")
-		.min(1, "The email field is required"),
-	password: z
+const createCalendarEntrySchema = z.object({
+	name: z
 		.string()
-		.min(1, "The password field is required")
-		.min(8, "The password should be at least 8 characters long")
-		.max(128, "The password should be at most 128 characters long")
-		.regex(/[a-z]/, "At least 1 lowercase character")
-		.regex(/[A-Z]/, "At least 1 uppercase character")
-		.regex(/\d/, "At least 1 digit")
-		.regex(/[\W_]/, "At least 1 special character"),
+		.min(1, "The name field is required")
+		.min(3, "The name should be at least 3 characters long")
+		.max(32, "The name should be at most 32 characters long"),
+	description: z
+		.string()
+		.max(1024, "The description should be at most 1024 characters long"),
 });
 
 // Component to display error messages
@@ -40,9 +35,9 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
-export function SignUpForm() {
+export function CreateCalendarEntryForm() {
 	const [error, setError] = useState<string | null>(null);
-	const passwordRef = useRef<any>(null);
+	const descriptionRef = useRef<any>(null);
 
 	const {
 		control,
@@ -50,21 +45,17 @@ export function SignUpForm() {
 		reset,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(signUpSchema),
+		resolver: zodResolver(createCalendarEntrySchema),
 		defaultValues: {
-			email: "",
-			password: "",
+			name: "",
+			description: "",
 		},
 	});
 	0;
 
 	// Mutation for sign-up action
-	const signUpMutation = useMutation({
-		mutationFn: async (request: SignUpRequestDTO) => {
-			await signUp(request);
-			await signIn(request);
-			window.location.href = "/calendar";
-		},
+	const createCalendarEntryMutation = useMutation({
+		mutationFn: async (request: CreateCalendarEntryDTO) => {},
 		onSuccess: () => {
 			reset();
 		},
@@ -79,8 +70,8 @@ export function SignUpForm() {
 		},
 	});
 
-	async function onSubmit(request: SignUpRequestDTO) {
-		signUpMutation.mutate(request);
+	async function onSubmit(request: CreateCalendarEntryDTO) {
+		createCalendarEntryMutation.mutate(request);
 	}
 
 	return (
@@ -89,42 +80,39 @@ export function SignUpForm() {
 				<YStack gap="$2">
 					<Controller
 						control={control}
-						name="email"
+						name="name"
 						render={({
 							field: { onChange, onBlur, value, ref },
 						}) => (
 							<StyledInput
 								ref={ref}
-								placeholder="Email address"
+								placeholder="Name"
 								onBlur={onBlur}
 								onChange={onChange}
 								value={value}
 								returnKeyType="next"
 								onSubmitEditing={() =>
-									passwordRef.current?.focus()
+									descriptionRef.current?.focus()
 								}
 								autoFocus
 							/>
 						)}
 					/>
-					{errors.email && (
-						<ErrorText message={errors.email.message} />
-					)}
+					{errors.name && <ErrorText message={errors.name.message} />}
 				</YStack>
 				<YStack gap="$2">
 					<Controller
 						control={control}
-						name="password"
+						name="description"
 						render={({
 							field: { onChange, onBlur, value, ref },
 						}) => (
 							<StyledInput
 								ref={(input: any) => {
 									ref(input);
-									passwordRef.current = input;
+									descriptionRef.current = input;
 								}}
-								placeholder="Password"
-								secureTextEntry
+								placeholder="Description"
 								onBlur={onBlur}
 								onChange={onChange}
 								value={value}
@@ -133,25 +121,27 @@ export function SignUpForm() {
 							/>
 						)}
 					/>
-					{errors.password && (
-						<ErrorText message={errors.password.message} />
+					{errors.description && (
+						<ErrorText message={errors.description.message} />
 					)}
 				</YStack>
 				<StyledButton
 					onPress={handleSubmit(onSubmit)}
-					disabled={signUpMutation.isPending}
+					disabled={createCalendarEntryMutation.isPending}
 					icon={
-						signUpMutation.isPending
+						createCalendarEntryMutation.isPending
 							? () => <Spinner color="$color12" />
 							: undefined
 					}
 					scaleIcon={1.5}
 					iconAfter={
-						!signUpMutation.isPending ? <UserPlus /> : undefined
+						!createCalendarEntryMutation.isPending ? (
+							<CalendarPlus2 />
+						) : undefined
 					}
 				>
-					{!signUpMutation.isPending && (
-						<Text style={{ userSelect: "none" }}>Sign Up</Text>
+					{!createCalendarEntryMutation.isPending && (
+						<Text style={{ userSelect: "none" }}>Create Entry</Text>
 					)}
 				</StyledButton>
 				{error && (

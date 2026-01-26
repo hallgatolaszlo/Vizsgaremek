@@ -1,41 +1,84 @@
 "use client";
 
+import { getCalendar } from "@repo/api";
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { StyledButton } from "@repo/ui";
-import { generateGrid, Month, Week } from "@repo/utils";
+import { generateGrid, getContrastFromHSLA, Month, Week } from "@repo/utils";
 import {
 	ArrowBigLeft,
 	ArrowBigLeftDash,
 	ArrowBigRight,
 	ArrowBigRightDash,
+	CalendarPlus,
 	Check,
 } from "@tamagui/lucide-icons";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	ButtonProps,
+	Checkbox,
+	H3,
+	Label,
+	ListItem,
 	Select,
 	Separator,
+	Spinner,
 	Text,
+	useTheme,
 	View,
 	XGroup,
 	XStack,
+	YGroup,
 	YStack,
 } from "tamagui";
 
 export default function SidebarCalendar() {
-	const { selectedDate, currentDate, weekStartsOn, setSelectedDate } =
-		useCalendarStore();
+	const { selectedDate, currentDate, setSelectedDate } = useCalendarStore();
+	const [checkedCalendars, setCheckedCalendars] =
+		useState<Record<string, boolean>>();
 
-	const { locale } = useProfileStore();
+	const { locale, weekStartsOn } = useProfileStore();
 
 	const [sidebarDate, setSidebarDate] = useState<Date>(
 		new Date(selectedDate),
 	);
 
+	const calendarTheme = useTheme({ name: "calendarColors" });
+
 	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
 	const wheelableYearXGroupRef = useRef<HTMLDivElement | null>(null);
 	const wheelableMonthXGroupRef = useRef<HTMLDivElement | null>(null);
+
+	const { isPending, error, data } = useQuery({
+		queryKey: ["myCalendars"],
+		queryFn: async () => {
+			return await getCalendar();
+		},
+	});
+
+	useEffect(() => {
+		if (data) {
+			const dict = {} as Record<string, boolean>;
+			data.forEach((calendar) => {
+				if (!calendar.id) return;
+				dict[calendar.id] = true;
+			});
+			setCheckedCalendars(dict);
+		}
+	}, [data]);
+
+	function handleCheckboxChange(calendarId: string, checked: boolean) {
+		if (checked) {
+			setCheckedCalendars((prev) => ({ ...prev, [calendarId]: true }));
+		} else {
+			setCheckedCalendars((prev) => {
+				const updated = { ...prev };
+				delete updated[calendarId];
+				return updated;
+			});
+		}
+	}
 
 	useEffect(() => {
 		const wheelableYStack = wheelableYStackRef.current;
@@ -387,6 +430,111 @@ export default function SidebarCalendar() {
 							))}
 						</XStack>
 					))}
+
+					<Separator my={"$2"} />
+
+					<YStack style={{ userSelect: "none" }} gap="$2">
+						<H3 style={{ userSelect: "none", textAlign: "center" }}>
+							My calendars
+						</H3>
+						{isPending && <Spinner color={"$accent5"} />}
+						{error && <Text>Error loading calendars</Text>}
+						<YGroup>
+							{data &&
+								data.map((calendar) => (
+									<YGroup.Item key={calendar.id}>
+										<ListItem>
+											<XStack
+												gap={"$3"}
+												style={{ alignItems: "center" }}
+											>
+												<Checkbox
+													id={`checkbox-${calendar.id}`}
+													checked={
+														calendar.id &&
+														checkedCalendars?.[
+															calendar.id
+														]
+															? true
+															: false
+													}
+													onCheckedChange={(
+														checked,
+													) =>
+														handleCheckboxChange(
+															calendar.id!,
+															checked === true,
+														)
+													}
+													style={{
+														backgroundColor:
+															calendar.id &&
+															checkedCalendars?.[
+																calendar.id
+															]
+																? calendarTheme[
+																		`color${calendar.color}` as keyof typeof calendarTheme
+																	]?.val
+																: "var(--color3)",
+														border:
+															"2px solid " +
+															calendarTheme[
+																`color${calendar.color}` as keyof typeof calendarTheme
+															]?.val,
+													}}
+													hoverStyle={{
+														backgroundColor:
+															calendar.id &&
+															checkedCalendars?.[
+																calendar.id
+															]
+																? calendarTheme[
+																		`color${calendar.color}` as keyof typeof calendarTheme
+																	]?.val
+																: "$color4",
+														borderColor:
+															calendarTheme[
+																`color${calendar.color}` as keyof typeof calendarTheme
+															]?.val,
+													}}
+													focusStyle={{
+														borderColor:
+															calendarTheme[
+																`color${calendar.color}` as keyof typeof calendarTheme
+															]?.val,
+													}}
+												>
+													<Checkbox.Indicator>
+														<Check
+															strokeWidth={3}
+															color={getContrastFromHSLA(
+																calendarTheme[
+																	`color${calendar.color}` as keyof typeof calendarTheme
+																]?.val,
+															)}
+														/>
+													</Checkbox.Indicator>
+												</Checkbox>
+												<Label
+													htmlFor={`checkbox-${calendar.id}`}
+													textOverflow="ellipsis"
+													whiteSpace="nowrap"
+													overflow="hidden"
+													style={{
+														userSelect: "none",
+													}}
+												>
+													{calendar.name}
+												</Label>
+											</XStack>
+										</ListItem>
+									</YGroup.Item>
+								))}
+						</YGroup>
+						<StyledButton icon={<CalendarPlus />} scaleIcon={1.5}>
+							<Text>Create new calendar</Text>
+						</StyledButton>
+					</YStack>
 				</YStack>
 			</YStack>
 		</View>

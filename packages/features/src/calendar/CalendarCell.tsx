@@ -1,6 +1,11 @@
-import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import {
+	useCalendarStore,
+	useContextMenuStore,
+	useProfileStore,
+} from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { isNative } from "@repo/utils";
+import { useEffect, useRef } from "react";
 import { Card, CardProps, Text } from "tamagui";
 
 interface CalendarCellComponentProps extends CardProps {
@@ -11,8 +16,29 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 	const { selectedDate, viewType, setSelectedDate, currentDate } =
 		useCalendarStore();
 	const { locale } = useProfileStore();
+	const { setFieldType: setType, setDate } = useContextMenuStore();
 
 	const { cell } = props;
+
+	const cardRef = useRef<any>(null);
+
+	useEffect(() => {
+		const element = cardRef.current;
+		if (!element) return;
+
+		const handleContextMenu = (e: MouseEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			setType("cell");
+			setDate(new Date(cell.date));
+		};
+
+		element.addEventListener("contextmenu", handleContextMenu);
+		return () => {
+			element.removeEventListener("contextmenu", handleContextMenu);
+		};
+	}, [cardRef.current]);
 
 	// Determine header label to show
 	const headerLabel = () => {
@@ -70,19 +96,19 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 				outlineColor: "$accent9",
 				outlineStyle: "solid",
 				position: "relative",
-				zIndex: 200000,
+				zIndex: 500,
 			} as CardProps;
 		}
 		// Current date styling
 		if (cell.date.toDateString() === currentDate.toDateString()) {
-			return { bg: "$accent1" };
+			return { bg: "$accent1" } as CardProps;
 		}
 		// Out-of-month styling for month view
 		if (viewType === "month" && !cell.inCurrentMonth) {
-			return { bg: "$color2" };
+			return { bg: "$color2" } as CardProps;
 		}
 		// Default styling
-		return { bg: "$color1" };
+		return { bg: "$color1" } as CardProps;
 	}
 
 	return (
@@ -93,6 +119,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			flexBasis={0}
 			minW={0}
 			onPress={() => setSelectedDate(new Date(cell.date))}
+			ref={cardRef}
 		>
 			<Card.Header
 				p={"$2"}
@@ -115,7 +142,6 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 					{headerLabel()}
 				</Text>
 			</Card.Header>
-			<Card style={{ backgroundColor: "blue" }}></Card>
 		</Card>
 	);
 }

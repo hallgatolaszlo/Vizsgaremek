@@ -4,7 +4,7 @@ import CalendarHeader from "@/src/components/ui/CalendarPage/CalendarHeader";
 import SidebarCalendar from "@/src/components/ui/CalendarPage/SidebarCalendar";
 import { FullscreenView } from "@/src/components/ui/FullscreenView";
 import { Calendar } from "@repo/features";
-import { useCalendarStore } from "@repo/hooks";
+import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { generateGrid } from "@repo/utils";
 import { useEffect, useMemo, useRef } from "react";
 import { XStack, YStack } from "tamagui";
@@ -12,7 +12,6 @@ import { XStack, YStack } from "tamagui";
 export default function CalendarPage() {
 	const {
 		selectedDate,
-		weekStartsOn,
 		viewType,
 		setViewType,
 		decMonth,
@@ -22,6 +21,8 @@ export default function CalendarPage() {
 		decDay,
 		incDay,
 	} = useCalendarStore();
+
+	const { weekStartsOn } = useProfileStore();
 
 	const grid = useMemo(
 		() =>
@@ -83,7 +84,10 @@ export default function CalendarPage() {
 	}, [increaseView, decreaseView, viewType]);
 
 	return (
-		<FullscreenView stack="XStack" style={{ overflow: "hidden" }}>
+		<FullscreenView
+			stack="XStack"
+			style={{ overflow: "hidden", backgroundColor: "var(--color2)" }}
+		>
 			<YStack
 				flex={1}
 				p="$4"

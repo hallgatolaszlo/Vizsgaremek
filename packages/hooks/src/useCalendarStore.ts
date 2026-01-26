@@ -1,14 +1,12 @@
-import { CalendarViewType, WeekStartDay } from "@repo/types";
+import { CalendarViewType } from "@repo/types";
 import { create } from "zustand";
 
 export interface CalendarState {
 	currentDate: Date;
 	selectedDate: Date;
-	weekStartsOn: WeekStartDay;
 	viewType: CalendarViewType;
 
 	setSelectedDate: (date: Date) => void;
-	setWeekStartsOn: (day: WeekStartDay) => void;
 	setViewType: (view: CalendarViewType) => void;
 
 	resetToToday: () => void;
@@ -26,11 +24,10 @@ export interface CalendarState {
 export const useCalendarStore = create<CalendarState>((set) => ({
 	currentDate: new Date(),
 	selectedDate: new Date(),
-	weekStartsOn: "month" as WeekStartDay,
+
 	viewType: "month" as CalendarViewType,
 
 	setSelectedDate: (date: Date) => set({ selectedDate: new Date(date) }),
-	setWeekStartsOn: (day: WeekStartDay) => set({ weekStartsOn: day }),
 	setViewType: (view: CalendarViewType) => set({ viewType: view }),
 
 	resetToToday: () =>
