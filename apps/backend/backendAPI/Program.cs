@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using backend.Context;
 using backend.Services;
 using backend.Services.Auth;
+using backend.Services.Profile;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -113,7 +114,8 @@ namespace backend
             builder.Services
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<IUserRegistration, UserRegistration>()
-                .AddScoped<ICommonValidationService, CommonValidationService>();
+                .AddScoped<ICommonValidationService, CommonValidationService>()
+                .AddScoped<IProfileValidationService, ProfileValidationService>();
 
             var app = builder.Build();
 

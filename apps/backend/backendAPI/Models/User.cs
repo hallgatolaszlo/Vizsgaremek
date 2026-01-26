@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
     [Index(nameof(Email), IsUnique = true)]
-    public class User
+    public class User : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]
