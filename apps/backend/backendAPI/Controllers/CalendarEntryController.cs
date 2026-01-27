@@ -1,7 +1,10 @@
 ﻿using backend.Context;
+using backend.DTOs;
 using backend.DTOs.CalendarEntry;
 using backend.Extensions;
 using backend.Models;
+using backend.Services;
+using backend.Services.CalendarEntry;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +14,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController(AppDbContext context) : ControllerBase
+    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
     {
 
         [HttpGet("{id}")]
@@ -56,14 +59,15 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> CreateCalendarEntry([FromBody] CreateCalendarEntryDTO dto)
         {
-            if (dto == null)
-            {
-                return BadRequest();
-            }
             var profileId = this.GetProfileId();
             if (profileId == null)
             {
                 return Unauthorized();
+            }
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryMutationAsync(dto);
+            if (!validationResponse.Success)
+            {
+                return BadRequest(validationResponse.Message);
             }
 
             var cEntry = new CalendarEntry
@@ -90,27 +94,28 @@ namespace backend.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateCalendarEntry(Guid id, [FromBody] UpdateCalendarEntryDTO dto)
         {
-            if (dto == null)
+            var calendarEntry = await commonValidation.EntityExists<CalendarEntry>(id);
+            if (!calendarEntry.Success)
             {
-                return BadRequest();
+                return NotFound(calendarEntry.Message);
             }
 
-            var calendarEntry = await context.CalendarEntries.FindAsync(id);
-            if (calendarEntry == null)
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryMutationAsync(dto);
+            if (!validationResponse.Success) 
             {
-                return NotFound();
+                return BadRequest(validationResponse.Message);
             }
 
-            calendarEntry.EntryCategory = dto.EntryCategory;
-            calendarEntry.Name = dto.Name!;
-            calendarEntry.Description = dto.Description;
-            calendarEntry.StartDate = dto.StartDate;
-            calendarEntry.EndDate = dto.EndDate;
-            calendarEntry.Location = dto.Location;
-            calendarEntry.NotificationTime = dto.NotificationTime;
-            calendarEntry.Color = dto.Color;
-            calendarEntry.IsCompleted = dto.IsCompleted;
-            calendarEntry.CreatedBy = dto.CreatedBy;
+            calendarEntry.Data!.EntryCategory = dto.EntryCategory;
+            calendarEntry.Data!.Name = dto.Name!;
+            calendarEntry.Data!.Description = dto.Description;
+            calendarEntry.Data!.StartDate = dto.StartDate;
+            calendarEntry.Data!.EndDate = dto.EndDate;
+            calendarEntry.Data!.Location = dto.Location;
+            calendarEntry.Data!.NotificationTime = dto.NotificationTime;
+            calendarEntry.Data!.Color = dto.Color;
+            calendarEntry.Data!.IsCompleted = dto.IsCompleted;
+            calendarEntry.Data!.CreatedBy = dto.CreatedBy;
 
             await context.SaveChangesAsync();
             return Ok();

@@ -14,6 +14,7 @@ namespace backend.DTOs.CalendarEntry
         public DateTime? NotificationTime { get; set; }
         public int Color { get; set; }
         public bool? IsCompleted { get; set; }
+        public Guid CalendarId { get; set; }
         public Guid CreatedBy { get; set; }
     }
 }
