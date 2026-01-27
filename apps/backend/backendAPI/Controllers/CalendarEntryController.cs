@@ -64,7 +64,7 @@ namespace backend.Controllers
             {
                 return Unauthorized();
             }
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryMutationAsync(dto);
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryCreateAsync(dto);
             if (!validationResponse.Success)
             {
                 return BadRequest(validationResponse.Message);
@@ -90,32 +90,28 @@ namespace backend.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateCalendarEntry(Guid id, [FromBody] UpdateCalendarEntryDTO dto)
         {
-            var calendarEntry = await commonValidation.EntityExists<CalendarEntry>(id);
-            if (!calendarEntry.Success)
-            {
-                return NotFound(calendarEntry.Message);
-            }
-
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryMutationAsync(dto);
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto);
             if (!validationResponse.Success) 
             {
                 return BadRequest(validationResponse.Message);
             }
 
-            calendarEntry.Data!.EntryCategory = dto.EntryCategory;
-            calendarEntry.Data!.Name = dto.Name!;
-            calendarEntry.Data!.Description = dto.Description;
-            calendarEntry.Data!.StartDate = dto.StartDate;
-            calendarEntry.Data!.EndDate = dto.EndDate;
-            calendarEntry.Data!.Location = dto.Location;
-            calendarEntry.Data!.NotificationTime = dto.NotificationTime;
-            calendarEntry.Data!.Color = dto.Color;
-            calendarEntry.Data!.IsCompleted = dto.IsCompleted;
-            calendarEntry.Data!.CreatedBy = dto.CreatedBy;
+            var calendarEntry = validationResponse.Data!;
+
+            calendarEntry.EntryCategory = dto.EntryCategory;
+            calendarEntry.Name = dto.Name!;
+            calendarEntry.Description = dto.Description;
+            calendarEntry.StartDate = dto.StartDate;
+            calendarEntry.EndDate = dto.EndDate;
+            calendarEntry.Location = dto.Location;
+            calendarEntry.NotificationTime = dto.NotificationTime;
+            calendarEntry.Color = dto.Color;
+            calendarEntry.IsCompleted = dto.IsCompleted;
+            calendarEntry.CreatedBy = dto.CreatedBy;
 
             await context.SaveChangesAsync();
             return Ok();

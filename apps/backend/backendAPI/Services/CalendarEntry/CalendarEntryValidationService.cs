@@ -6,15 +6,23 @@ using backend.Services;
 
 namespace backend.Services.CalendarEntry
 {
-    public class CalendarEntryValidationServic(ICommonValidationService commonValidation) : ICalendarEntryValidationService
+    public class CalendarEntryValidationService(ICommonValidationService commonValidation) : ICalendarEntryValidationService
     {
-        public async Task<ServiceResponse<bool>> ValidateCalendarEntryMutationAsync(CreateCalendarEntryDTO calendarEntryDTO)
+        public async Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO)
         {
             return await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate);
         }
-        public async Task<ServiceResponse<bool>> ValidateCalendarEntryMutationAsync(UpdateCalendarEntryDTO calendarEntryDTO)
+        public async Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO)
         {
-            return await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate);
+            var calendarEntry = await commonValidation.EntityExists<Models.CalendarEntry>(calendarEntryDTO.Id);
+            if (!calendarEntry.Success)
+            {
+                return new ServiceResponse<Models.CalendarEntry> { Success = false, Message = "Entry not found" };
+            }
+
+            var validationResponse = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate);
+
+            return new ServiceResponse<Models.CalendarEntry> { Success = validationResponse.Success, Message = validationResponse.Message, Data = calendarEntry.Data }
         }
 
         private async Task<ServiceResponse<bool>> ValidateCommonCalendarEntryRulesAsync(Guid calendarId, EntryCategory category, DateTime startDate, DateTime endDate, bool? isCompleted = null)

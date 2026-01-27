@@ -6,6 +6,6 @@ namespace backend.Services.Profile
     public interface IProfileValidationService
     {
         Task<ServiceResponse<bool>> ValidateProfileCreationAsync(Models.Profile profileDTO);
-        Task<ServiceResponse<bool>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO);
+        Task<ServiceResponse<Models.Profile>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO);
     }
 }

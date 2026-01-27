@@ -15,42 +15,60 @@ namespace backend.Services.Profile
                 return new ServiceResponse<bool> { Success = false, Message = "Username already exists" };
             }
 
-            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.UserId, profileDTO.BirthDate);
+            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.BirthDate, profileDTO.UserId );
         }
 
-        public async Task<ServiceResponse<bool>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO)
+        public async Task<ServiceResponse<Models.Profile>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO)
         {
             if (await ValidateUniqueUsername(profileDTO.Username, profileDTO.Id))
             {
-                return new ServiceResponse<bool> { Success = false, Message = "Username already exists" };
+                return new ServiceResponse<Models.Profile> { Success = false, Message = "Username already exists" };
             }
-            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.userId, profileDTO.BirthDate);
+
+            var profile = await commonValidation.EntityExists<Models.Profile>(profileDTO.Id);
+            if (!profile.Success)
+            {
+                return new ServiceResponse<Models.Profile> { Success = false, Message = profile.Message };
+            }
+
+            var validationResponse = await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.BirthDate);
+
+            return new ServiceResponse<Models.Profile> { Success = validationResponse.Success, Message = validationResponse.Message, Data = profile.Data };
         }
 
-        private async Task<ServiceResponse<bool>> ValidateCommonProfileRulesAsync(string name, Guid userId, DateOnly? birthDate)
+        private async Task<ServiceResponse<bool>> ValidateCommonProfileRulesAsync(string name, DateOnly? birthDate = null, Guid? userId = null)
         {
-            var response = new ServiceResponse<bool>();
+            var response = new ServiceResponse<bool>() { Success = true };
 
             //database logic
-            var validationResponse = await commonValidation.EntityExists<User>(userId);
-            if (!validationResponse.Success)
+            if (userId.HasValue)
             {
-                response.Success = false;
-                response.Message = validationResponse.Message;
+                var validationResponse = await commonValidation.EntityExists<User>(userId.Value);
+                if (!validationResponse.Success)
+                {
+                    response.Success = false;
+                    response.Message = validationResponse.Message;
+                    return response;
+                }
             }
+            
 
             //logic
-            if (name.Length > 64 || name.Length < 3)
+            if (!commonValidation.ValidateText(name, 3, 64).Success) 
             {
                 response.Success = false;
                 response.Message = "Name must be 3-64 long";
                 return response;
-            }
+            };
 
-            if (birthDate.HasValue && (birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow).AddYears(-13)))
+            if (birthDate.HasValue)
             {
-                response.Success = false;
-                response.Message = "You must be at least 13 years old";
+                if(birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow))
+                {
+                    response.Success = false;
+                    response.Message = "Are you from the future?";
+                    return response;
+                }
             }
 
             return response;

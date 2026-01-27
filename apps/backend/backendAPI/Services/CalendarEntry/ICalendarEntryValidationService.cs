@@ -5,7 +5,7 @@ namespace backend.Services.CalendarEntry
 {
     public interface ICalendarEntryValidationService
     {
-        Task<ServiceResponse<bool>> ValidateCalendarEntryMutationAsync(CreateCalendarEntryDTO calendarEntryDTO);
-        Task<ServiceResponse<bool>> ValidateCalendarEntryMutationAsync(UpdateCalendarEntryDTO calendarEntryDTO);
+        Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO);
+        Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO);
     }
 }

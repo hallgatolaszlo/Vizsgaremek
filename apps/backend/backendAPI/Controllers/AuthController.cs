@@ -117,14 +117,6 @@ namespace backend.Controllers
             return Ok();
         }
 
-        // Temporary protected endpoint for testing
-        [HttpGet("protected")]
-        [Authorize]
-        public IActionResult Protected()
-        {
-            return Ok("You have accessed a protected endpoint.");
-        }
-
         // Helper method to set tokens in cookies
         private void SetTokenCookies(TokenResponseDTO tokens)
         {

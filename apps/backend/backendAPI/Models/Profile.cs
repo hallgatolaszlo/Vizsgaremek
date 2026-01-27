@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
     [Index(nameof(Username), IsUnique = true)]
-    public class Profile
+    public class Profile : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]

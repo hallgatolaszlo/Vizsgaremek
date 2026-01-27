@@ -5,6 +5,7 @@ namespace backend.DTOs.CalendarEntry
 {
     public class UpdateCalendarEntryDTO
     {
+        public Guid Id { get; set; }
         public EntryCategory EntryCategory { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }

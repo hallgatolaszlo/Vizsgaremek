@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using backend.Context;
 using backend.Services;
 using backend.Services.Auth;
+using backend.Services.Calendar;
+using backend.Services.CalendarEntry;
 using backend.Services.Profile;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -115,7 +117,9 @@ namespace backend
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<IUserRegistration, UserRegistration>()
                 .AddScoped<ICommonValidationService, CommonValidationService>()
-                .AddScoped<IProfileValidationService, ProfileValidationService>();
+                .AddScoped<IProfileValidationService, ProfileValidationService>()
+                .AddScoped<ICalendarValidationService, CalendarValidationService>()
+                .AddScoped<ICalendarEntryValidationService, CalendarEntryValidationService>();
 
             var app = builder.Build();
 
