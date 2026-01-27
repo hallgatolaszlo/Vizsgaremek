@@ -2,7 +2,7 @@
 using backend.DTOs.Auth;
 using backend.Models;
 
-namespace backend.Services
+namespace backend.Services.Auth
 {
     public interface IAuthService
     {

@@ -2,7 +2,7 @@
 using backend.DTOs;
 using backend.DTOs.Auth;
 using backend.Models;
-using backend.Services;
+using backend.Services.Auth;
 using backend.Services.Registration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -115,14 +115,6 @@ namespace backend.Controllers
         public IActionResult AuthOnly()
         {
             return Ok();
-        }
-
-        // Temporary protected endpoint for testing
-        [HttpGet("protected")]
-        [Authorize]
-        public IActionResult Protected()
-        {
-            return Ok("You have accessed a protected endpoint.");
         }
 
         // Helper method to set tokens in cookies

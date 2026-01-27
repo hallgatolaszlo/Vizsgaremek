@@ -3,11 +3,11 @@ using backend.Models;
 
 namespace backend.DTOs.Profile
 {
-    public class GetProfileDTO
+    public class UpdateProfileDTO
     {
         public Guid Id { get; set; }
-        public string? Username { get; set; }
-        public string? Avatar { get; set; }
+        public required string Username { get; set; }
+        public required string Avatar { get; set; }
         public bool IsPrivate { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

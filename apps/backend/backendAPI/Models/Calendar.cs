@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 
 namespace backend.Models
 {
-    public class Calendar
+    public class Calendar : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]

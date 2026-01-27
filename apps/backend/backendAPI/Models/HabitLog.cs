@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 
 namespace backend.Models
 {
-    public class HabitLog
+    public class HabitLog : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]

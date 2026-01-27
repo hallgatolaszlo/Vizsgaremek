@@ -1,7 +1,10 @@
 ﻿using backend.Context;
+using backend.DTOs;
 using backend.DTOs.CalendarEntry;
 using backend.Extensions;
 using backend.Models;
+using backend.Services;
+using backend.Services.CalendarEntry;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +14,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController(AppDbContext context) : ControllerBase
+    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
     {
 
         [HttpGet("{id}")]
@@ -56,14 +59,15 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> CreateCalendarEntry([FromBody] CreateCalendarEntryDTO dto)
         {
-            if (dto == null)
-            {
-                return BadRequest();
-            }
             var profileId = this.GetProfileId();
             if (profileId == null)
             {
                 return Unauthorized();
+            }
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryCreateAsync(dto);
+            if (!validationResponse.Success)
+            {
+                return BadRequest(validationResponse.Message);
             }
 
             var cEntry = new CalendarEntry
@@ -86,20 +90,17 @@ namespace backend.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateCalendarEntry(Guid id, [FromBody] UpdateCalendarEntryDTO dto)
         {
-            if (dto == null)
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto);
+            if (!validationResponse.Success) 
             {
-                return BadRequest();
+                return BadRequest(validationResponse.Message);
             }
 
-            var calendarEntry = await context.CalendarEntries.FindAsync(id);
-            if (calendarEntry == null)
-            {
-                return NotFound();
-            }
+            var calendarEntry = validationResponse.Data!;
 
             calendarEntry.EntryCategory = dto.EntryCategory;
             calendarEntry.Name = dto.Name!;

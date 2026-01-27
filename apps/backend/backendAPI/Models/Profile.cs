@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models
 {
     [Index(nameof(Username), IsUnique = true)]
-    public class Profile
+    public class Profile : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]
-        [StringLength(20, MinimumLength = 3)]
+        [StringLength(64, MinimumLength = 3)]
         public string Username { get; set; } = string.Empty;
         [Required]
         public string Avatar { get; set; } = string.Empty;
