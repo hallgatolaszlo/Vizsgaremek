@@ -1,13 +1,13 @@
 "use client";
 
-import CalendarHeader from "@/src/components/ui/CalendarPage/CalendarHeader";
-import SidebarCalendar from "@/src/components/ui/CalendarPage/SidebarCalendar";
-import { FullscreenView } from "@/src/components/ui/FullscreenView";
+import CalendarHeader from "@/src/components/CalendarPage/CalendarHeader";
+import Sidebar from "@/src/components/CalendarPage/Sidebar";
+import { FullscreenView } from "@/src/components/FullscreenView";
 import { Calendar } from "@repo/features";
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { generateGrid } from "@repo/utils";
 import { useEffect, useMemo, useRef } from "react";
-import { XStack, YStack } from "tamagui";
+import { XStack } from "tamagui";
 
 export default function CalendarPage() {
 	const {
@@ -85,20 +85,15 @@ export default function CalendarPage() {
 
 	return (
 		<FullscreenView
+			flex={1}
 			stack="XStack"
-			style={{ overflow: "hidden", backgroundColor: "var(--color2)" }}
+			maxHeight
+			overflow="hidden"
+			bg={"$color2"}
 		>
-			<YStack
-				flex={1}
-				p="$4"
-				bg="$color2"
-				minH="100%"
-				style={{ minWidth: 350, maxWidth: 400 }}
-			>
-				<SidebarCalendar />
-				{/* My calendars */}
-			</YStack>
-			<YStack minW={0} flex={1}>
+			<Sidebar />
+			{/* My calendars */}
+			<FullscreenView maxHeight minW={0} flex={1}>
 				{/* Calendar Header */}
 				<CalendarHeader
 					grid={grid}
@@ -108,7 +103,7 @@ export default function CalendarPage() {
 				<XStack ref={wheelableYStackRef} flex={1} minW={0}>
 					<Calendar grid={grid} />
 				</XStack>
-			</YStack>
+			</FullscreenView>
 		</FullscreenView>
 	);
 }

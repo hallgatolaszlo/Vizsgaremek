@@ -27,3 +27,7 @@
 ::-webkit-scrollbar-button {
 	display: none;
 }
+
+::-webkit-scrollbar-corner {
+	visibility: hidden;
+}

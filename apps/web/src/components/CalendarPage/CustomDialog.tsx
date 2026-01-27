@@ -1,26 +1,31 @@
-import { CreateCalendarEntryForm } from "@repo/features";
 import { Dialog, VisuallyHidden } from "tamagui";
 
-interface CreateCalendarEntryDialogProps {
-	dialogOpen: boolean;
-	setDialogOpen: (open: boolean) => void;
-	children: React.ReactNode;
+interface CustomDialog {
+	isDialogOpen: boolean;
+	setIsDialogOpen: (open: boolean) => void;
+	title?: string | undefined;
+	description?: string | undefined;
+	content?: React.ReactNode;
+	children?: React.ReactNode;
 }
 
-export default function CreateCalendarEntryDialog({
-	dialogOpen,
-	setDialogOpen,
+export default function CustomDialog({
+	isDialogOpen,
+	setIsDialogOpen,
+	title,
+	description,
+	content,
 	children,
-}: CreateCalendarEntryDialogProps) {
+}: CustomDialog) {
 	return (
 		<Dialog
 			modal
-			open={dialogOpen}
-			onOpenChange={setDialogOpen}
-			scope="create-calendar-event"
+			open={isDialogOpen}
+			onOpenChange={setIsDialogOpen}
+			scope="custom-dialog"
 			disableRemoveScroll
 		>
-			{dialogOpen && (
+			{isDialogOpen && (
 				<Dialog.Portal key={"dialogportal"}>
 					<Dialog.Overlay
 						key={"dialogoverlay"}
@@ -39,16 +44,20 @@ export default function CreateCalendarEntryDialog({
 					/>
 					<Dialog.Content key={"dialogcontent"}>
 						<Dialog.Title key={"dialogtitle"}>
-							<VisuallyHidden>
-								Create Calendar Event
-							</VisuallyHidden>
+							{title ? (
+								title
+							) : (
+								<VisuallyHidden>{title}</VisuallyHidden>
+							)}
 						</Dialog.Title>
 						<Dialog.Description key={"dialogdescription"}>
-							<VisuallyHidden>
-								Create Calendar Event Dialog
-							</VisuallyHidden>
+							{description ? (
+								description
+							) : (
+								<VisuallyHidden>{description}</VisuallyHidden>
+							)}
 						</Dialog.Description>
-						<CreateCalendarEntryForm />
+						{content}
 					</Dialog.Content>
 				</Dialog.Portal>
 			)}

@@ -1,19 +1,18 @@
 "use client";
 
 import { config } from "@repo/config";
-import { useAuthStore, useContextMenuStore } from "@repo/hooks";
+import { useAuthStore, useContextMenuStore, useDialogStore } from "@repo/hooks";
 import { NextThemeProvider, useRootTheme } from "@tamagui/next-theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
 import { TamaguiProvider, View } from "tamagui";
-import ContextMenu from "./ui/CalendarPage/ContextMenu";
-import CreateCalendarEntryDialog from "./ui/CalendarPage/CreateCalendarEntryDialog";
-import Navbar from "./ui/Navbar/Navbar";
+import ContextMenu from "./CalendarPage/ContextMenu";
+import CustomDialog from "./CalendarPage/CustomDialog";
+import Navbar from "./Navbar/Navbar";
 
 function MainView({ children }: { children: React.ReactNode }) {
 	const viewRef = useRef<HTMLElement>(null);
-	const [dialogOpen, setDialogOpen] = useState(false);
 	const {
 		contextMenuOpen,
 		position,
@@ -24,6 +23,9 @@ function MainView({ children }: { children: React.ReactNode }) {
 		hideMenu,
 		setFieldType,
 	} = useContextMenuStore();
+
+	const { isDialogOpen, setIsDialogOpen, title, description, content } =
+		useDialogStore();
 
 	// Store position in a ref to access current value in event handlers
 	const positionRef = useRef(position);
@@ -100,12 +102,15 @@ function MainView({ children }: { children: React.ReactNode }) {
 
 	return (
 		<View background="$color1" ref={viewRef}>
-			<CreateCalendarEntryDialog
-				dialogOpen={dialogOpen}
-				setDialogOpen={setDialogOpen}
+			<CustomDialog
+				isDialogOpen={isDialogOpen}
+				setIsDialogOpen={setIsDialogOpen}
+				title={title}
+				description={description}
+				content={content}
 			>
 				{children}
-			</CreateCalendarEntryDialog>
+			</CustomDialog>
 		</View>
 	);
 }
