@@ -5,7 +5,7 @@ namespace backend.DTOs.Calendar
 {
     public class CreateCalendarDTO
     {
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         public int Color { get; set; }
     }
 }

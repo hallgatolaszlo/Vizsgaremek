@@ -2,12 +2,26 @@ import { components } from "@repo/types";
 import { api } from "./api";
 
 type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
+interface GetCalendarEntryOptions {
+	startDate?: string;
+	endDate?: string;
+}
+
 type CreateCalendarEntryDTO = components["schemas"]["CreateCalendarEntryDTO"];
 type UpdateCalendarEntryDTO = components["schemas"]["UpdateCalendarEntryDTO"];
 
-export async function getCalendarEntry(id: string) {
+export async function getCalendarEntry(
+	id: string,
+	options?: GetCalendarEntryOptions,
+) {
 	const response = await api.get<GetCalendarEntryDTO>(
 		`api/CalendarEntry/${id}`,
+		{
+			params: {
+				startDate: options?.startDate,
+				endDate: options?.endDate,
+			},
+		},
 	);
 	return response.data;
 }

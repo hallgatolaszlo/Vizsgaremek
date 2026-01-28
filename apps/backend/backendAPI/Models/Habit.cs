@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using backend.Models.Enums;
+using backend.Services;
 
 namespace backend.Models
 {
-    public class Habit
+    public class Habit : IEntityWithId
     {
         public Guid Id { get; set; }
         [Required]
