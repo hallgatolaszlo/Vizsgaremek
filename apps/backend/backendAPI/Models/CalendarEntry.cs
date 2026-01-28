@@ -21,7 +21,7 @@ namespace backend.Models
         [Range(1, 12)]
         public int Color { get; set; } = 1;
         public bool? IsCompleted { get; set; }
-        public bool isAllDay { get; set; } = true;
+        public bool IsAllDay { get; set; } = true;
         public Guid CalendarId { get; set; }
         public Calendar? Calendar { get; set; }
         public Guid CreatedBy { get; set; }
