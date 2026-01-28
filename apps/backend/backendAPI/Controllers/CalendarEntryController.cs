@@ -29,7 +29,7 @@ namespace backend.Controllers
                 query = query.Where(x => x.StartDate >= startDate);
             }
 
-            if (endDate.HasValue) 
+            if (endDate.HasValue)
             {
                 query = query.Where(x => x.EndDate <= endDate);
             }
@@ -48,6 +48,7 @@ namespace backend.Controllers
                     NotificationTime = x.NotificationTime,
                     Color = x.Color,
                     IsCompleted = x.IsCompleted,
+                    IsAllDay = x.IsAllDay,
                     CalendarId = x.CalendarId,
                     CreatedBy = x.CreatedBy
                 })
@@ -82,7 +83,12 @@ namespace backend.Controllers
                 EndDate = dto.EndDate,
                 Location = dto.Location,
                 NotificationTime = dto.NotificationTime,
+<<<<<<< HEAD
                 Color = dto.Color ?? calendarColor,
+=======
+                Color = dto.Color,
+                IsAllDay = dto.IsAllDay ?? true,
+>>>>>>> origin/main
                 CalendarId = dto.CalendarId,
                 CreatedBy = profileId.Value,
             };
@@ -98,7 +104,7 @@ namespace backend.Controllers
         public async Task<IActionResult> UpdateCalendarEntry(Guid id, [FromBody] UpdateCalendarEntryDTO dto)
         {
             var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto);
-            if (!validationResponse.Success) 
+            if (!validationResponse.Success)
             {
                 return BadRequest(validationResponse.Message);
             }
@@ -114,6 +120,7 @@ namespace backend.Controllers
             calendarEntry.NotificationTime = dto.NotificationTime;
             calendarEntry.Color = dto.Color;
             calendarEntry.IsCompleted = dto.IsCompleted;
+            calendarEntry.IsAllDay = dto.IsAllDay ?? true;
             calendarEntry.CreatedBy = dto.CreatedBy;
 
             await context.SaveChangesAsync();
