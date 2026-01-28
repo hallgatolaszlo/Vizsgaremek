@@ -57,6 +57,20 @@ namespace backend.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntries(IEnumerable<string> ids, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            IEnumerable<GetCalendarEntryDTO> result;
+
+
+
+            foreach (var id in ids)
+            {
+                
+            }
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<ActionResult> CreateCalendarEntry([FromBody] CreateCalendarEntryDTO dto)
