@@ -1,4 +1,5 @@
-﻿using backend.Context;
+﻿using System.Drawing;
+using backend.Context;
 using backend.DTOs;
 using backend.DTOs.CalendarEntry;
 using backend.Extensions;
@@ -14,7 +15,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
+    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation) : ControllerBase
     {
 
         [HttpGet("{id}")]
@@ -70,6 +71,8 @@ namespace backend.Controllers
                 return BadRequest(validationResponse.Message);
             }
 
+            var calendarColor = await context.Calendars.Where(x=>x.Id==dto.CalendarId).Select(x=>x.Color).FirstOrDefaultAsync();
+
             var cEntry = new CalendarEntry
             {
                 EntryCategory = dto.EntryCategory,
@@ -79,7 +82,7 @@ namespace backend.Controllers
                 EndDate = dto.EndDate,
                 Location = dto.Location,
                 NotificationTime = dto.NotificationTime,
-                Color = dto.Color,
+                Color = dto.Color ?? calendarColor,
                 CalendarId = dto.CalendarId,
                 CreatedBy = profileId.Value,
             };

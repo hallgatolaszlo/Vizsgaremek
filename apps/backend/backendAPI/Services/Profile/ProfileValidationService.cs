@@ -10,11 +10,6 @@ namespace backend.Services.Profile
     {
         public async Task<ServiceResponse<bool>> ValidateProfileCreationAsync(Models.Profile profileDTO)
         {
-            if (await ValidateUniqueUsername(profileDTO.Username))
-            {
-                return new ServiceResponse<bool> { Success = false, Message = "Username already exists" };
-            }
-
             return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.BirthDate, profileDTO.UserId );
         }
 
@@ -74,7 +69,7 @@ namespace backend.Services.Profile
             return response;
         }
 
-        private async Task<bool> ValidateUniqueUsername(string name, Guid? id = null)
+        public async Task<bool> ValidateUniqueUsername(string name, Guid? id = null)
         {
             var query = context.Profiles.Where(p => p.Username == name);
 

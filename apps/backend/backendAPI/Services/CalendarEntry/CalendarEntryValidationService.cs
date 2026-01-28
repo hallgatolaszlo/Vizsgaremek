@@ -22,7 +22,7 @@ namespace backend.Services.CalendarEntry
 
             var validationResponse = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate);
 
-            return new ServiceResponse<Models.CalendarEntry> { Success = validationResponse.Success, Message = validationResponse.Message, Data = calendarEntry.Data }
+            return new ServiceResponse<Models.CalendarEntry> { Success = validationResponse.Success, Message = validationResponse.Message, Data = calendarEntry.Data };
         }
 
         private async Task<ServiceResponse<bool>> ValidateCommonCalendarEntryRulesAsync(Guid calendarId, EntryCategory category, DateTime startDate, DateTime endDate, bool? isCompleted = null)

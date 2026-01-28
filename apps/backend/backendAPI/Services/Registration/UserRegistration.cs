@@ -29,9 +29,11 @@ namespace backend.Services.Registration
                     throw new Exception(user.Message);
                 }
 
+                var username = await GenerateRandomUniqueUsername(request.Email);
+
                 var profile = new Models.Profile
                 {
-                    Username = request.Email,
+                    Username = username,
                     Avatar = "placeholder",
                     IsPrivate = false,
                     UserId = user.Data,
@@ -77,6 +79,43 @@ namespace backend.Services.Registration
                     Message = ex.Message,
                 };
             }
+        }
+
+        public async Task<string> GenerateRandomUniqueUsername(string email)
+        {
+            var baseUsername = email.Split("@")[0];
+
+            if (baseUsername.Length > 50)
+            {
+                baseUsername = baseUsername.Substring(0, 50);
+            }
+
+            var username = baseUsername;
+            var notUnique = await profileValidationService.ValidateUniqueUsername(username);
+
+            if (!notUnique)
+            {
+                return username;
+            }
+
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqerstuvwxyz0123456789";
+            var retries = 0;
+
+            while (notUnique && retries < 20)
+            {
+                var suffix = new string(Random.Shared.GetItems(chars.AsSpan(), 4));
+
+                username = $"{baseUsername}{suffix}";
+                notUnique = await profileValidationService.ValidateUniqueUsername(username);
+                retries++;
+            }
+
+            if (notUnique)
+            {
+                throw new InvalidOperationException($"Unable to generate unique username after 20 attempts.");
+            }
+
+            return username;
         }
     }
 }
