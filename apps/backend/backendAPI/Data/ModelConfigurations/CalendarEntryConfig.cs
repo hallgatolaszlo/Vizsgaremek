@@ -15,10 +15,6 @@ namespace backend.Context.ModelConfigurations
                     .HasConversion<int>();
 
                 builder
-                    .Property(p => p.Color)
-                    .HasDefaultValue(1);
-
-                builder
                     .HasIndex(e => e.StartDate);
 
                 builder

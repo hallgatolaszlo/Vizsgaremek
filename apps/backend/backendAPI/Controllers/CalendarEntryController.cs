@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using backend.Common;
 using backend.Context;
 using backend.DTOs;
 using backend.DTOs.CalendarEntry;
@@ -15,7 +16,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation) : ControllerBase
+    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
     {
 
         [HttpGet("{id}")]
@@ -57,18 +58,50 @@ namespace backend.Controllers
             return Ok(result);
         }
 
-        [HttpGet]
+        [HttpPost("query")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntries(IEnumerable<string> ids, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntries(GetCalendarEntriesRequestDTO request) 
         {
-            IEnumerable<GetCalendarEntryDTO> result;
+            var guidList = request.Ids.Select(Guid.Parse).ToList();
 
-
-
-            foreach (var id in ids)
+            if(guidList.Count == 0)
             {
-                
+                return Ok(Enumerable.Empty<GetCalendarEntryDTO>());
             }
+
+            var query = context.CalendarEntries.AsQueryable();
+
+            if (request.StartDate.HasValue)
+            {
+                query = query.Where(x => x.StartDate >= request.StartDate);
+            }
+
+            if (request.EndDate.HasValue)
+            {
+                query = query.Where(x => x.EndDate <= request.EndDate);
+            }
+
+            var result = await query
+                .Where(x => guidList.Contains(x.CalendarId))
+                .Select(x => new GetCalendarEntryDTO
+                {
+                    Id = x.Id,
+                    EntryCategory = x.EntryCategory,
+                    Name = x.Name,
+                    Description = x.Description,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Location = x.Location,
+                    NotificationTime = x.NotificationTime,
+                    Color = x.Color,
+                    IsCompleted = x.IsCompleted,
+                    IsAllDay = x.IsAllDay,
+                    CalendarId = x.CalendarId,
+                    CreatedBy = x.CreatedBy
+                })
+                .ToListAsync();
+
+            return Ok(result);        
         }
 
         [HttpPost]
@@ -97,12 +130,8 @@ namespace backend.Controllers
                 EndDate = dto.EndDate,
                 Location = dto.Location,
                 NotificationTime = dto.NotificationTime,
-<<<<<<< HEAD
                 Color = dto.Color ?? calendarColor,
-=======
-                Color = dto.Color,
                 IsAllDay = dto.IsAllDay ?? true,
->>>>>>> origin/main
                 CalendarId = dto.CalendarId,
                 CreatedBy = profileId.Value,
             };
@@ -137,7 +166,23 @@ namespace backend.Controllers
             calendarEntry.IsAllDay = dto.IsAllDay ?? true;
             calendarEntry.CreatedBy = dto.CreatedBy;
 
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var commonValidationResponse = await commonValidation.EntityExists<CalendarEntry>(id);
+                if (!commonValidationResponse.Success)
+                {
+                    return NotFound(commonValidationResponse.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
             return Ok();
         }
 
@@ -146,11 +191,20 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteCalendarEntry(Guid id)
         {
+            var profileId = this.GetProfileId();
+
             var calendarEntry = await context.CalendarEntries.FindAsync(id);
             if (calendarEntry == null)
             {
-                return NotFound();
+                return NotFound("Entry not found");
             }
+
+            var validUser = await calendarEntryValidation.validateCalendarRole(profileId!.Value, id);
+            if (!validUser.Success)
+            {
+                return Forbid(CommonErrors.ImATeapot);
+            }
+
             context.CalendarEntries.Remove(calendarEntry);
             await context.SaveChangesAsync();
             return NoContent();

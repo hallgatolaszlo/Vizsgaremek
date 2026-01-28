@@ -1,6 +1,6 @@
 ﻿using backend.Models.Enums;
 
-namespace backend.DTOs.Calendar
+namespace backend.DTOs.SharedCalendar
 {
     public class CreateSharedCalendarDTO
     {

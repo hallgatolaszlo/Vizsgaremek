@@ -1,5 +1,4 @@
 ﻿using backend.Context;
-using backend.DTOs.Calendar;
 using backend.DTOs.SharedCalendar;
 using backend.Extensions;
 using backend.Models;
