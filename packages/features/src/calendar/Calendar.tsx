@@ -1,6 +1,7 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
-import { CalendarCellProps } from "@repo/types";
+import { CalendarCellProps, components } from "@repo/types";
 import { generateGrid, isNative, Week } from "@repo/utils";
+import { UseQueryResult } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
@@ -22,10 +23,6 @@ const baseCellStyle = {
 	borderRadius: 0,
 	borderColor: BORDER_COLOR,
 } as const;
-
-interface CalendarProps {
-	grid?: Record<string, CalendarCellProps[]>;
-}
 
 // Reusable Components
 interface WeekNumberSidebarProps {
@@ -170,7 +167,14 @@ function HourlyScrollView({
 	);
 }
 
-export function Calendar({ grid }: CalendarProps) {
+type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
+
+interface CalendarProps {
+	grid?: Record<string, CalendarCellProps[]>;
+	calendarEntriesQuery?: UseQueryResult<GetCalendarEntryDTO[]>;
+}
+
+export function Calendar({ grid, calendarEntriesQuery }: CalendarProps) {
 	const { selectedDate, viewType } = useCalendarStore();
 	const { locale, weekStartsOn, hour12 } = useProfileStore();
 	const media = useMedia();
@@ -193,6 +197,7 @@ export function Calendar({ grid }: CalendarProps) {
 
 	const gridEntries = Object.entries(calendarGrid);
 	const isWeekOrDayView = viewType === "week" || viewType === "day";
+	const calendarEntries = calendarEntriesQuery?.data || [];
 
 	// Weekday header
 	const WeekdayHeader = useMemo(() => {
@@ -294,24 +299,28 @@ export function Calendar({ grid }: CalendarProps) {
 							borderTopWidth={BORDER_WIDTH}
 							borderBottomWidth={BORDER_WIDTH}
 						/>
-						{row.map((cell, i) => (
-							<CalendarCell
-								key={i}
-								cell={cell}
-								style={{
-									...baseCellStyle,
-									maxHeight: "fit-content",
-									borderLeftWidth: BORDER_WIDTH,
-									borderTopWidth: BORDER_WIDTH,
-									borderBottomWidth:
-										rowIndex === gridEntries.length - 1
-											? BORDER_WIDTH
-											: 0,
-									borderRightWidth:
-										i === row.length - 1 ? BORDER_WIDTH : 0,
-								}}
-							/>
-						))}
+						{row.map((cell, i) => {
+							return (
+								<CalendarCell
+									key={i}
+									cell={cell}
+									style={{
+										...baseCellStyle,
+										maxHeight: "fit-content",
+										borderLeftWidth: BORDER_WIDTH,
+										borderTopWidth: BORDER_WIDTH,
+										borderBottomWidth:
+											rowIndex === gridEntries.length - 1
+												? BORDER_WIDTH
+												: 0,
+										borderRightWidth:
+											i === row.length - 1
+												? BORDER_WIDTH
+												: 0,
+									}}
+								/>
+							);
+						})}
 					</XStack>
 				))}
 				<HourlyScrollView

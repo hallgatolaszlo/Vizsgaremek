@@ -16,7 +16,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 	const { selectedDate, viewType, setSelectedDate, currentDate } =
 		useCalendarStore();
 	const { locale } = useProfileStore();
-	const { setFieldType: setType, setDate } = useContextMenuStore();
+	const { setFieldType, setDate } = useContextMenuStore();
 
 	const { cell } = props;
 
@@ -30,7 +30,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			e.preventDefault();
 			e.stopPropagation();
 
-			setType("cell");
+			setFieldType("cell");
 			setDate(new Date(cell.date));
 		};
 

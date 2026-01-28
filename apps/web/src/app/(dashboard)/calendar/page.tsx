@@ -3,11 +3,17 @@
 import CalendarHeader from "@/src/components/CalendarPage/CalendarHeader";
 import Sidebar from "@/src/components/CalendarPage/Sidebar";
 import { FullscreenView } from "@/src/components/FullscreenView";
+import { getCalendarEntry } from "@repo/api";
+import { getCalendar } from "@repo/api/src/calendar";
 import { Calendar } from "@repo/features";
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import { components } from "@repo/types";
 import { generateGrid } from "@repo/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
 import { XStack } from "tamagui";
+
+type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
 
 export default function CalendarPage() {
 	const {
@@ -23,6 +29,31 @@ export default function CalendarPage() {
 	} = useCalendarStore();
 
 	const { weekStartsOn } = useProfileStore();
+
+	const queryClient = useQueryClient();
+
+	const myCalendarsQuery = useQuery<getCalendarDTO[]>({
+		queryKey: ["myCalendars"],
+		queryFn: async () => {
+			const calendars = await getCalendar();
+			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
+			return calendars;
+		},
+	});
+
+	const calendarEntriesQuery = useQuery({
+		queryKey: ["calendarEntries", myCalendarsQuery.data],
+		queryFn: async () => {
+			const calendarIds =
+				myCalendarsQuery.data?.map((cal) => cal.id) || [];
+			const entriesPromises = calendarIds.map(async (id) => {
+				const response = await getCalendarEntry(id!);
+				return response;
+			});
+			return await Promise.all(entriesPromises);
+		},
+		enabled: !!myCalendarsQuery.data,
+	});
 
 	const grid = useMemo(
 		() =>
@@ -91,7 +122,7 @@ export default function CalendarPage() {
 			overflow="hidden"
 			bg={"$color2"}
 		>
-			<Sidebar />
+			<Sidebar myCalendarsQuery={myCalendarsQuery} />
 			{/* My calendars */}
 			<FullscreenView maxHeight minW={0} flex={1}>
 				{/* Calendar Header */}
@@ -101,7 +132,10 @@ export default function CalendarPage() {
 					increaseView={increaseView}
 				/>
 				<XStack ref={wheelableYStackRef} flex={1} minW={0}>
-					<Calendar grid={grid} />
+					<Calendar
+						grid={grid}
+						calendarEntriesQuery={calendarEntriesQuery}
+					/>
 				</XStack>
 			</FullscreenView>
 		</FullscreenView>

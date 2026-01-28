@@ -1,8 +1,7 @@
 "use client";
 
-import { getCalendar } from "@repo/api";
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
-import { CalendarCellProps } from "@repo/types";
+import { CalendarCellProps, components } from "@repo/types";
 import { SelectElement, StyledButton } from "@repo/ui";
 import { generateGrid, getContrastFromHSLA, Month, Week } from "@repo/utils";
 import {
@@ -13,7 +12,7 @@ import {
 	CalendarPlus,
 	Check,
 } from "@tamagui/lucide-icons";
-import { useQuery } from "@tanstack/react-query";
+import { UseQueryResult } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	ButtonProps,
@@ -35,7 +34,13 @@ import {
 import { FullscreenView } from "../FullscreenView";
 import { CreateCalendarForm } from "./CreateCalendarForm";
 
-export default function Sidebar() {
+type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
+
+interface SidebarProps {
+	myCalendarsQuery: UseQueryResult<getCalendarDTO[]>;
+}
+
+export default function Sidebar(props: SidebarProps) {
 	const { selectedDate, currentDate, setSelectedDate } = useCalendarStore();
 	const [checkedCalendars, setCheckedCalendars] =
 		useState<Record<string, boolean>>();
@@ -52,12 +57,7 @@ export default function Sidebar() {
 	const wheelableYearXGroupRef = useRef<HTMLDivElement | null>(null);
 	const wheelableMonthXGroupRef = useRef<HTMLDivElement | null>(null);
 
-	const { isPending, error, data } = useQuery({
-		queryKey: ["myCalendars"],
-		queryFn: async () => {
-			return await getCalendar();
-		},
-	});
+	const { isPending, error, data } = props.myCalendarsQuery;
 
 	useEffect(() => {
 		if (data) {

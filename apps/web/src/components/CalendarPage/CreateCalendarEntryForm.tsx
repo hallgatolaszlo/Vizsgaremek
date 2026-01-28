@@ -1,10 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createCalendarEntry } from "@repo/api";
 import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
 import { CalendarPlus2 } from "@tamagui/lucide-icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -38,6 +39,7 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 export function CreateCalendarEntryForm() {
 	const [error, setError] = useState<string | null>(null);
 	const descriptionRef = useRef<any>(null);
+	const queryClient = useQueryClient();
 
 	const {
 		control,
@@ -51,11 +53,13 @@ export function CreateCalendarEntryForm() {
 			description: "",
 		},
 	});
-	0;
 
 	// Mutation for sign-up action
 	const createCalendarEntryMutation = useMutation({
-		mutationFn: async (request: CreateCalendarEntryDTO) => {},
+		mutationFn: async (request: CreateCalendarEntryDTO) => {
+			await createCalendarEntry(request);
+			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
+		},
 		onSuccess: () => {
 			reset();
 		},
