@@ -17,20 +17,20 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> CreateSharedCalendar(CreateSharedCalendarDTO request)
         {
-            var profileId = this.GetProfileId();
-            if (profileId == null)
+            var guidList = request.ProfileIds.Select(Guid.Parse).ToList();
+
+            foreach (var guid in guidList)
             {
-                return Unauthorized();
+                var sharedCalendar = new SharedCalendar
+                {
+                    ProfileId = guid,
+                    CalendarId = request.CalendarId,
+                    Role = request.Role,
+                };
+
+                context.SharedCalendars.Add(sharedCalendar);
             }
 
-            var sharedCalendar = new SharedCalendar
-            {
-                ProfileId = profileId.Value,
-                CalendarId = request.CalendarId,
-                Role = request.Role,
-            };
-
-            context.SharedCalendars.Add(sharedCalendar);
             await context.SaveChangesAsync();
 
             return Ok();

@@ -47,7 +47,7 @@ namespace backend.Controllers
                     EndDate = x.EndDate,
                     Location = x.Location,
                     NotificationTime = x.NotificationTime,
-                    Color = x.Color,
+                    Color = x.Color ?? x.Calendar!.Color,
                     IsCompleted = x.IsCompleted,
                     IsAllDay = x.IsAllDay,
                     CalendarId = x.CalendarId,
@@ -93,7 +93,7 @@ namespace backend.Controllers
                     EndDate = x.EndDate,
                     Location = x.Location,
                     NotificationTime = x.NotificationTime,
-                    Color = x.Color,
+                    Color = x.Color ?? x.Calendar!.Color,
                     IsCompleted = x.IsCompleted,
                     IsAllDay = x.IsAllDay,
                     CalendarId = x.CalendarId,
@@ -119,7 +119,7 @@ namespace backend.Controllers
                 return BadRequest(validationResponse.Message);
             }
 
-            var calendarColor = await context.Calendars.Where(x=>x.Id==dto.CalendarId).Select(x=>x.Color).FirstOrDefaultAsync();
+            //var calendarColor = await context.Calendars.Where(x=>x.Id==dto.CalendarId).Select(x=>x.Color).FirstOrDefaultAsync();
 
             var cEntry = new CalendarEntry
             {
@@ -130,7 +130,7 @@ namespace backend.Controllers
                 EndDate = dto.EndDate,
                 Location = dto.Location,
                 NotificationTime = dto.NotificationTime,
-                Color = dto.Color ?? calendarColor,
+                Color = dto.Color ?? null,
                 IsAllDay = dto.IsAllDay ?? true,
                 CalendarId = dto.CalendarId,
                 CreatedBy = profileId.Value,
