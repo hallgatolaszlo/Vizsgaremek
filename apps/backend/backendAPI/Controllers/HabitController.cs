@@ -1,7 +1,9 @@
-﻿using backend.Context;
+﻿using backend.Common;
+using backend.Context;
 using backend.DTOs.Habit;
 using backend.Extensions;
 using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HabitController(AppDbContext context) : ControllerBase
+    public class HabitController(AppDbContext context, ICommonValidationService commonValidation) : ControllerBase
     {
         [HttpGet]
         [Authorize]
@@ -92,6 +94,50 @@ namespace backend.Controllers
 
             context.Habits.Add(habit);
             await context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<ActionResult> UpdateHabit(Guid id, UpdateHabitDto dto)
+        {
+            if (id != dto.Id)
+            {
+                return BadRequest(CommonErrors.InvalidRoute);
+            }
+
+            var habit = context.Habits.FirstOrDefault(x => x.Id == id);
+            if (habit == null)
+            {
+                return NotFound("Habit not found");
+            }
+            habit.Name = dto.Name;
+            habit.Description = dto.Description;
+            habit.HabitCategory = dto.HabitCategory;
+            habit.Goal = dto.Goal;
+            habit.Unit = dto.Unit;
+            habit.Color = dto.Color;
+            habit.Days = dto.Days;
+
+            context.Entry(habit).State = EntityState.Modified;
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var commonValidationResponse = await commonValidation.EntityExists<Profile>(id);
+                if (commonValidationResponse.Success)
+                {
+                    return NotFound(commonValidationResponse.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return Ok();
         }
