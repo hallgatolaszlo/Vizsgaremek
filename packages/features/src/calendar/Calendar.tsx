@@ -1,7 +1,6 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps, components } from "@repo/types";
 import { generateGrid, isNative, Week } from "@repo/utils";
-import { UseQueryResult } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
@@ -171,10 +170,9 @@ type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
 
 interface CalendarProps {
 	grid?: Record<string, CalendarCellProps[]>;
-	calendarEntriesQuery?: UseQueryResult<GetCalendarEntryDTO[]>;
 }
 
-export function Calendar({ grid, calendarEntriesQuery }: CalendarProps) {
+export function Calendar({ grid }: CalendarProps) {
 	const { selectedDate, viewType } = useCalendarStore();
 	const { locale, weekStartsOn, hour12 } = useProfileStore();
 	const media = useMedia();
@@ -197,7 +195,6 @@ export function Calendar({ grid, calendarEntriesQuery }: CalendarProps) {
 
 	const gridEntries = Object.entries(calendarGrid);
 	const isWeekOrDayView = viewType === "week" || viewType === "day";
-	const calendarEntries = calendarEntriesQuery?.data || [];
 
 	// Weekday header
 	const WeekdayHeader = useMemo(() => {
@@ -260,17 +257,19 @@ export function Calendar({ grid, calendarEntriesQuery }: CalendarProps) {
 								width={sidebarWidth}
 								borderTopWidth={BORDER_WIDTH}
 							/>
-							{row.map((cell, i) => (
-								<CalendarCell
-									key={i}
-									cell={cell}
-									style={{
-										...baseCellStyle,
-										borderLeftWidth: BORDER_WIDTH,
-										borderTopWidth: BORDER_WIDTH,
-									}}
-								/>
-							))}
+							{row.map((cell, i) => {
+								return (
+									<CalendarCell
+										key={i}
+										cell={cell}
+										style={{
+											...baseCellStyle,
+											borderLeftWidth: BORDER_WIDTH,
+											borderTopWidth: BORDER_WIDTH,
+										}}
+									/>
+								);
+							})}
 						</XStack>
 					))}
 				</YStack>
@@ -350,23 +349,27 @@ export function Calendar({ grid, calendarEntriesQuery }: CalendarProps) {
 							width={sidebarWidth}
 							borderBottomWidth={BORDER_WIDTH}
 						/>
-						{row.map((cell, i) => (
-							<CalendarCell
-								key={i}
-								cell={cell}
-								style={{
-									...baseCellStyle,
-									maxHeight: "fit-content",
-									borderLeftWidth: BORDER_WIDTH,
-									borderBottomWidth:
-										rowIndex === gridEntries.length - 1
-											? BORDER_WIDTH
-											: 0,
-									borderRightWidth:
-										i === row.length - 1 ? BORDER_WIDTH : 0,
-								}}
-							/>
-						))}
+						{row.map((cell, i) => {
+							return (
+								<CalendarCell
+									key={i}
+									cell={cell}
+									style={{
+										...baseCellStyle,
+										maxHeight: "fit-content",
+										borderLeftWidth: BORDER_WIDTH,
+										borderBottomWidth:
+											rowIndex === gridEntries.length - 1
+												? BORDER_WIDTH
+												: 0,
+										borderRightWidth:
+											i === row.length - 1
+												? BORDER_WIDTH
+												: 0,
+									}}
+								/>
+							);
+						})}
 					</XStack>
 				))}
 				<HourlyScrollView

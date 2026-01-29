@@ -12,7 +12,7 @@ import CustomDialog from "./CalendarPage/CustomDialog";
 import Navbar from "./Navbar/Navbar";
 
 function MainView({ children }: { children: React.ReactNode }) {
-	const viewRef = useRef<HTMLElement>(null);
+	const viewRef = useRef<HTMLDivElement>(null);
 	const {
 		contextMenuOpen,
 		position,

@@ -45,13 +45,6 @@ namespace backend.Services.CalendarEntry
                 return response;
             }
 
-            if (startDate < DateTime.UtcNow || endDate < DateTime.UtcNow)
-            {
-                response.Success = false;
-                response.Message = "Date cannot be in the past";
-                return response;
-            }
-
             if (startDate > endDate)
             {
                 response.Success=false;

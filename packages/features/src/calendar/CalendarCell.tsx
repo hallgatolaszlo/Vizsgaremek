@@ -1,26 +1,39 @@
 import {
+	useCalendarEntries,
+	useCalendars,
 	useCalendarStore,
 	useContextMenuStore,
 	useProfileStore,
 } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { isNative } from "@repo/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { Card, CardProps, Text } from "tamagui";
+import { AnimatePresence, Card, CardProps, Text } from "tamagui";
+import { CalendarEntry } from "./CalendarEntry";
 
 interface CalendarCellComponentProps extends CardProps {
 	cell: CalendarCellProps;
 }
 
 export default function CalendarCell(props: CalendarCellComponentProps) {
-	const { selectedDate, viewType, setSelectedDate, currentDate } =
-		useCalendarStore();
+	const {
+		selectedDate,
+		viewType,
+		setSelectedDate,
+		currentDate,
+		checkedCalendarIds,
+	} = useCalendarStore();
 	const { locale } = useProfileStore();
 	const { setFieldType, setDate } = useContextMenuStore();
 
 	const { cell } = props;
 
-	const cardRef = useRef<any>(null);
+	const queryClient = useQueryClient();
+	const myCalendars = useCalendars(queryClient);
+	const calendarEntries = useCalendarEntries(queryClient, myCalendars);
+
+	const cardRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const element = cardRef.current;
@@ -38,7 +51,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		return () => {
 			element.removeEventListener("contextmenu", handleContextMenu);
 		};
-	}, [cardRef.current]);
+	}, [cell.date, setFieldType, setDate]);
 
 	// Determine header label to show
 	const headerLabel = () => {
@@ -73,7 +86,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		}
 
 		// ... or last of month
-		let date: Date = new Date(cell.date);
+		const date = new Date(cell.date);
 		date.setDate(date.getDate() + 1);
 		if (date.getMonth() !== cell.date.getMonth()) {
 			return cell.date.toLocaleDateString(locale, {
@@ -111,10 +124,20 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		return { bg: "$color1" } as CardProps;
 	}
 
+	const filteredEntries = calendarEntries.data?.filter(
+		(d) =>
+			new Date(d.startDate!).toDateString() ===
+				cell.date.toDateString() &&
+			d.isAllDay &&
+			d.calendarId &&
+			checkedCalendarIds.includes(d.calendarId),
+	);
+
 	return (
 		<Card
 			{...decideStyling(cell)}
 			style={props.style}
+			hoverStyle={{ backgroundColor: "var(--accent2)" }}
 			flex={1}
 			flexBasis={0}
 			minW={0}
@@ -122,7 +145,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 			ref={cardRef}
 		>
 			<Card.Header
-				p={"$2"}
+				p="$2"
 				style={{
 					margin: 0,
 					alignItems: "center",
@@ -142,6 +165,11 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 					{headerLabel()}
 				</Text>
 			</Card.Header>
+			<AnimatePresence>
+				{filteredEntries?.map((entry) => (
+					<CalendarEntry key={entry.id} entry={entry} />
+				))}
+			</AnimatePresence>
 		</Card>
 	);
 }

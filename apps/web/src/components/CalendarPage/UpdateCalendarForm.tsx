@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createCalendar } from "@repo/api";
+import { updateCalendar } from "@repo/api";
 import { components } from "@repo/types";
 import { SelectElement, StyledButton, StyledInput } from "@repo/ui";
 import { Check } from "@tamagui/lucide-icons";
@@ -21,10 +21,10 @@ import {
 import z from "zod";
 
 // Type for sign-up request data from Swagger
-type CreateCalendarDTO = components["schemas"]["CreateCalendarDTO"];
+type UpdateCalendarDTO = components["schemas"]["UpdateCalendarDTO"];
 
 // Zod schema for sign-up form validation
-const createCalendarEntrySchema = z.object({
+const updateCalendarEntrySchema = z.object({
 	name: z
 		.string()
 		.min(1, "The name field is required")
@@ -87,8 +87,21 @@ function ColorSelectItem({
 	);
 }
 
-export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
+export function UpdateCalendarForm({
+	onSuccess,
+	onBlur,
+	calendar,
+}: {
+	onSuccess?: () => void;
+	onBlur?: () => void;
+	calendar: {
+		name?: string | null | undefined;
+		color?: number | undefined;
+		id?: string | undefined;
+	};
+}) {
 	const [error, setError] = useState<string | null>(null);
+	const [isSelectOpen, setIsSelectOpen] = useState(false);
 	const theme = useTheme({ name: "calendarColors" });
 	const queryClient = useQueryClient();
 	const colors = useRef<Record<string, any>>({
@@ -112,18 +125,18 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 		reset,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(createCalendarEntrySchema),
+		resolver: zodResolver(updateCalendarEntrySchema),
 		defaultValues: {
-			name: "",
-			color: 1,
+			name: calendar.name!,
+			color: calendar.color!,
 		},
 	});
 	0;
 
 	// Mutation for sign-up action
-	const createCalendarMutation = useMutation({
-		mutationFn: async (request: CreateCalendarDTO) => {
-			await createCalendar(request);
+	const updateCalendarMutation = useMutation({
+		mutationFn: async (request: UpdateCalendarDTO) => {
+			await updateCalendar(request);
 		},
 		onSuccess: () => {
 			reset();
@@ -141,32 +154,50 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 		},
 	});
 
-	async function onSubmit(request: CreateCalendarDTO) {
-		createCalendarMutation.mutate(request);
+	async function onSubmit(request: UpdateCalendarDTO) {
+		request.id = calendar.id!;
+		updateCalendarMutation.mutate(request);
+	}
+
+	function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
+		// if the blur was because of outside focus
+		// currentTarget is the parent element, relatedTarget is the clicked element
+		const currentTarget = event.currentTarget;
+
+		// Use setTimeout to allow focus to settle on the new element
+		// This handles cases where relatedTarget is null (e.g., clicking on Select dropdown)
+		requestAnimationFrame(() => {
+			// Check if the new active element is within our form or in a portal (Select dropdown)
+			const activeElement = document.activeElement;
+			const isInForm = currentTarget.contains(activeElement);
+			const isInPortal =
+				document
+					.querySelector("[data-radix-popper-content-wrapper]")
+					?.contains(activeElement) ||
+				document
+					.querySelector('[role="listbox"]')
+					?.contains(activeElement);
+
+			if (!isInForm && !isInPortal) {
+				onBlur?.();
+			}
+		});
 	}
 
 	return (
-		<Form>
-			<XStack
-				flex={1}
-				gap={"$2"}
-				style={{
-					backgroundColor: "var(--color2)",
-					padding: 10,
-					border: "2px solid var(--color5)",
-					borderRadius: 10,
-				}}
-			>
+		<Form style={{ width: "100%" }}>
+			<XStack gap={"$2"} p={"$2"} onBlur={handleBlur} width="100%">
 				<Controller
 					control={control}
 					name="color"
 					render={({ field: { onChange, value } }) => (
-						<View>
+						<View style={{ flexShrink: 0 }}>
 							<SelectElement
 								value={value.toString()}
 								onValueChange={(value) =>
 									onChange(Number(value))
 								}
+								onOpenChange={setIsSelectOpen}
 								renderValue={(value) => (
 									<View
 										bg={"red"}
@@ -202,10 +233,9 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 					control={control}
 					name="name"
 					render={({ field: { onChange, onBlur, value, ref } }) => (
-						<YStack>
+						<YStack flex={1} minW={0}>
 							<StyledInput
 								autoFocus
-								style={{ flexGrow: 1 }}
 								ref={ref}
 								placeholder="Name"
 								onBlur={onBlur}
@@ -221,16 +251,17 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 					)}
 				/>
 				<StyledButton
+					style={{ flexShrink: 0 }}
 					onPress={handleSubmit(onSubmit)}
-					disabled={createCalendarMutation.isPending}
+					disabled={updateCalendarMutation.isPending}
 					icon={
-						createCalendarMutation.isPending
+						updateCalendarMutation.isPending
 							? () => <Spinner color="$color12" />
 							: undefined
 					}
 					scaleIcon={1.5}
 					iconAfter={
-						!createCalendarMutation.isPending ? (
+						!updateCalendarMutation.isPending ? (
 							<Check />
 						) : undefined
 					}

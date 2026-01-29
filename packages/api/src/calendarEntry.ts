@@ -41,3 +41,8 @@ export async function updateCalendarEntry(request: UpdateCalendarEntryDTO) {
 	);
 	return response.data;
 }
+
+export async function deleteCalendarEntry(id: string) {
+	const response = await api.delete(`api/CalendarEntry/${id}`);
+	return response.data;
+}

@@ -2,14 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCalendarEntry } from "@repo/api";
+import { useCalendars, useContextMenuStore } from "@repo/hooks";
 import { components } from "@repo/types";
-import { StyledButton, StyledInput } from "@repo/ui";
+import { SelectElement, StyledButton, StyledInput } from "@repo/ui";
 import { CalendarPlus2 } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Form, Spinner, Text, Theme, YStack } from "tamagui";
+import { Form, Select, Spinner, Text, Theme, View, YStack } from "tamagui";
 import z from "zod";
 
 // Type for sign-up request data from Swagger
@@ -25,6 +26,7 @@ const createCalendarEntrySchema = z.object({
 	description: z
 		.string()
 		.max(1024, "The description should be at most 1024 characters long"),
+	calendarId: z.uuid("Invalid calendar ID"),
 });
 
 // Component to display error messages
@@ -39,7 +41,11 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 export function CreateCalendarEntryForm() {
 	const [error, setError] = useState<string | null>(null);
 	const descriptionRef = useRef<any>(null);
+
 	const queryClient = useQueryClient();
+	const myCalendars = useCalendars(queryClient);
+
+	const startDate = useContextMenuStore((state) => state.date);
 
 	const {
 		control,
@@ -51,12 +57,18 @@ export function CreateCalendarEntryForm() {
 		defaultValues: {
 			name: "",
 			description: "",
+			calendarId: "",
 		},
 	});
 
 	// Mutation for sign-up action
 	const createCalendarEntryMutation = useMutation({
 		mutationFn: async (request: CreateCalendarEntryDTO) => {
+			request.color = myCalendars.data?.find(
+				(calendar) => calendar.id === request.calendarId,
+			)?.color;
+			request.startDate = startDate?.toISOString();
+			request.endDate = startDate?.toISOString();
 			await createCalendarEntry(request);
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 		},
@@ -128,6 +140,45 @@ export function CreateCalendarEntryForm() {
 					{errors.description && (
 						<ErrorText message={errors.description.message} />
 					)}
+				</YStack>
+				<YStack gap="$2">
+					<Controller
+						control={control}
+						name="calendarId"
+						render={({ field: { onChange, value } }) => (
+							<View>
+								<SelectElement
+									value={value}
+									onValueChange={(value) => onChange(value)}
+									renderValue={(value) => (
+										<Text>
+											{
+												myCalendars.data?.find(
+													(calendar) =>
+														calendar.id === value,
+												)?.name
+											}
+										</Text>
+									)}
+									defaultValue={myCalendars.data?.[0]?.id}
+									triggerPlaceholder=""
+									groupItems={myCalendars.data?.map(
+										(calendar, i) => (
+											<Select.Item
+												key={i}
+												index={i}
+												value={calendar.id!}
+											>
+												<Select.ItemText>
+													{calendar.name}
+												</Select.ItemText>
+											</Select.Item>
+										),
+									)}
+								/>
+							</View>
+						)}
+					/>
 				</YStack>
 				<StyledButton
 					onPress={handleSubmit(onSubmit)}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import { deleteCalendar } from "@repo/api";
+import { useCalendars, useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps, components } from "@repo/types";
 import { SelectElement, StyledButton } from "@repo/ui";
 import { generateGrid, getContrastFromHSLA, Month, Week } from "@repo/utils";
@@ -11,12 +12,18 @@ import {
 	ArrowBigRightDash,
 	CalendarPlus,
 	Check,
+	EllipsisVertical,
+	SquarePen,
+	Trash,
 } from "@tamagui/lucide-icons";
-import { UseQueryResult } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+	AnimatePresence,
+	Button,
 	ButtonProps,
 	Checkbox,
+	GetProps,
 	H3,
 	Label,
 	ListItem,
@@ -33,101 +40,310 @@ import {
 } from "tamagui";
 import { FullscreenView } from "../FullscreenView";
 import { CreateCalendarForm } from "./CreateCalendarForm";
+import { UpdateCalendarForm } from "./UpdateCalendarForm";
 
 type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
+type AnimationProp = GetProps<typeof YStack>["animation"];
 
-interface SidebarProps {
-	myCalendarsQuery: UseQueryResult<getCalendarDTO[]>;
+const FADE_ANIMATION: AnimationProp = "quick";
+
+const SIDEBAR_WIDTH = 400;
+const YEAR_RANGE = 10;
+
+function NavButton(props: ButtonProps) {
+	return (
+		<StyledButton {...props}>
+			<Text>{props.children}</Text>
+		</StyledButton>
+	);
 }
 
-export default function Sidebar(props: SidebarProps) {
-	const { selectedDate, currentDate, setSelectedDate } = useCalendarStore();
-	const [checkedCalendars, setCheckedCalendars] =
-		useState<Record<string, boolean>>();
+// Calendar list item component
+interface CalendarListItemProps {
+	calendar: getCalendarDTO;
+	isChecked: boolean;
+	onCheckedChange: (checked: boolean) => void;
+	calendarTheme: ReturnType<typeof useTheme>;
+	setEditingCalendarId: (id: string | null) => void;
+}
 
-	const { locale, weekStartsOn } = useProfileStore();
+function CalendarListItem({
+	calendar,
+	isChecked,
+	onCheckedChange,
+	calendarTheme,
+	setEditingCalendarId,
+}: CalendarListItemProps) {
+	const colorKey = `color${calendar.color}` as keyof typeof calendarTheme;
+	const themeColor = calendarTheme[colorKey]?.val;
 
-	const [sidebarDate, setSidebarDate] = useState<Date>(
-		new Date(selectedDate),
-	);
+	const queryClient = useQueryClient();
 
-	const calendarTheme = useTheme({ name: "calendarColors" });
-
-	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
-	const wheelableYearXGroupRef = useRef<HTMLDivElement | null>(null);
-	const wheelableMonthXGroupRef = useRef<HTMLDivElement | null>(null);
-
-	const { isPending, error, data } = props.myCalendarsQuery;
-
-	useEffect(() => {
-		if (data) {
-			const dict = {} as Record<string, boolean>;
-			data.forEach((calendar) => {
-				if (!calendar.id) return;
-				dict[calendar.id] = true;
-			});
-			setCheckedCalendars(dict);
-		}
-	}, [data]);
-
-	function handleCheckboxChange(calendarId: string, checked: boolean) {
-		if (checked) {
-			setCheckedCalendars((prev) => ({ ...prev, [calendarId]: true }));
-		} else {
-			setCheckedCalendars((prev) => {
-				const updated = { ...prev };
-				delete updated[calendarId];
-				return updated;
-			});
-		}
+	async function delCalendar(id: string) {
+		await deleteCalendar(id);
+		queryClient.invalidateQueries({ queryKey: ["myCalendars"] });
 	}
 
+	const checkboxStyles = useMemo(
+		() => ({
+			base: {
+				backgroundColor: isChecked ? themeColor : "var(--color3)",
+				border: `2px solid ${themeColor}`,
+			},
+			hover: {
+				backgroundColor: isChecked ? themeColor : "$color4",
+				borderColor: themeColor,
+			},
+		}),
+		[isChecked, themeColor],
+	);
+
+	return (
+		<AnimatePresence>
+			<ListItem
+				style={{
+					justifyContent: "space-between",
+					alignItems: "center",
+				}}
+				enterStyle={{ y: -10, opacity: 0 }}
+				exitStyle={{ y: -10, opacity: 0 }}
+				animation={FADE_ANIMATION}
+				py={0}
+				display="flex"
+			>
+				<XStack gap="$3" style={{ alignItems: "center" }}>
+					<Checkbox
+						id={`checkbox-${calendar.id}`}
+						checked={isChecked}
+						onCheckedChange={(checked) =>
+							onCheckedChange(checked === true)
+						}
+						style={checkboxStyles.base}
+						hoverStyle={checkboxStyles.hover}
+						focusStyle={checkboxStyles.hover}
+					>
+						<Checkbox.Indicator>
+							<Check
+								strokeWidth={3}
+								color={getContrastFromHSLA(themeColor)}
+							/>
+						</Checkbox.Indicator>
+					</Checkbox>
+					<Label
+						htmlFor={`checkbox-${calendar.id}`}
+						textOverflow="ellipsis"
+						whiteSpace="nowrap"
+						overflow="hidden"
+						style={{ userSelect: "none" }}
+					>
+						{calendar.name}
+					</Label>
+				</XStack>
+				<Popover placement="bottom-start">
+					<Popover.Trigger asChild>
+						<Button
+							unstyled
+							icon={<EllipsisVertical />}
+							scaleIcon={1.25}
+							size="$3"
+							borderWidth={0}
+							bg="transparent"
+							aspectRatio={1}
+							display="flex"
+							style={{
+								borderTopLeftRadius: "50%",
+								borderBottomLeftRadius: "50%",
+								borderTopRightRadius: "50%",
+								borderBottomRightRadius: "50%",
+								alignItems: "center",
+								justifyContent: "center",
+							}}
+							cursor="pointer"
+							hoverStyle={{ bg: "$color3" }}
+							animation={FADE_ANIMATION}
+						/>
+					</Popover.Trigger>
+					<Popover.Content
+						style={{
+							borderWidth: 2,
+							borderStyle: "solid",
+							borderColor: "var(--color5)",
+							borderRadius: 0,
+							padding: 0,
+						}}
+						elevate
+						animation={FADE_ANIMATION}
+					>
+						<ListItem p={0}>
+							<StyledButton
+								iconAfter={<SquarePen />}
+								width={"100%"}
+								borderTopLeftRadius={0}
+								borderTopRightRadius={0}
+								borderBottomLeftRadius={0}
+								borderBottomRightRadius={0}
+								bg={"$color2"}
+								hoverStyle={{ bg: "$color3", outlineWidth: 0 }}
+								style={{
+									display: "flex",
+									justifyContent: "space-between",
+								}}
+								onPress={() =>
+									setEditingCalendarId(calendar.id!)
+								}
+							>
+								<Text fontWeight={"$2"}>Edit</Text>
+							</StyledButton>
+						</ListItem>
+						<ListItem p={0}>
+							<StyledButton
+								iconAfter={<Trash />}
+								width={"100%"}
+								borderTopLeftRadius={0}
+								borderTopRightRadius={0}
+								borderBottomLeftRadius={0}
+								borderBottomRightRadius={0}
+								bg={"$color2"}
+								hoverStyle={{ bg: "$color3", outlineWidth: 0 }}
+								style={{
+									display: "flex",
+									justifyContent: "space-between",
+								}}
+								onPress={() => {
+									delCalendar(calendar.id!);
+								}}
+							>
+								<Text fontWeight={"$2"}>Delete</Text>
+							</StyledButton>
+						</ListItem>
+					</Popover.Content>
+				</Popover>
+			</ListItem>
+		</AnimatePresence>
+	);
+}
+
+export default function Sidebar() {
+	const {
+		selectedDate,
+		currentDate,
+		setSelectedDate,
+		checkedCalendarIds,
+		setCheckedCalendarIds,
+	} = useCalendarStore();
+	const { locale, weekStartsOn } = useProfileStore();
+	const calendarTheme = useTheme({ name: "calendarColors" });
+	const queryClient = useQueryClient();
+
+	const [createCalendarPopoverOpen, setCreateCalendarPopoverOpen] =
+		useState(false);
+
+	const [editingCalendarId, setEditingCalendarId] = useState<string | null>(
+		null,
+	);
+
+	const [sidebarDate, setSidebarDate] = useState<Date>(
+		() => new Date(selectedDate),
+	);
+
+	const wheelableYStackRef = useRef<HTMLDivElement>(null);
+	const wheelableYearXGroupRef = useRef<HTMLDivElement>(null);
+	const wheelableMonthXGroupRef = useRef<HTMLDivElement>(null);
+
+	const { isPending, error, data, isRefetching } = useCalendars(queryClient);
+
+	// Navigation handlers
+	const decYearSidebar = useCallback((by: number) => {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear() - by,
+					prev.getMonth(),
+					prev.getDate(),
+				),
+		);
+	}, []);
+
+	const incYearSidebar = useCallback((by: number) => {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear() + by,
+					prev.getMonth(),
+					prev.getDate(),
+				),
+		);
+	}, []);
+
+	const decMonthSidebar = useCallback(() => {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear(),
+					prev.getMonth() - 1,
+					prev.getDate(),
+				),
+		);
+	}, []);
+
+	const incMonthSidebar = useCallback(() => {
+		setSidebarDate(
+			(prev) =>
+				new Date(
+					prev.getFullYear(),
+					prev.getMonth() + 1,
+					prev.getDate(),
+				),
+		);
+	}, []);
+
+	// Initialize checked calendars from data
+	useEffect(() => {
+		if (!data) return;
+
+		const calendarIds: string[] = [];
+		data.forEach((calendar) => {
+			if (calendar.id) calendarIds.push(calendar.id);
+		});
+		setCheckedCalendarIds(calendarIds);
+	}, [data]);
+
+	// Sync sidebar date with selected date
+	useEffect(() => {
+		setSidebarDate(new Date(selectedDate));
+	}, [selectedDate]);
+
+	// Wheel event handlers
 	useEffect(() => {
 		const wheelableYStack = wheelableYStackRef.current;
 		const wheelableYearXGroup = wheelableYearXGroupRef.current;
 		const wheelableMonthXGroup = wheelableMonthXGroupRef.current;
+
 		if (!wheelableYStack || !wheelableYearXGroup || !wheelableMonthXGroup)
 			return;
 
 		const handleMonthWheel = (e: WheelEvent) => {
-			// Only triggers while the cursor is over this Calendar wrapper.
 			e.preventDefault();
 			e.stopPropagation();
-
-			if (e.deltaY > 0) {
-				incMonthSidebar();
-				return;
-			}
-
-			if (e.deltaY < 0) {
-				decMonthSidebar();
-			}
+			if (e.deltaY > 0) incMonthSidebar();
+			else if (e.deltaY < 0) decMonthSidebar();
 		};
 
 		const handleYearWheel = (e: WheelEvent) => {
-			// Only triggers while the cursor is over this Calendar wrapper.
 			e.preventDefault();
 			e.stopPropagation();
-
-			if (e.deltaY > 0) {
-				incYearSidebar(1);
-				return;
-			}
-
-			if (e.deltaY < 0) {
-				decYearSidebar(1);
-			}
+			if (e.deltaY > 0) incYearSidebar(1);
+			else if (e.deltaY < 0) decYearSidebar(1);
 		};
 
-		wheelableYStack.addEventListener("wheel", handleMonthWheel, {
-			passive: false,
-		});
-		wheelableYearXGroup.addEventListener("wheel", handleYearWheel, {
-			passive: false,
-		});
-		wheelableMonthXGroup.addEventListener("wheel", handleMonthWheel, {
-			passive: false,
-		});
+		const options = { passive: false };
+		wheelableYStack.addEventListener("wheel", handleMonthWheel, options);
+		wheelableYearXGroup.addEventListener("wheel", handleYearWheel, options);
+		wheelableMonthXGroup.addEventListener(
+			"wheel",
+			handleMonthWheel,
+			options,
+		);
 
 		return () => {
 			wheelableYStack.removeEventListener("wheel", handleMonthWheel);
@@ -136,29 +352,23 @@ export default function Sidebar(props: SidebarProps) {
 		};
 	}, [incMonthSidebar, decMonthSidebar, incYearSidebar, decYearSidebar]);
 
-	useEffect(() => {
-		setSidebarDate(new Date(selectedDate));
-	}, [selectedDate]);
+	const handleCheckboxChange = useCallback(
+		(calendarId: string, checked: boolean) => {
+			if (checked && !checkedCalendarIds.includes(calendarId)) {
+				setCheckedCalendarIds([...checkedCalendarIds, calendarId]);
+			} else if (!checked) {
+				setCheckedCalendarIds(
+					checkedCalendarIds.filter((id) => id !== calendarId),
+				);
+			}
+		},
+		[setCheckedCalendarIds, checkedCalendarIds],
+	);
 
-	function decYearSidebar(by: number) {
-		setSidebarDate(
-			(prev) => new Date(prev.setFullYear(prev.getFullYear() - by)),
-		);
-	}
-
-	function incYearSidebar(by: number) {
-		setSidebarDate(
-			(prev) => new Date(prev.setFullYear(prev.getFullYear() + by)),
-		);
-	}
-
-	function decMonthSidebar() {
-		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() - 1)));
-	}
-
-	function incMonthSidebar() {
-		setSidebarDate((prev) => new Date(prev.setMonth(prev.getMonth() + 1)));
-	}
+	const handleDaySelect = useCallback(
+		(date: Date) => setSelectedDate(new Date(date)),
+		[setSelectedDate],
+	);
 
 	const grid = useMemo(
 		() =>
@@ -170,206 +380,203 @@ export default function Sidebar(props: SidebarProps) {
 		[sidebarDate, weekStartsOn],
 	);
 
-	function handleDaySelect(date: Date) {
-		setSelectedDate(new Date(date));
-	}
+	const weekdayLabels = useMemo(
+		() => Week.getWeekdayLabels(locale, "short", weekStartsOn),
+		[locale, weekStartsOn],
+	);
 
-	function SelectYear() {
-		const years = useMemo(() => {
-			const years: string[] = [];
-			for (
-				let y = sidebarDate.getFullYear() - 10;
-				y <= sidebarDate.getFullYear() + 10;
-				y++
-			)
-				years.push(String(y));
-			return years;
-		}, [sidebarDate]);
+	const getCellStyle = useCallback(
+		(cell: CalendarCellProps): ButtonProps => {
+			const dateStr = cell.date.toDateString();
 
-		return (
-			<SelectElement
-				value={sidebarDate.getFullYear().toString()}
-				onValueChange={(val) =>
-					setSidebarDate(
-						new Date(
-							Number(val),
-							sidebarDate.getMonth(),
-							sidebarDate.getDate(),
-						),
-					)
-				}
-				renderValue={(value) => <Text>{value}</Text>}
-				triggerPlaceholder="Select year"
-				groupItems={useMemo(
-					() =>
-						years.map((year, i) => (
-							<Select.Item index={i} key={year} value={year}>
-								<Select.ItemText>{year}</Select.ItemText>
-								<Select.ItemIndicator marginLeft="auto">
-									<Check size={16} />
-								</Select.ItemIndicator>
-							</Select.Item>
-						)),
-					[years],
-				)}
-				triggerStyle={{ borderRadius: 0 }}
-			/>
+			if (dateStr === selectedDate.toDateString()) {
+				return {
+					bg: "$accent4",
+					outlineWidth: 2,
+					outlineColor: "$accent9",
+					outlineStyle: "solid",
+				};
+			}
+			if (dateStr === currentDate.toDateString()) {
+				return { bg: "$accent3" };
+			}
+			if (!cell.inCurrentMonth) {
+				return { bg: "$color3" };
+			}
+			return { bg: "$color4" };
+		},
+		[selectedDate, currentDate],
+	);
+
+	// Year selector component
+	const years = useMemo(() => {
+		const currentYear = sidebarDate.getFullYear();
+		return Array.from({ length: YEAR_RANGE * 2 + 1 }, (_, i) =>
+			String(currentYear - YEAR_RANGE + i),
 		);
-	}
+	}, [sidebarDate]);
 
-	function SelectMonth() {
-		const months = useMemo(() => {
-			return Month.getMonthsLabels(locale, "long");
-		}, [locale]);
+	const yearSelectItems = useMemo(
+		() =>
+			years.map((year, i) => (
+				<Select.Item index={i} key={year} value={year}>
+					<Select.ItemText>{year}</Select.ItemText>
+					<Select.ItemIndicator marginLeft="auto">
+						<Check size={16} />
+					</Select.ItemIndicator>
+				</Select.Item>
+			)),
+		[years],
+	);
 
-		return (
-			<SelectElement
-				value={months[sidebarDate.getMonth()]}
-				onValueChange={(val) =>
-					setSidebarDate(
-						new Date(
-							sidebarDate.getFullYear(),
-							months.indexOf(val),
-							sidebarDate.getDate(),
-						),
-					)
-				}
-				renderValue={() => (
-					<Text>{months[sidebarDate.getMonth()]}</Text>
-				)}
-				triggerPlaceholder="Select month"
-				groupItems={useMemo(
-					() =>
-						months.map((monthName, i) => (
-							<Select.Item index={i} key={i} value={monthName}>
-								<Select.ItemText>{monthName}</Select.ItemText>
-								<Select.ItemIndicator marginLeft="auto">
-									<Check size={16} />
-								</Select.ItemIndicator>
-							</Select.Item>
-						)),
-					[months],
-				)}
-				triggerStyle={{ borderRadius: 0 }}
-			/>
+	const handleYearChange = useCallback((val: string) => {
+		setSidebarDate(
+			(prev) => new Date(Number(val), prev.getMonth(), prev.getDate()),
 		);
-	}
+	}, []);
 
-	function decideBgColor(cell: CalendarCellProps): ButtonProps {
-		if (cell.date.toDateString() === selectedDate.toDateString()) {
-			return {
-				bg: "$accent4",
-				outlineWidth: 2,
-				outlineColor: "$accent9",
-				outlineStyle: "solid",
-			};
-		}
-		if (cell.date.toDateString() === currentDate.toDateString()) {
-			return { bg: "$accent3" };
-		}
-		if (!cell.inCurrentMonth) {
-			return { bg: "$color3" };
-		}
-		return { bg: "$color4" };
-	}
+	// Month selector component
+	const months = useMemo(
+		() => Month.getMonthsLabels(locale, "long"),
+		[locale],
+	);
+
+	const monthSelectItems = useMemo(
+		() =>
+			months.map((monthName, i) => (
+				<Select.Item index={i} key={monthName} value={monthName}>
+					<Select.ItemText>{monthName}</Select.ItemText>
+					<Select.ItemIndicator marginLeft="auto">
+						<Check size={16} />
+					</Select.ItemIndicator>
+				</Select.Item>
+			)),
+		[months],
+	);
+
+	const handleMonthChange = useCallback(
+		(val: string) => {
+			setSidebarDate(
+				(prev) =>
+					new Date(
+						prev.getFullYear(),
+						months.indexOf(val),
+						prev.getDate(),
+					),
+			);
+		},
+		[months],
+	);
 
 	return (
 		<FullscreenView
 			maxHeight
 			flex={1}
-			px={"$4"}
+			px="$4"
 			bg="$color2"
-			style={{ minWidth: 400, maxWidth: 400 }}
+			minW={SIDEBAR_WIDTH}
+			maxW={SIDEBAR_WIDTH}
 			stack="YStack"
 			overflow="scroll"
-			gap={"$2"}
+			gap="$2"
 		>
 			{/* Year Selector */}
-			<XGroup mt={"$2"} ref={wheelableYearXGroupRef}>
+			<XGroup mt="$2" ref={wheelableYearXGroupRef}>
 				<XGroup.Item>
-					<StyledButton width="$2" onPress={() => decYearSidebar(10)}>
+					<NavButton onPress={() => decYearSidebar(10)} width={40}>
 						<Text>
 							<ArrowBigLeftDash />
 						</Text>
-					</StyledButton>
+					</NavButton>
 				</XGroup.Item>
-
 				<Separator vertical />
-
 				<XGroup.Item>
-					<StyledButton width="$2" onPress={() => decYearSidebar(1)}>
-						<Text>{<ArrowBigLeft />}</Text>
-					</StyledButton>
-				</XGroup.Item>
-
-				<XGroup.Item>
-					<SelectYear />
+					<NavButton onPress={() => decYearSidebar(1)} width={40}>
+						<Text>
+							<ArrowBigLeft />
+						</Text>
+					</NavButton>
 				</XGroup.Item>
 				<XGroup.Item>
-					<StyledButton width="$2" onPress={() => incYearSidebar(1)}>
-						<Text>{<ArrowBigRight />}</Text>
-					</StyledButton>
+					<SelectElement
+						value={sidebarDate.getFullYear().toString()}
+						onValueChange={handleYearChange}
+						renderValue={(value) => <Text>{value}</Text>}
+						triggerPlaceholder="Select year"
+						groupItems={yearSelectItems}
+						triggerStyle={{ borderRadius: 0 }}
+					/>
 				</XGroup.Item>
-
+				<XGroup.Item>
+					<NavButton onPress={() => incYearSidebar(1)} width={40}>
+						<Text>
+							<ArrowBigRight />
+						</Text>
+					</NavButton>
+				</XGroup.Item>
 				<Separator vertical />
-
 				<XGroup.Item>
-					<StyledButton width="$2" onPress={() => incYearSidebar(10)}>
-						<Text>{<ArrowBigRightDash />}</Text>
-					</StyledButton>
+					<NavButton onPress={() => incYearSidebar(10)} width={40}>
+						<Text>
+							<ArrowBigRightDash />
+						</Text>
+					</NavButton>
 				</XGroup.Item>
 			</XGroup>
 
 			{/* Month Selector */}
 			<XGroup ref={wheelableMonthXGroupRef}>
 				<XGroup.Item>
-					<StyledButton
-						style={{ width: "77px" }}
-						onPress={decMonthSidebar}
-					>
-						<Text>{<ArrowBigLeft />}</Text>
-					</StyledButton>
-				</XGroup.Item>
-
-				<XGroup.Item>
-					<SelectMonth />
+					<NavButton onPress={decMonthSidebar} width={80}>
+						<Text>
+							<ArrowBigLeft />
+						</Text>
+					</NavButton>
 				</XGroup.Item>
 				<XGroup.Item>
-					<StyledButton
-						style={{ width: "77px" }}
-						onPress={incMonthSidebar}
-					>
-						<Text>{<ArrowBigRight />}</Text>
-					</StyledButton>
+					<SelectElement
+						value={months[sidebarDate.getMonth()]}
+						onValueChange={handleMonthChange}
+						renderValue={() => (
+							<Text>{months[sidebarDate.getMonth()]}</Text>
+						)}
+						triggerPlaceholder="Select month"
+						groupItems={monthSelectItems}
+						triggerStyle={{ borderRadius: 0 }}
+					/>
+				</XGroup.Item>
+				<XGroup.Item>
+					<NavButton onPress={incMonthSidebar} width={80}>
+						<Text>
+							<ArrowBigRight />
+						</Text>
+					</NavButton>
 				</XGroup.Item>
 			</XGroup>
 
 			<Separator />
 
+			{/* Calendar Grid */}
 			<YStack ref={wheelableYStackRef} minW={0} gap="$2">
-				{/* Weekday header */}
 				<XStack
 					mt="$2"
 					gap="$2"
 					width="100%"
 					style={{ textAlign: "center" }}
 				>
-					{Week.getWeekdayLabels(locale, "short", weekStartsOn).map(
-						(d, i) => (
-							<Text width="100%" key={i} fontWeight="$2">
-								{d}
-							</Text>
-						),
-					)}
+					{weekdayLabels.map((day, i) => (
+						<Text width="100%" key={i} fontWeight="$2">
+							{day}
+						</Text>
+					))}
 				</XStack>
 
-				{/* Calendar grid */}
-				{Object.entries(grid).map(([weekNumber, row], rowIndex) => (
+				{Object.entries(grid).map(([, row], rowIndex) => (
 					<XStack gap="$2" width="100%" key={rowIndex}>
 						{row.map((cell) => (
 							<StyledButton
 								key={cell.date.getTime()}
-								{...decideBgColor(cell)}
+								{...getCellStyle(cell)}
 								flex={1}
 								minW={0}
 								aspectRatio={1}
@@ -387,29 +594,28 @@ export default function Sidebar(props: SidebarProps) {
 				))}
 			</YStack>
 
-			<Separator my={"$2"} />
+			<Separator my="$2" />
 
+			{/* Calendars Header */}
 			<XStack
 				style={{
 					userSelect: "none",
-					textAlign: "center",
 					flexShrink: 0,
 					alignItems: "center",
 					justifyContent: "space-between",
 				}}
 			>
-				<H3
-					style={{
-						userSelect: "none",
-						textAlign: "center",
-					}}
+				<H3 style={{ userSelect: "none" }}>My calendars</H3>
+				<Popover
+					placement="bottom"
+					open={createCalendarPopoverOpen}
+					onOpenChange={setCreateCalendarPopoverOpen}
 				>
-					My calendars
-				</H3>
-				<Popover scope="create-calendar" placement="bottom-start">
 					<Popover.Trigger asChild>
 						<StyledButton>
-							<Text>{<CalendarPlus />}</Text>
+							<Text>
+								<CalendarPlus />
+							</Text>
 						</StyledButton>
 					</Popover.Trigger>
 					<Popover.Content
@@ -417,131 +623,87 @@ export default function Sidebar(props: SidebarProps) {
 						enterStyle={{ y: -10, opacity: 0 }}
 						exitStyle={{ y: -10, opacity: 0 }}
 						elevate
-						animation={[
-							"quick",
-							{
-								opacity: {
-									overshootClamping: true,
-								},
-							},
-						]}
+						animation={FADE_ANIMATION}
 					>
-						<Popover.Arrow />
-						<CreateCalendarForm />
+						<Popover.Arrow
+							size="$4"
+							borderWidth={2}
+							borderColor="$color6"
+							bg="$color2"
+						/>
+						<CreateCalendarForm
+							onSuccess={() =>
+								setCreateCalendarPopoverOpen(false)
+							}
+						/>
 					</Popover.Content>
 				</Popover>
 			</XStack>
 
+			{/* Calendars List */}
 			<YStack
 				style={{
 					border: "2px solid var(--color5)",
 					borderRadius: 10,
 					flexShrink: 1,
-					minHeight: "30vh",
 					justifyContent:
-						isPending || error ? "center" : "flex-start",
+						isPending || isRefetching || error || data?.length === 0
+							? "center"
+							: "flex-start",
 					overflowX: "hidden",
-					overflowY: "scroll",
+					overflowY: "auto",
 				}}
+				minH="30vh"
 				flex={1}
-				overflow="scroll"
 			>
-				{isPending && <Spinner size="large" color={"$accent5"} />}
-				{error && <Text>Error loading calendars</Text>}
+				{(isPending || isRefetching) && (
+					<Spinner size="large" color="$accent5" />
+				)}
+				{error && (
+					<Text style={{ textAlign: "center" }}>
+						Error loading calendars
+					</Text>
+				)}
+				{data?.length === 0 && (
+					<Text style={{ textAlign: "center" }}>
+						{"No calendars yet :("}
+					</Text>
+				)}
 				<YGroup>
-					{data &&
-						data.map((calendar) => (
+					{!isRefetching &&
+						data?.map((calendar) => (
 							<YGroup.Item key={calendar.id}>
-								<ListItem py={0}>
-									<XStack
-										gap={"$3"}
-										style={{ alignItems: "center" }}
-									>
-										<Checkbox
-											id={`checkbox-${calendar.id}`}
-											checked={
-												calendar.id &&
-												checkedCalendars?.[calendar.id]
-													? true
-													: false
-											}
-											onCheckedChange={(checked) =>
-												handleCheckboxChange(
-													calendar.id!,
-													checked === true,
-												)
-											}
-											style={{
-												backgroundColor:
-													calendar.id &&
-													checkedCalendars?.[
-														calendar.id
-													]
-														? calendarTheme[
-																`color${calendar.color}` as keyof typeof calendarTheme
-															]?.val
-														: "var(--color3)",
-												border:
-													"2px solid " +
-													calendarTheme[
-														`color${calendar.color}` as keyof typeof calendarTheme
-													]?.val,
-											}}
-											hoverStyle={{
-												backgroundColor:
-													calendar.id &&
-													checkedCalendars?.[
-														calendar.id
-													]
-														? calendarTheme[
-																`color${calendar.color}` as keyof typeof calendarTheme
-															]?.val
-														: "$color4",
-												borderColor:
-													calendarTheme[
-														`color${calendar.color}` as keyof typeof calendarTheme
-													]?.val,
-											}}
-											focusStyle={{
-												backgroundColor:
-													calendar.id &&
-													checkedCalendars?.[
-														calendar.id
-													]
-														? calendarTheme[
-																`color${calendar.color}` as keyof typeof calendarTheme
-															]?.val
-														: "$color4",
-												borderColor:
-													calendarTheme[
-														`color${calendar.color}` as keyof typeof calendarTheme
-													]?.val,
-											}}
-										>
-											<Checkbox.Indicator>
-												<Check
-													strokeWidth={3}
-													color={getContrastFromHSLA(
-														calendarTheme[
-															`color${calendar.color}` as keyof typeof calendarTheme
-														]?.val,
-													)}
-												/>
-											</Checkbox.Indicator>
-										</Checkbox>
-										<Label
-											htmlFor={`checkbox-${calendar.id}`}
-											textOverflow="ellipsis"
-											whiteSpace="nowrap"
-											overflow="hidden"
-											style={{
-												userSelect: "none",
-											}}
-										>
-											{calendar.name}
-										</Label>
-									</XStack>
-								</ListItem>
+								{calendar.id === editingCalendarId ? (
+									<UpdateCalendarForm
+										calendar={calendar}
+										onSuccess={() =>
+											setEditingCalendarId(null)
+										}
+										onBlur={() =>
+											setEditingCalendarId(null)
+										}
+									/>
+								) : (
+									<CalendarListItem
+										setEditingCalendarId={
+											setEditingCalendarId
+										}
+										calendar={calendar}
+										isChecked={Boolean(
+											calendar.id &&
+											checkedCalendarIds.includes(
+												calendar.id,
+											),
+										)}
+										onCheckedChange={(checked) =>
+											handleCheckboxChange(
+												calendar.id!,
+												checked,
+											)
+										}
+										calendarTheme={calendarTheme}
+									/>
+								)}
 							</YGroup.Item>
 						))}
 				</YGroup>

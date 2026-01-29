@@ -1,25 +1,35 @@
+import { components } from "@repo/types";
 import { getContrastFromHSLA } from "@repo/utils";
 import { Card, Text, useTheme } from "tamagui";
 
+type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
+
 interface CalendarEntryProps {
-	name: string;
-	colorIndex: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12; // Index to pick color from calendarColors
+	entry: GetCalendarEntryDTO;
 }
 
-export function CalendarEntry({ name, colorIndex }: CalendarEntryProps) {
+export function CalendarEntry({ entry }: CalendarEntryProps) {
 	const theme = useTheme({ name: "calendarColors" });
-	const backgroundColor = theme[`color${colorIndex}`]?.val || "white";
+	const backgroundColor = theme[`color${entry.color}`]?.val;
 	const textColor = getContrastFromHSLA(backgroundColor);
 
 	return (
-		<Card p={"$1"} pl={"$3"} m={"$1"} style={{ backgroundColor }}>
+		<Card
+			p={"$1"}
+			pl={"$3"}
+			m={"$1"}
+			enterStyle={{ y: -10, opacity: 0 }}
+			exitStyle={{ y: -10, opacity: 0 }}
+			animation={"quickest"}
+			style={{ backgroundColor }}
+		>
 			<Text
 				textOverflow="ellipsis"
 				whiteSpace="nowrap"
 				overflow="hidden"
 				color={textColor}
 			>
-				{name}
+				{entry.name}
 			</Text>
 		</Card>
 	);
