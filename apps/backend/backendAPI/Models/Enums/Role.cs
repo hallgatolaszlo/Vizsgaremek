@@ -2,7 +2,7 @@
 {
     public enum Role
     {
-        Viewer = 0,
-        Editor = 1,
+        Editor = 0,
+        Viewer = 1,
     }
 }

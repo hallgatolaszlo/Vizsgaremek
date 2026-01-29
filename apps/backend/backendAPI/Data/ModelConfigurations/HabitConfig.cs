@@ -17,11 +17,6 @@ namespace backend.Context.ModelConfigurations
                 builder
                     .Property(p => p.Unit)
                     .HasConversion<int>();
-
-                builder
-                    .Property(p => p.Color)
-                    .HasConversion<int>()
-                    .HasDefaultValue(1);
             }
         }
     }

@@ -7,5 +7,6 @@ namespace backend.Services.CalendarEntry
     {
         Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO);
         Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO);
+        Task<ServiceResponse<bool>> validateCalendarRole(Guid createdBy, Guid calendarId);
     }
 }
