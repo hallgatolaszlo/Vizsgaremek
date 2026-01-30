@@ -17,20 +17,35 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> CreateSharedCalendar(CreateSharedCalendarDTO request)
         {
-            var guidList = request.ProfileIds.Select(Guid.Parse).ToList();
-
-            foreach (var guid in guidList)
+            if (request.Accounts == null || request.Accounts.Count == 0)
             {
-                var sharedCalendar = new SharedCalendar
-                {
-                    ProfileId = guid,
-                    CalendarId = request.CalendarId,
-                    Role = request.Role,
-                };
-
-                context.SharedCalendars.Add(sharedCalendar);
+                return BadRequest("At least one account is required.");
             }
 
+            var calendarExists = await context.Calendars.AnyAsync(c => c.Id == request.CalendarId);
+            if (!calendarExists)
+            {
+                return NotFound("Calendar not found.");
+            }
+
+            var sharedCalendars = new List<SharedCalendar>();
+
+            foreach (var item in request.Accounts)
+            {
+                if (!Guid.TryParse(item.ProfileId, out var profileId))
+                {
+                    return BadRequest($"Invalid ProfileId: {item.ProfileId}");
+                }
+
+                sharedCalendars.Add(new SharedCalendar
+                {
+                    ProfileId = profileId,
+                    CalendarId = request.CalendarId,
+                    Role = item.Role,
+                });
+            }
+
+            context.SharedCalendars.AddRange(sharedCalendars);
             await context.SaveChangesAsync();
 
             return Ok();

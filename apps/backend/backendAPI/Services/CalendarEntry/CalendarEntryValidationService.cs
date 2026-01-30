@@ -14,11 +14,11 @@ namespace backend.Services.CalendarEntry
 {
     public class CalendarEntryValidationService(ICommonValidationService commonValidation, AppDbContext context) : ICalendarEntryValidationService
     {
-        public async Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO)
+        public async Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
         {
-            return await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, calendarEntryDTO.CreatedBy);
+            return await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, createdBy);
         }
-        public async Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO)
+        public async Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
         {
             var calendarEntry = await commonValidation.EntityExists<Models.CalendarEntry>(calendarEntryDTO.Id);
             if (!calendarEntry.Success)
@@ -26,7 +26,7 @@ namespace backend.Services.CalendarEntry
                 return new ServiceResponse<Models.CalendarEntry> { Success = false, Message = "Entry not found" };
             }
 
-            var validationResponse = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, calendarEntryDTO.CreatedBy);
+            var validationResponse = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, createdBy);
 
             return new ServiceResponse<Models.CalendarEntry> { Success = validationResponse.Success, Message = validationResponse.Message, Data = calendarEntry.Data };
         }

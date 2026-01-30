@@ -4,8 +4,13 @@ namespace backend.DTOs.SharedCalendar
 {
     public class CreateSharedCalendarDTO
     {
-        public List<string> ProfileIds { get; set; } = [];
+        public List<SharedCalendarAccount> Accounts { get; set; } = [];
         public Guid CalendarId { get; set; }
-        public Role Role { get; set; }
+    }
+
+    public class SharedCalendarAccount
+    {
+        public required string ProfileId { get; set; } 
+        public Role Role { get; set; } 
     }
 }

@@ -69,7 +69,7 @@ namespace backend.Controllers
 
             var calendar = new Calendar
             {
-                Name = request.Name!,
+                Name = request.Name,
                 Color = request.Color,
                 ProfileId = profileId.Value,
             };
@@ -80,11 +80,11 @@ namespace backend.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{calendarId}")]
         [Authorize]
-        public async Task<ActionResult> UpdateCalendar(Guid id, UpdateCalendarDTO request)
+        public async Task<ActionResult> UpdateCalendar(Guid calendarId, UpdateCalendarDTO request)
         {
-            if (id != request.Id)
+            if (calendarId != request.Id)
             {
                 return BadRequest(CommonErrors.InvalidRoute);
             }
@@ -108,7 +108,7 @@ namespace backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                var commonValidationResponse = await commonValidation.EntityExists<Profile>(id);
+                var commonValidationResponse = await commonValidation.EntityExists<Profile>(calendarId);
                 if (!commonValidationResponse.Success)
                 {
                     return NotFound(commonValidationResponse.Message);
@@ -122,23 +122,23 @@ namespace backend.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{calendarId}")]
         [Authorize]
-        public async Task<ActionResult> DeleteCalendar(Guid id)
+        public async Task<ActionResult> DeleteCalendar(Guid calendarId)
         {
-            var calendar = await context.Calendars.FindAsync(id);
+            var calendar = await context.Calendars.FindAsync(calendarId);
             if (calendar == null)
             {
                 return NotFound("Calendar not found");
             }
 
-            var entries = await context.CalendarEntries.Where(x => x.CalendarId == id).ToListAsync();
+            var entries = await context.CalendarEntries.Where(x => x.CalendarId == calendarId).ToListAsync();
             if (entries.Any())
             {
                 context.CalendarEntries.RemoveRange(entries);
             }
 
-            var sharedCalendars = await context.SharedCalendars.Where(x => x.CalendarId == id).ToListAsync();
+            var sharedCalendars = await context.SharedCalendars.Where(x => x.CalendarId == calendarId).ToListAsync();
             if (sharedCalendars.Any())
             {
                 context.SharedCalendars.RemoveRange(sharedCalendars);

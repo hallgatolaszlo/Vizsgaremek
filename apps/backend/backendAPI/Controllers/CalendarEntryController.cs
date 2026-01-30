@@ -19,9 +19,9 @@ namespace backend.Controllers
     public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
     {
 
-        [HttpGet("{id}")]
+        [HttpGet("{calendarId}")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid id, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid calendarId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             var query = context.CalendarEntries.AsQueryable();
 
@@ -36,7 +36,7 @@ namespace backend.Controllers
             }
 
             var result = await query
-                .Where(x => x.CalendarId == id)
+                .Where(x => x.CalendarId == calendarId)
                 .Select(x => new GetCalendarEntryDTO
                 {
                     Id = x.Id,
@@ -113,18 +113,17 @@ namespace backend.Controllers
             {
                 return Unauthorized();
             }
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryCreateAsync(dto);
+
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryCreateAsync(dto, profileId.Value);
             if (!validationResponse.Success)
             {
                 return BadRequest(validationResponse.Message);
             }
 
-            //var calendarColor = await context.Calendars.Where(x=>x.Id==dto.CalendarId).Select(x=>x.Color).FirstOrDefaultAsync();
-
             var cEntry = new CalendarEntry
             {
                 EntryCategory = dto.EntryCategory,
-                Name = dto.Name!,
+                Name = dto.Name,
                 Description = dto.Description,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
@@ -146,7 +145,13 @@ namespace backend.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateCalendarEntry(Guid id, [FromBody] UpdateCalendarEntryDTO dto)
         {
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto);
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
+            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto, profileId.Value);
             if (!validationResponse.Success)
             {
                 return BadRequest(validationResponse.Message);
@@ -155,7 +160,7 @@ namespace backend.Controllers
             var calendarEntry = validationResponse.Data!;
 
             calendarEntry.EntryCategory = dto.EntryCategory;
-            calendarEntry.Name = dto.Name!;
+            calendarEntry.Name = dto.Name;
             calendarEntry.Description = dto.Description;
             calendarEntry.StartDate = dto.StartDate;
             calendarEntry.EndDate = dto.EndDate;
@@ -164,7 +169,7 @@ namespace backend.Controllers
             calendarEntry.Color = dto.Color;
             calendarEntry.IsCompleted = dto.IsCompleted;
             calendarEntry.IsAllDay = dto.IsAllDay ?? true;
-            calendarEntry.CreatedBy = dto.CreatedBy;
+            calendarEntry.CreatedBy = profileId.Value;
 
             try
             {
