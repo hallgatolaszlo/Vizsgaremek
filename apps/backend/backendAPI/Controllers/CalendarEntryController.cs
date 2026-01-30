@@ -6,6 +6,7 @@ using backend.DTOs.CalendarEntry;
 using backend.Extensions;
 using backend.Models;
 using backend.Services;
+using backend.Services.Calendar;
 using backend.Services.CalendarEntry;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +17,24 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation) : ControllerBase
+    public class CalendarEntryController(AppDbContext context, ICalendarEntryValidationService calendarEntryValidation, ICommonValidationService commonValidation, ICalendarValidationService calendarValidation) : ControllerBase
     {
 
         [HttpGet("{calendarId}")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntry(Guid calendarId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
+            var profileId = this.GetProfileId();
+            if (profileId == null) 
+            {
+                return Unauthorized();
+            }
+
+            if (!await calendarValidation.HasCalendarAccessAsync(profileId.Value, calendarId))
+            {
+                return Forbid();
+            }
+
             var query = context.CalendarEntries.AsQueryable();
 
             if (startDate.HasValue)
@@ -62,12 +74,21 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<GetCalendarEntryDTO>>> GetCalendarEntries(GetCalendarEntriesRequestDTO request) 
         {
-            var guidList = request.Ids.Select(Guid.Parse).ToList();
+            var profileId = this.GetProfileId();
+            if(profileId == null)
+            {
+                return Unauthorized();
+            }
+            
+            var calendarGuidList = request.Ids.Select(Guid.Parse).ToList();
 
-            if(guidList.Count == 0)
+            var accessibleCalendars = await calendarValidation.GetAccessibleCalendarsAsync(profileId.Value, calendarGuidList);
+            if (accessibleCalendars.Count == 0)
             {
                 return Ok(Enumerable.Empty<GetCalendarEntryDTO>());
             }
+
+            var accessibleCalendarIds = accessibleCalendars.Select(x=>x.CalendarId).ToList();
 
             var query = context.CalendarEntries.AsQueryable();
 
@@ -82,7 +103,7 @@ namespace backend.Controllers
             }
 
             var result = await query
-                .Where(x => guidList.Contains(x.CalendarId))
+                .Where(x => accessibleCalendarIds.Contains(x.CalendarId))
                 .Select(x => new GetCalendarEntryDTO
                 {
                     Id = x.Id,
@@ -204,7 +225,7 @@ namespace backend.Controllers
                 return NotFound("Entry not found");
             }
 
-            var validUser = await calendarEntryValidation.validateCalendarRole(profileId!.Value, id);
+            var validUser = await calendarEntryValidation.validateCalendarRole(profileId!.Value, calendarEntry.CalendarId);
             if (!validUser.Success)
             {
                 return Forbid(CommonErrors.ImATeapot);

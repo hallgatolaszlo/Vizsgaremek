@@ -84,9 +84,22 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> UpdateCalendar(Guid calendarId, UpdateCalendarDTO request)
         {
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
             if (calendarId != request.Id)
             {
                 return BadRequest(CommonErrors.InvalidRoute);
+            }
+
+            var accessibleCalendars = await calendarValidation.GetAccessibleCalendarsAsync(profileId.Value, new List<Guid> { calendarId });
+
+            if(accessibleCalendars.Count == 0 || accessibleCalendars.Where(x=>x.CalendarId==calendarId && x.Role == Models.Enums.Role.Viewer).Any())
+            {
+                return BadRequest(CommonErrors.ImATeapot);
             }
 
             var validationResponse = await calendarValidation.ValidateCalendarUpdateAsync(request);
@@ -126,10 +139,23 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteCalendar(Guid calendarId)
         {
+            var profileId = this.GetProfileId();
+            if (profileId == null)
+            {
+                return Unauthorized();
+            }
+
             var calendar = await context.Calendars.FindAsync(calendarId);
             if (calendar == null)
             {
                 return NotFound("Calendar not found");
+            }
+
+            var accessibleCalendars = await calendarValidation.GetAccessibleCalendarsAsync(profileId.Value, new List<Guid> { calendarId });
+
+            if (accessibleCalendars.Count == 0 || accessibleCalendars.Where(x => x.CalendarId == calendarId && x.Role == Models.Enums.Role.Viewer).Any())
+            {
+                return BadRequest(CommonErrors.ImATeapot);
             }
 
             var entries = await context.CalendarEntries.Where(x => x.CalendarId == calendarId).ToListAsync();

@@ -9,8 +9,8 @@ namespace backend.Services.Calendar
     {
         ServiceResponse<bool> ValidateCalendarCreationAsync(Models.Calendar calendarDTO);
         ServiceResponse<bool> ValidateCalendarCreationAsync(CreateCalendarDTO calendarDTO);
-
         Task<ServiceResponse<Models.Calendar>> ValidateCalendarUpdateAsync(UpdateCalendarDTO calendarDTO);
-        //Task<ServiceResponse<bool>> ValidateCalendarUpdateAsync(UpdateCalendarDTO updateCalendarDTO);
+        Task<bool> HasCalendarAccessAsync(Guid profileId, Guid calendarId);
+        Task<List<AccessibleCalendarDTO>> GetAccessibleCalendarsAsync(Guid profileId, IEnumerable<Guid> calendarIds);
     }
 }

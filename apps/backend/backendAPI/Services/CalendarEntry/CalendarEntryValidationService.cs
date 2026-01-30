@@ -72,6 +72,12 @@ namespace backend.Services.CalendarEntry
 
         public async Task<ServiceResponse<bool>> validateCalendarRole(Guid createdBy, Guid calendarId)
         {
+            var isOwner = await context.Calendars.AnyAsync(x => x.Id == calendarId && x.ProfileId == createdBy);
+            if (isOwner)
+            {
+                return new ServiceResponse<bool> { Success = true };
+            }
+
             var userRole = await context.SharedCalendars.Where(x => x.CalendarId == calendarId && x.ProfileId == createdBy).Select(x => x.Role).FirstOrDefaultAsync();
             
             if (userRole == Role.Viewer)
