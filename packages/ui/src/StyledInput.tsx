@@ -11,9 +11,10 @@ export function StyledInput(props: StyledInputProps) {
 			{...props}
 			hoverStyle={{ borderColor: "$color8" }}
 			focusStyle={{
-				outlineStyle: "none",
-				borderWidth: 2,
-				borderColor: "$color8",
+				outlineWidth: 2,
+				outlineOffset: -2,
+				outlineColor: "$accent9",
+				outlineStyle: "solid",
 			}}
 			ref={props.ref}
 		/>

@@ -7,6 +7,7 @@
 		"@repo/api": "workspace:*",
 		"@repo/types": "workspace:*",
 		"@repo/utils": "workspace:*",
+		"@tanstack/react-query": "catalog:",
 		"zustand": "catalog:"
 	}
 }

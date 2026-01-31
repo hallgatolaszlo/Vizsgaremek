@@ -63,6 +63,7 @@ export function SignUpForm() {
 		mutationFn: async (request: SignUpRequestDTO) => {
 			await signUp(request);
 			await signIn(request);
+			window.location.href = "/calendar";
 		},
 		onSuccess: () => {
 			reset();

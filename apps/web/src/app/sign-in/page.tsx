@@ -1,6 +1,6 @@
 "use client";
 
-import { FullscreenView } from "@/src/components/ui/FullscreenView";
+import { FullscreenView } from "@/src/components/FullscreenView";
 import { AuthCard } from "@repo/features";
 import { useAuthStore } from "@repo/hooks";
 

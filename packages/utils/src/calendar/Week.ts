@@ -2,7 +2,7 @@ import { WeekStartDay } from "@repo/types";
 
 export class Week {
 	static getWeekLabel(
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		weekdayIndex: number,
 		format: Intl.DateTimeFormatOptions["weekday"],
 	): string {
@@ -12,7 +12,7 @@ export class Week {
 	}
 
 	static getWeekdayLabels = (
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		format: Intl.DateTimeFormatOptions["weekday"],
 		weekStartDay: WeekStartDay,
 	) => {
@@ -29,7 +29,7 @@ export class Week {
 	};
 
 	static getWeekdayLabel = (
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		weekdayIndex: number,
 		format: Intl.DateTimeFormatOptions["weekday"],
 	): string => {

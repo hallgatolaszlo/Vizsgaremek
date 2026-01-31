@@ -1,6 +1,6 @@
 export class Month {
 	static getMonthLabel(
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		monthIndex: number,
 		format: Intl.DateTimeFormatOptions["month"],
 	): string {
@@ -10,7 +10,7 @@ export class Month {
 	}
 
 	public static getMonthsLabels: (
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		format: Intl.DateTimeFormatOptions["month"],
 	) => string[] = (locale, format) => {
 		return [...Array(12).keys()].map((monthIndex) =>
@@ -19,7 +19,7 @@ export class Month {
 	};
 
 	public static getMonthLabels: (
-		locale: Intl.Locale,
+		locale: Intl.LocalesArgument,
 		monthIndex: number,
 		format: Intl.DateTimeFormatOptions["month"],
 	) => string = (locale, monthIndex, format) => {

@@ -1,18 +1,21 @@
 "use client";
 
-import CalendarHeader from "@/src/components/ui/CalendarPage/CalendarHeader";
-import SidebarCalendar from "@/src/components/ui/CalendarPage/SidebarCalendar";
-import { FullscreenView } from "@/src/components/ui/FullscreenView";
+import CalendarHeader from "@/src/components/CalendarPage/CalendarHeader";
+import Sidebar from "@/src/components/CalendarPage/Sidebar";
+import { FullscreenView } from "@/src/components/FullscreenView";
 import { Calendar } from "@repo/features";
-import { useCalendarStore } from "@repo/hooks";
+import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import { components } from "@repo/types";
 import { generateGrid } from "@repo/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
-import { XStack, YStack } from "tamagui";
+import { XStack } from "tamagui";
+
+type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
 
 export default function CalendarPage() {
 	const {
 		selectedDate,
-		weekStartsOn,
 		viewType,
 		setViewType,
 		decMonth,
@@ -22,6 +25,10 @@ export default function CalendarPage() {
 		decDay,
 		incDay,
 	} = useCalendarStore();
+
+	const { weekStartsOn } = useProfileStore();
+
+	const queryClient = useQueryClient();
 
 	const grid = useMemo(
 		() =>
@@ -83,18 +90,16 @@ export default function CalendarPage() {
 	}, [increaseView, decreaseView, viewType]);
 
 	return (
-		<FullscreenView stack="XStack" style={{ overflow: "hidden" }}>
-			<YStack
-				flex={1}
-				p="$4"
-				bg="$color2"
-				minH="100%"
-				style={{ minWidth: 350, maxWidth: 400 }}
-			>
-				<SidebarCalendar />
-				{/* My calendars */}
-			</YStack>
-			<YStack minW={0} flex={1}>
+		<FullscreenView
+			flex={1}
+			stack="XStack"
+			maxHeight
+			overflow="hidden"
+			bg={"$color2"}
+		>
+			<Sidebar />
+			{/* My calendars */}
+			<FullscreenView maxHeight minW={0} flex={1}>
 				{/* Calendar Header */}
 				<CalendarHeader
 					grid={grid}
@@ -104,7 +109,7 @@ export default function CalendarPage() {
 				<XStack ref={wheelableYStackRef} flex={1} minW={0}>
 					<Calendar grid={grid} />
 				</XStack>
-			</YStack>
+			</FullscreenView>
 		</FullscreenView>
 	);
 }

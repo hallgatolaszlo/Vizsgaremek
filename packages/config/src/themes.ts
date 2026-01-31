@@ -18,17 +18,17 @@ const darkPalette = [
 
 const lightPalette = [
 	"hsla(0, 0%, 100%, 1)", // 1 Background
-	"hsla(210, 17%, 98%, 1)", // 2 Subtle bg
-	"hsla(210, 14%, 95%, 1)", // 3 Inactive surface
-	"hsla(210, 12%, 92%, 1)", // 4 Default surface
-	"hsla(214, 11%, 89%, 1)", // 5 Hover surface
-	"hsla(214, 10%, 85%, 1)", // 6 Active surface
-	"hsla(214, 12%, 87%, 1)", // 7 Default border
-	"hsla(214, 10%, 75%, 1)", // 8 Hover border
-	"hsla(214, 6%, 60%, 1)", // 9 Muted fill
-	"hsla(214, 6%, 45%, 1)", // 10 Strong fill
-	"hsla(210, 6%, 46%, 1)", // 11 Secondary text
-	"hsla(225, 6%, 25%, 1)", // 12 Primary text
+	"hsla(210, 20%, 92%, 1)", // 2 Subtle bg
+	"hsla(210, 18%, 88%, 1)", // 3 Inactive surface
+	"hsla(210, 16%, 83%, 1)", // 4 Default surface
+	"hsla(214, 15%, 76%, 1)", // 5 Hover surface
+	"hsla(214, 14%, 68%, 1)", // 6 Active surface
+	"hsla(214, 16%, 82%, 1)", // 7 Default border
+	"hsla(214, 15%, 62%, 1)", // 8 Hover border
+	"hsla(214, 12%, 48%, 1)", // 9 Muted fill
+	"hsla(214, 10%, 30%, 1)", // 10 Strong fill
+	"hsla(210, 10%, 38%, 1)", // 11 Secondary text
+	"hsla(225, 12%, 12%, 1)", // 12 Primary text
 ];
 
 const lightShadows = {
@@ -47,6 +47,21 @@ const darkShadows = {
 	shadow4: "rgba(0,0,0,0.6)",
 	shadow5: "rgba(0,0,0,0.7)",
 	shadow6: "rgba(0,0,0,0.8)",
+};
+
+const calendarColors = {
+	color1: "#d50000",
+	color2: "#e67c73",
+	color3: "#f4511e",
+	color4: "#f6bf26",
+	color5: "#33b679",
+	color6: "#0b8043",
+	color7: "#039be5",
+	color8: "#3f51b5",
+	color9: "#7986cb",
+	color10: "#8e24aa",
+	color11: "#616161",
+	color12: "#a79b8e",
 };
 
 const builtThemes = createThemes({
@@ -137,6 +152,13 @@ const builtThemes = createThemes({
 			palette: {
 				dark: Object.values(Colors.blueDark),
 				light: Object.values(Colors.blue),
+			},
+		},
+
+		calendarColors: {
+			palette: {
+				dark: Object.values(calendarColors),
+				light: Object.values(calendarColors),
 			},
 		},
 	},
