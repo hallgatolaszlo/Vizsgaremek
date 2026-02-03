@@ -215,7 +215,9 @@ export default function CalendarHeader({
 				}}
 			>
 				<HeaderDateButtonGroup />
-				<Text fontWeight="$2">{headerDateText()}</Text>
+				<Text fontWeight="$2" textTransform="capitalize">
+					{headerDateText()}
+				</Text>
 			</XStack>
 			<XStack
 				flex={1}

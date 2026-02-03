@@ -2,22 +2,50 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCalendarEntry } from "@repo/api";
-import { useCalendars, useContextMenuStore } from "@repo/hooks";
+import {
+	useCalendars,
+	useContextMenuStore,
+	useProfileStore,
+} from "@repo/hooks";
 import { components } from "@repo/types";
-import { SelectElement, StyledButton, StyledInput } from "@repo/ui";
-import { CalendarPlus2 } from "@tamagui/lucide-icons";
+import { ColorIcon, SelectElement, StyledButton, StyledInput } from "@repo/ui";
+import { CalendarPlus2, Check } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
+import { DatePicker } from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
-import { Form, Select, Spinner, Text, Theme, View, YStack } from "tamagui";
+import {
+	Checkbox,
+	Form,
+	Label,
+	Select,
+	Spinner,
+	Text,
+	Theme,
+	useTheme,
+	View,
+	XStack,
+	YStack,
+} from "tamagui";
 import z from "zod";
+import ColorSelect from "./ColorSelect";
 
-// Type for sign-up request data from Swagger
+type GetCalendarDTO = components["schemas"]["GetCalendarDTO"];
 type CreateCalendarEntryDTO = components["schemas"]["CreateCalendarEntryDTO"];
+type CalendarEntryCategory = components["schemas"]["EntryCategory"];
+const ENTRY_CATEGORIES: CalendarEntryCategory[] = [
+	"None",
+	"Task",
+	"Event",
+	"BirthDay",
+	"Anniversary",
+];
 
 // Zod schema for sign-up form validation
 const createCalendarEntrySchema = z.object({
+	calendarId: z.uuid("Invalid calendar ID"),
+	entryCategory: z.enum(ENTRY_CATEGORIES),
 	name: z
 		.string()
 		.min(1, "The name field is required")
@@ -26,7 +54,10 @@ const createCalendarEntrySchema = z.object({
 	description: z
 		.string()
 		.max(1024, "The description should be at most 1024 characters long"),
-	calendarId: z.uuid("Invalid calendar ID"),
+	isAllDay: z.boolean(),
+	startDate: z.date(),
+	endDate: z.date().optional(),
+	color: z.int().min(1).max(12),
 });
 
 // Component to display error messages
@@ -39,36 +70,43 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 );
 
 export function CreateCalendarEntryForm() {
-	const [error, setError] = useState<string | null>(null);
-	const descriptionRef = useRef<any>(null);
-
 	const queryClient = useQueryClient();
-	const myCalendars = useCalendars(queryClient);
+	const myCalendars = useCalendars();
+
+	const [error, setError] = useState<string | null>(null);
+	const [selectedCalendar, setSelectedCalendar] =
+		useState<GetCalendarDTO | null>(myCalendars.data?.[0] || null);
 
 	const startDate = useContextMenuStore((state) => state.date);
+	startDate?.setHours(new Date().getHours(), 0, 0, 0);
+	const { locale } = useProfileStore();
 
 	const {
 		control,
 		handleSubmit,
 		reset,
+		setValue,
+		watch,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(createCalendarEntrySchema),
 		defaultValues: {
+			calendarId: selectedCalendar?.id || "",
+			entryCategory: "None" as const,
 			name: "",
 			description: "",
-			calendarId: "",
+			isAllDay: true,
+			startDate: startDate!,
+			endDate: new Date(startDate!.getTime() + 60 * 60 * 1000),
+			color: selectedCalendar?.color || 1,
 		},
 	});
+
+	const isAllDay = watch("isAllDay");
 
 	// Mutation for sign-up action
 	const createCalendarEntryMutation = useMutation({
 		mutationFn: async (request: CreateCalendarEntryDTO) => {
-			request.color = myCalendars.data?.find(
-				(calendar) => calendar.id === request.calendarId,
-			)?.color;
-			request.startDate = startDate?.toISOString();
-			request.endDate = startDate?.toISOString();
 			await createCalendarEntry(request);
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 		},
@@ -86,50 +124,176 @@ export function CreateCalendarEntryForm() {
 		},
 	});
 
-	async function onSubmit(request: CreateCalendarEntryDTO) {
+	type FormData = z.infer<typeof createCalendarEntrySchema>;
+
+	async function onSubmit(data: FormData) {
+		const startDate = data.startDate!.toISOString();
+		let endDate: string | undefined = undefined;
+
+		if (
+			data.entryCategory === "Task" ||
+			data.entryCategory === "None" ||
+			data.entryCategory === "Event"
+		) {
+			if (data.isAllDay) {
+				endDate = undefined;
+			} else {
+				endDate = data.endDate!.toISOString();
+			}
+		} else if (
+			data.entryCategory === "BirthDay" ||
+			data.entryCategory === "Anniversary"
+		) {
+			endDate = undefined;
+		}
+
+		const request: CreateCalendarEntryDTO = {
+			...data,
+			startDate: startDate,
+			endDate: endDate,
+		};
 		createCalendarEntryMutation.mutate(request);
 	}
 
+	const theme = useTheme({ name: "calendarColors" });
+	const colors = useRef<Record<string, any>>({
+		"1": theme.color1,
+		"2": theme.color2,
+		"3": theme.color3,
+		"4": theme.color4,
+		"5": theme.color5,
+		"6": theme.color6,
+		"7": theme.color7,
+		"8": theme.color8,
+		"9": theme.color9,
+		"10": theme.color10,
+		"11": theme.color11,
+		"12": theme.color12,
+	});
+
 	return (
 		<YStack>
-			<Form gap="$3">
+			<Form>
 				<YStack gap="$2">
 					<Controller
 						control={control}
+						name="calendarId"
+						render={({ field: { onChange, value } }) => (
+							<View>
+								<SelectElement
+									value={value}
+									onValueChange={(value) => {
+										onChange(value);
+										const calendar =
+											myCalendars.data?.find(
+												(calendar) =>
+													calendar.id === value,
+											) || null;
+										setSelectedCalendar(calendar);
+										if (calendar?.color) {
+											setValue("color", calendar.color);
+										}
+									}}
+									renderValue={(value) => {
+										const calendar = myCalendars.data?.find(
+											(calendar) => calendar.id === value,
+										);
+
+										return (
+											<Text>
+												{
+													<ColorIcon
+														color={
+															colors.current[
+																calendar?.color!
+															].val
+														}
+													/>
+												}
+												{calendar?.name}
+											</Text>
+										);
+									}}
+									defaultValue={""}
+									triggerPlaceholder=""
+									groupItems={myCalendars.data?.map(
+										(calendar, i) => (
+											<Select.Item
+												key={i}
+												index={i}
+												value={calendar.id!}
+											>
+												<Select.ItemText>
+													{
+														<ColorIcon
+															color={
+																colors.current[
+																	calendar
+																		?.color!
+																].val
+															}
+														/>
+													}
+													{calendar.name}
+												</Select.ItemText>
+											</Select.Item>
+										),
+									)}
+								/>
+							</View>
+						)}
+					/>
+					<Controller
+						control={control}
+						name="entryCategory"
+						render={({ field: { onChange, value } }) => (
+							<View>
+								<SelectElement
+									value={value}
+									onValueChange={(value) => onChange(value)}
+									renderValue={(value) => (
+										<Text>{value}</Text>
+									)}
+									triggerPlaceholder=""
+									groupItems={ENTRY_CATEGORIES.map(
+										(category, i) => (
+											<Select.Item
+												key={i}
+												index={i}
+												value={category}
+											>
+												<Select.ItemText>
+													{category}
+												</Select.ItemText>
+											</Select.Item>
+										),
+									)}
+								/>
+							</View>
+						)}
+					/>
+					<Controller
+						control={control}
 						name="name"
-						render={({
-							field: { onChange, onBlur, value, ref },
-						}) => (
+						render={({ field: { onChange, value, ref } }) => (
 							<StyledInput
 								ref={ref}
 								placeholder="Name"
-								onBlur={onBlur}
 								onChange={onChange}
 								value={value}
 								returnKeyType="next"
-								onSubmitEditing={() =>
-									descriptionRef.current?.focus()
-								}
 								autoFocus
 							/>
 						)}
 					/>
 					{errors.name && <ErrorText message={errors.name.message} />}
-				</YStack>
-				<YStack gap="$2">
 					<Controller
 						control={control}
 						name="description"
-						render={({
-							field: { onChange, onBlur, value, ref },
-						}) => (
+						render={({ field: { onChange, value, ref } }) => (
 							<StyledInput
-								ref={(input: any) => {
-									ref(input);
-									descriptionRef.current = input;
-								}}
+								ref={ref}
 								placeholder="Description"
-								onBlur={onBlur}
 								onChange={onChange}
 								value={value}
 								returnKeyType="done"
@@ -140,72 +304,118 @@ export function CreateCalendarEntryForm() {
 					{errors.description && (
 						<ErrorText message={errors.description.message} />
 					)}
-				</YStack>
-				<YStack gap="$2">
 					<Controller
 						control={control}
-						name="calendarId"
-						render={({ field: { onChange, value } }) => (
-							<View>
-								<SelectElement
-									value={value}
-									onValueChange={(value) => onChange(value)}
-									renderValue={(value) => (
-										<Text>
-											{
-												myCalendars.data?.find(
-													(calendar) =>
-														calendar.id === value,
-												)?.name
-											}
-										</Text>
-									)}
-									defaultValue={myCalendars.data?.[0]?.id}
-									triggerPlaceholder=""
-									groupItems={myCalendars.data?.map(
-										(calendar, i) => (
-											<Select.Item
-												key={i}
-												index={i}
-												value={calendar.id!}
-											>
-												<Select.ItemText>
-													{calendar.name}
-												</Select.ItemText>
-											</Select.Item>
-										),
-									)}
-								/>
-							</View>
+						name="isAllDay"
+						render={({ field: { onChange, value, ref } }) => (
+							<XStack style={{ alignItems: "center" }} gap="$2">
+								<Checkbox
+									id="isAllDayCheckbox"
+									ref={ref}
+									checked={value}
+									onCheckedChange={(value) => {
+										onChange(value);
+									}}
+								>
+									<Checkbox.Indicator>
+										<Check />
+									</Checkbox.Indicator>
+								</Checkbox>
+								<Label htmlFor="isAllDayCheckbox">
+									All Day
+								</Label>
+							</XStack>
 						)}
 					/>
-				</YStack>
-				<StyledButton
-					onPress={handleSubmit(onSubmit)}
-					disabled={createCalendarEntryMutation.isPending}
-					icon={
-						createCalendarEntryMutation.isPending
-							? () => <Spinner color="$color12" />
-							: undefined
-					}
-					scaleIcon={1.5}
-					iconAfter={
-						!createCalendarEntryMutation.isPending ? (
-							<CalendarPlus2 />
-						) : undefined
-					}
-				>
-					{!createCalendarEntryMutation.isPending && (
-						<Text style={{ userSelect: "none" }}>Create Entry</Text>
+					<Controller
+						control={control}
+						name="startDate"
+						render={({ field: { onChange, value } }) => (
+							<DatePicker
+								selected={value}
+								onChange={(value: Date | null) => {
+									onChange(value);
+									setValue(
+										"endDate",
+										new Date(
+											value!.getTime() + 60 * 60 * 1000,
+										),
+									);
+								}}
+								locale={
+									locale instanceof Intl.Locale
+										? locale.language
+										: "en"
+								}
+								timeInputLabel="Time:"
+								dateFormat="MM/dd/yyyy hh:mm aa"
+								showTimeInput
+								className="custom-datepicker"
+								wrapperClassName="custom-datepicker-wrapper"
+							/>
+						)}
+					/>
+					{!isAllDay && (
+						<Controller
+							control={control}
+							name="endDate"
+							render={({ field: { onChange, value } }) => (
+								<DatePicker
+									selected={value}
+									onChange={onChange}
+									locale={
+										locale instanceof Intl.Locale
+											? locale.language
+											: "en"
+									}
+									timeInputLabel="Time:"
+									dateFormat="MM/dd/yyyy hh:mm aa"
+									showTimeInput
+									className="custom-datepicker"
+									wrapperClassName="custom-datepicker-wrapper"
+								/>
+							)}
+						/>
 					)}
-				</StyledButton>
-				{error && (
-					<Theme name="error">
-						<Text style={{ textAlign: "center" }} color="$color9">
-							{error}
-						</Text>
-					</Theme>
-				)}
+					<Controller
+						control={control}
+						name="color"
+						render={({ field: { onChange, value } }) => (
+							<ColorSelect value={value} onChange={onChange} />
+						)}
+					/>
+					<StyledButton
+						onPress={handleSubmit(onSubmit)}
+						disabled={createCalendarEntryMutation.isPending}
+						icon={
+							createCalendarEntryMutation.isPending
+								? () => <Spinner color="$color12" />
+								: undefined
+						}
+						scaleIcon={1.5}
+						iconAfter={
+							!createCalendarEntryMutation.isPending ? (
+								<CalendarPlus2 />
+							) : undefined
+						}
+					>
+						{!createCalendarEntryMutation.isPending && (
+							<Text style={{ userSelect: "none" }}>
+								Create Entry
+							</Text>
+						)}
+					</StyledButton>
+					{error && (
+						<Theme name="error">
+							<Text
+								style={{ textAlign: "center" }}
+								color="$color9"
+							>
+								{error}
+							</Text>
+						</Theme>
+					)}
+				</YStack>
 			</Form>
 		</YStack>
 	);

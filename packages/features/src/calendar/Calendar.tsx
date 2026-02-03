@@ -1,5 +1,5 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
-import { CalendarCellProps, components } from "@repo/types";
+import { CalendarCellProps } from "@repo/types";
 import { generateGrid, isNative, Week } from "@repo/utils";
 import { useMemo } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
@@ -166,8 +166,6 @@ function HourlyScrollView({
 	);
 }
 
-type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
-
 interface CalendarProps {
 	grid?: Record<string, CalendarCellProps[]>;
 }
@@ -219,6 +217,7 @@ export function Calendar({ grid }: CalendarProps) {
 						style={{
 							...baseCellStyle,
 							textAlign: "center",
+							textTransform: "capitalize",
 							borderBottomWidth: 0,
 							borderLeftWidth: BORDER_WIDTH,
 							borderRightWidth:

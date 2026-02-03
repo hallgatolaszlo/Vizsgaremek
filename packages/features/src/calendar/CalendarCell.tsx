@@ -7,7 +7,6 @@ import {
 } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { isNative } from "@repo/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { AnimatePresence, Card, CardProps, Text } from "tamagui";
 import { CalendarEntry } from "./CalendarEntry";
@@ -29,9 +28,8 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 
 	const { cell } = props;
 
-	const queryClient = useQueryClient();
-	const myCalendars = useCalendars(queryClient);
-	const calendarEntries = useCalendarEntries(queryClient, myCalendars);
+	const myCalendars = useCalendars();
+	const calendarEntries = useCalendarEntries(myCalendars);
 
 	const cardRef = useRef<HTMLDivElement>(null);
 
@@ -154,12 +152,14 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 				<Text
 					fontWeight="$2"
 					style={{
+						userSelect: "none",
 						textAlign: "center",
 						textWrap: "none",
 						wordBreak: "unset",
 						wordWrap: "unset",
 						overflowWrap: "unset",
 						height: "fit-content",
+						textTransform: "capitalize",
 					}}
 				>
 					{headerLabel()}

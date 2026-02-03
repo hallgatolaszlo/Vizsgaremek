@@ -3,7 +3,7 @@
 import { deleteCalendar } from "@repo/api";
 import { useCalendars, useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps, components } from "@repo/types";
-import { SelectElement, StyledButton } from "@repo/ui";
+import { StyledButton } from "@repo/ui";
 import { generateGrid, getContrastFromHSLA, Month, Week } from "@repo/utils";
 import {
 	ArrowBigLeft,
@@ -17,7 +17,10 @@ import {
 	Trash,
 } from "@tamagui/lucide-icons";
 import { useQueryClient } from "@tanstack/react-query";
+import * as locales from "date-fns/locale";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
 	AnimatePresence,
 	Button,
@@ -28,11 +31,11 @@ import {
 	Label,
 	ListItem,
 	Popover,
-	Select,
 	Separator,
 	Spinner,
 	Text,
 	useTheme,
+	View,
 	XGroup,
 	XStack,
 	YGroup,
@@ -48,7 +51,6 @@ type AnimationProp = GetProps<typeof YStack>["animation"];
 const FADE_ANIMATION: AnimationProp = "quick";
 
 const SIDEBAR_WIDTH = 400;
-const YEAR_RANGE = 10;
 
 function NavButton(props: ButtonProps) {
 	return (
@@ -108,6 +110,7 @@ function CalendarListItem({
 				enterStyle={{ y: -10, opacity: 0 }}
 				exitStyle={{ y: -10, opacity: 0 }}
 				animation={FADE_ANIMATION}
+				animateOnly={["transform", "opacity"]}
 				py={0}
 				display="flex"
 			>
@@ -232,8 +235,10 @@ export default function Sidebar() {
 		setCheckedCalendarIds,
 	} = useCalendarStore();
 	const { locale, weekStartsOn } = useProfileStore();
+
 	const calendarTheme = useTheme({ name: "calendarColors" });
-	const queryClient = useQueryClient();
+
+	const { isPending, error, data } = useCalendars();
 
 	const [createCalendarPopoverOpen, setCreateCalendarPopoverOpen] =
 		useState(false);
@@ -249,8 +254,6 @@ export default function Sidebar() {
 	const wheelableYStackRef = useRef<HTMLDivElement>(null);
 	const wheelableYearXGroupRef = useRef<HTMLDivElement>(null);
 	const wheelableMonthXGroupRef = useRef<HTMLDivElement>(null);
-
-	const { isPending, error, data, isRefetching } = useCalendars(queryClient);
 
 	// Navigation handlers
 	const decYearSidebar = useCallback((by: number) => {
@@ -408,27 +411,6 @@ export default function Sidebar() {
 		[selectedDate, currentDate],
 	);
 
-	// Year selector component
-	const years = useMemo(() => {
-		const currentYear = sidebarDate.getFullYear();
-		return Array.from({ length: YEAR_RANGE * 2 + 1 }, (_, i) =>
-			String(currentYear - YEAR_RANGE + i),
-		);
-	}, [sidebarDate]);
-
-	const yearSelectItems = useMemo(
-		() =>
-			years.map((year, i) => (
-				<Select.Item index={i} key={year} value={year}>
-					<Select.ItemText>{year}</Select.ItemText>
-					<Select.ItemIndicator marginLeft="auto">
-						<Check size={16} />
-					</Select.ItemIndicator>
-				</Select.Item>
-			)),
-		[years],
-	);
-
 	const handleYearChange = useCallback((val: string) => {
 		setSidebarDate(
 			(prev) => new Date(Number(val), prev.getMonth(), prev.getDate()),
@@ -439,19 +421,6 @@ export default function Sidebar() {
 	const months = useMemo(
 		() => Month.getMonthsLabels(locale, "long"),
 		[locale],
-	);
-
-	const monthSelectItems = useMemo(
-		() =>
-			months.map((monthName, i) => (
-				<Select.Item index={i} key={monthName} value={monthName}>
-					<Select.ItemText>{monthName}</Select.ItemText>
-					<Select.ItemIndicator marginLeft="auto">
-						<Check size={16} />
-					</Select.ItemIndicator>
-				</Select.Item>
-			)),
-		[months],
 	);
 
 	const handleMonthChange = useCallback(
@@ -467,6 +436,17 @@ export default function Sidebar() {
 		},
 		[months],
 	);
+
+	// Convert Intl.Locale to date-fns locale code and register
+	useMemo(() => {
+		if (locale instanceof Intl.Locale) {
+			const localeCode = locale.language;
+			const dateLocale = locales[localeCode as keyof typeof locales];
+			if (dateLocale) {
+				registerLocale(localeCode, dateLocale);
+			}
+		}
+	}, [locale]);
 
 	return (
 		<FullscreenView
@@ -497,16 +477,25 @@ export default function Sidebar() {
 						</Text>
 					</NavButton>
 				</XGroup.Item>
+				<Separator vertical />
 				<XGroup.Item>
-					<SelectElement
-						value={sidebarDate.getFullYear().toString()}
-						onValueChange={handleYearChange}
-						renderValue={(value) => <Text>{value}</Text>}
-						triggerPlaceholder="Select year"
-						groupItems={yearSelectItems}
-						triggerStyle={{ borderRadius: 0 }}
-					/>
+					<View style={{ flexGrow: 1 }}>
+						<DatePicker
+							selected={sidebarDate}
+							onChange={(date: Date | null) => {
+								if (date)
+									handleYearChange(
+										String(date.getFullYear()),
+									);
+							}}
+							showYearPicker
+							dateFormat="yyyy"
+							className="custom-datepicker"
+							wrapperClassName="custom-datepicker-wrapper"
+						/>
+					</View>
 				</XGroup.Item>
+				<Separator vertical />
 				<XGroup.Item>
 					<NavButton onPress={() => incYearSidebar(1)} width={40}>
 						<Text>
@@ -533,18 +522,31 @@ export default function Sidebar() {
 						</Text>
 					</NavButton>
 				</XGroup.Item>
+				<Separator vertical />
 				<XGroup.Item>
-					<SelectElement
-						value={months[sidebarDate.getMonth()]}
-						onValueChange={handleMonthChange}
-						renderValue={() => (
-							<Text>{months[sidebarDate.getMonth()]}</Text>
-						)}
-						triggerPlaceholder="Select month"
-						groupItems={monthSelectItems}
-						triggerStyle={{ borderRadius: 0 }}
-					/>
+					<View style={{ flexGrow: 1 }}>
+						<DatePicker
+							selected={sidebarDate}
+							onChange={(date: Date | null) => {
+								if (date)
+									handleMonthChange(months[date.getMonth()]);
+							}}
+							renderCustomHeader={() => <></>}
+							showMonthYearPicker
+							showFullMonthYearPicker
+							showTwoColumnMonthYearPicker
+							dateFormat="MMMM"
+							locale={
+								locale instanceof Intl.Locale
+									? locale.language
+									: "en"
+							}
+							className="custom-datepicker"
+							wrapperClassName="custom-datepicker-wrapper"
+						/>
+					</View>
 				</XGroup.Item>
+				<Separator vertical />
 				<XGroup.Item>
 					<NavButton onPress={incMonthSidebar} width={80}>
 						<Text>
@@ -647,7 +649,7 @@ export default function Sidebar() {
 					borderRadius: 10,
 					flexShrink: 1,
 					justifyContent:
-						isPending || isRefetching || error || data?.length === 0
+						isPending || error || data?.length === 0
 							? "center"
 							: "flex-start",
 					overflowX: "hidden",
@@ -656,9 +658,7 @@ export default function Sidebar() {
 				minH="30vh"
 				flex={1}
 			>
-				{(isPending || isRefetching) && (
-					<Spinner size="large" color="$accent5" />
-				)}
+				{isPending && <Spinner size="large" color="$accent5" />}
 				{error && (
 					<Text style={{ textAlign: "center" }}>
 						Error loading calendars
@@ -670,42 +670,35 @@ export default function Sidebar() {
 					</Text>
 				)}
 				<YGroup>
-					{!isRefetching &&
-						data?.map((calendar) => (
-							<YGroup.Item key={calendar.id}>
-								{calendar.id === editingCalendarId ? (
-									<UpdateCalendarForm
-										calendar={calendar}
-										onSuccess={() =>
-											setEditingCalendarId(null)
-										}
-										onBlur={() =>
-											setEditingCalendarId(null)
-										}
-									/>
-								) : (
-									<CalendarListItem
-										setEditingCalendarId={
-											setEditingCalendarId
-										}
-										calendar={calendar}
-										isChecked={Boolean(
-											calendar.id &&
-											checkedCalendarIds.includes(
-												calendar.id,
-											),
-										)}
-										onCheckedChange={(checked) =>
-											handleCheckboxChange(
-												calendar.id!,
-												checked,
-											)
-										}
-										calendarTheme={calendarTheme}
-									/>
-								)}
-							</YGroup.Item>
-						))}
+					{data?.map((calendar) => (
+						<YGroup.Item key={calendar.id}>
+							{calendar.id === editingCalendarId ? (
+								<UpdateCalendarForm
+									calendar={calendar}
+									onSuccess={() => setEditingCalendarId(null)}
+									onBlur={() => setEditingCalendarId(null)}
+								/>
+							) : (
+								<CalendarListItem
+									setEditingCalendarId={setEditingCalendarId}
+									calendar={calendar}
+									isChecked={Boolean(
+										calendar.id &&
+										checkedCalendarIds.includes(
+											calendar.id,
+										),
+									)}
+									onCheckedChange={(checked) =>
+										handleCheckboxChange(
+											calendar.id!,
+											checked,
+										)
+									}
+									calendarTheme={calendarTheme}
+								/>
+							)}
+						</YGroup.Item>
+					))}
 				</YGroup>
 			</YStack>
 		</FullscreenView>
