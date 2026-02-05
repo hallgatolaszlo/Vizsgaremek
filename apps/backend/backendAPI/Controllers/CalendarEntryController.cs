@@ -135,10 +135,10 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryCreateAsync(dto, profileId.Value);
-            if (!validationResponse.Success)
+            var validationResult = await calendarEntryValidation.ValidateCalendarEntryCreationAsync(dto, profileId.Value);
+            if (!validationResult.Success)
             {
-                return BadRequest(validationResponse.Message);
+                return BadRequest(validationResult.Message);
             }
 
             var cEntry = new CalendarEntry
@@ -172,13 +172,13 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var validationResponse = await calendarEntryValidation.ValidateCalendarEntryUpdateAsync(dto, profileId.Value);
-            if (!validationResponse.Success)
+            var calendarEntryResult = await calendarEntryValidation.ValidateAndGetCalendarEntryForUpdateAsync(dto, profileId.Value);
+            if (!calendarEntryResult.Success)
             {
-                return BadRequest(validationResponse.Message);
+                return BadRequest(calendarEntryResult.Message);
             }
 
-            var calendarEntry = validationResponse.Data!;
+            var calendarEntry = calendarEntryResult.Data!;
 
             calendarEntry.EntryCategory = dto.EntryCategory;
             calendarEntry.Name = dto.Name;
@@ -225,7 +225,7 @@ namespace backend.Controllers
                 return NotFound("Entry not found");
             }
 
-            var validUser = await calendarEntryValidation.validateCalendarRole(profileId!.Value, calendarEntry.CalendarId);
+            var validUser = await calendarValidation.ValidateCalendarRoleAsync(profileId!.Value, calendarEntry.CalendarId);
             if (!validUser.Success)
             {
                 return Forbid(CommonErrors.ImATeapot);

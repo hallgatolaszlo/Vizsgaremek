@@ -6,9 +6,11 @@ using backend.Services;
 using backend.Services.Auth;
 using backend.Services.Calendar;
 using backend.Services.CalendarEntry;
+using backend.Services.Friend;
 using backend.Services.Habit;
 using backend.Services.Profile;
 using backend.Services.Registration;
+using backend.Services.SharedCalendar;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -121,7 +123,9 @@ namespace backend
                 .AddScoped<IProfileValidationService, ProfileValidationService>()
                 .AddScoped<ICalendarValidationService, CalendarValidationService>()
                 .AddScoped<ICalendarEntryValidationService, CalendarEntryValidationService>()
-                .AddScoped<IHabitValidationService, HabitValidationService>();
+                .AddScoped<IHabitValidationService, HabitValidationService>()
+                .AddScoped<IFriendValidationService, FriendValidationService>()
+                .AddScoped<ISharedCalendarValidationService, SharedCalendarValidationService>();
 
             var app = builder.Build();
 

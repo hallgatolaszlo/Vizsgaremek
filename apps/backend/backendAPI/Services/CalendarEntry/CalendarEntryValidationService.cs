@@ -6,19 +6,20 @@ using backend.DTOs.CalendarEntry;
 using backend.Models;
 using backend.Models.Enums;
 using backend.Services;
+using backend.Services.Calendar;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.CalendarEntry
 {
-    public class CalendarEntryValidationService(ICommonValidationService commonValidation, AppDbContext context) : ICalendarEntryValidationService
+    public class CalendarEntryValidationService(ICommonValidationService commonValidation, ICalendarValidationService calendarValidation) : ICalendarEntryValidationService
     {
-        public async Task<ServiceResponse<bool>> ValidateCalendarEntryCreateAsync(CreateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
+        public async Task<ServiceResponse<bool>> ValidateCalendarEntryCreationAsync(CreateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
         {
             return await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, createdBy);
         }
-        public async Task<ServiceResponse<Models.CalendarEntry>> ValidateCalendarEntryUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
+        public async Task<ServiceResponse<Models.CalendarEntry>> ValidateAndGetCalendarEntryForUpdateAsync(UpdateCalendarEntryDTO calendarEntryDTO, Guid createdBy)
         {
             var calendarEntry = await commonValidation.EntityExists<Models.CalendarEntry>(calendarEntryDTO.Id);
             if (!calendarEntry.Success)
@@ -26,16 +27,16 @@ namespace backend.Services.CalendarEntry
                 return new ServiceResponse<Models.CalendarEntry> { Success = false, Message = "Entry not found" };
             }
 
-            var validationResponse = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, createdBy);
+            var validationResult = await ValidateCommonCalendarEntryRulesAsync(calendarEntryDTO.CalendarId, calendarEntryDTO.EntryCategory, calendarEntryDTO.StartDate, calendarEntryDTO.EndDate, createdBy);
 
-            return new ServiceResponse<Models.CalendarEntry> { Success = validationResponse.Success, Message = validationResponse.Message, Data = calendarEntry.Data };
+            return new ServiceResponse<Models.CalendarEntry> { Success = validationResult.Success, Message = validationResult.Message, Data = calendarEntry.Data };
         }
 
         private async Task<ServiceResponse<bool>> ValidateCommonCalendarEntryRulesAsync(Guid calendarId, EntryCategory category, DateTime startDate, DateTime endDate, Guid createdBy, bool? isCompleted = null)
         {
             var response = new ServiceResponse<bool>();
 
-            var validUser = await validateCalendarRole(createdBy, calendarId);
+            var validUser = await calendarValidation.ValidateCalendarRoleAsync(createdBy, calendarId);
             if (!validUser.Success)
             {
                 response.Success = false;
@@ -68,28 +69,6 @@ namespace backend.Services.CalendarEntry
 
             response.Success = true;
             return response;
-        }
-
-        public async Task<ServiceResponse<bool>> validateCalendarRole(Guid createdBy, Guid calendarId)
-        {
-            var isOwner = await context.Calendars.AnyAsync(x => x.Id == calendarId && x.ProfileId == createdBy);
-            if (isOwner)
-            {
-                return new ServiceResponse<bool> { Success = true };
-            }
-
-            var userRole = await context.SharedCalendars.Where(x => x.CalendarId == calendarId && x.ProfileId == createdBy).Select(x => x.Role).FirstOrDefaultAsync();
-            
-            if (userRole == Role.Viewer)
-            {
-                return new ServiceResponse<bool>
-                {
-                    Success = false,
-                    Message = CommonErrors.ImATeapot
-                };
-            }
-
-            return new ServiceResponse<bool> { Success = true };
         }
     }
 }

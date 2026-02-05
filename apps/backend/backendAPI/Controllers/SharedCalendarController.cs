@@ -1,8 +1,10 @@
 ﻿using backend.Context;
+using backend.DTOs;
 using backend.DTOs.SharedCalendar;
 using backend.Extensions;
 using backend.Models;
 using backend.Services;
+using backend.Services.SharedCalendar;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +13,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SharedCalendarController(AppDbContext context) : ControllerBase
+    public class SharedCalendarController(AppDbContext context, ISharedCalendarValidationService sharedCalendarValidation) : ControllerBase
     {
         [HttpPost]
         [Authorize]
@@ -61,17 +63,30 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var sharedCalendar = await context.SharedCalendars
-                .FirstOrDefaultAsync(sc => sc.CalendarId == id && sc.ProfileId == profileId.Value);
-
-            if (sharedCalendar == null)
+            var sharedCalendar = await sharedCalendarValidation.FindSharedCalendar(profileId.Value, id);
+            if (!sharedCalendar.Success)
             {
-                return NotFound();
+                return NotFound(sharedCalendar.Message);
             }
 
-            sharedCalendar.Role = request.Role;
+            sharedCalendar.Data!.Role = request.Role;
 
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var validationResult = await sharedCalendarValidation.FindSharedCalendar(profileId.Value, id);
+                if (!validationResult.Success)
+                {
+                    return NotFound(validationResult.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return Ok();
         }
@@ -99,7 +114,6 @@ namespace backend.Controllers
 
             return NoContent();
         }
-
         //[HttpGet]
         //[Authorize]
         //public async Task<ActionResult<IEnumerable<GetAllSharedCalendarDto>>> GetAllSharedCalendarsForUser()

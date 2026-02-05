@@ -54,7 +54,7 @@ namespace backend.Services.Registration
                     Color = 1,
                     ProfileId = profile.Id,
                 };
-                var validCalendar = cVservice.ValidateCalendarCreationAsync(calendar);
+                var validCalendar = cVservice.ValidateCalendarCreation(calendar);
                 if (!validCalendar.Success)
                 {
                     throw new Exception(validCalendar.Message);

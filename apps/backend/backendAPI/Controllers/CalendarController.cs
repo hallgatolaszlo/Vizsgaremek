@@ -32,21 +32,24 @@ namespace backend.Controllers
             {
                 return Unauthorized();
             }
-            IEnumerable<GetCalendarDTO> owncalendars = await context.Calendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDTO
-            {
-                Id = x.Id,
-                Color = x.Color,
-                Name = x.Name,
-            }).ToListAsync();
 
-            IEnumerable<GetCalendarDTO> sharedCalendars = await context.SharedCalendars.Where(x => x.ProfileId == profileId).Select(x => new GetCalendarDTO
-            {
-                Id = x.CalendarId,
-                Name = x.Calendar!.Name,
-                Color = x.Calendar!.Color,
-            }).ToListAsync();
-
-            IEnumerable<GetCalendarDTO> calendars = [.. owncalendars, .. sharedCalendars];
+            var calendars = await context.Calendars
+                .Where(x => x.ProfileId == profileId)
+                .Select(x => new GetCalendarDTO
+                    {
+                        Id = x.Id,
+                        Color = x.Color,
+                        Name = x.Name,
+                    })
+                .Union(context.SharedCalendars
+                    .Where(x => x.ProfileId == profileId)
+                    .Select(x => new GetCalendarDTO
+                        {
+                            Id = x.CalendarId,
+                            Name = x.Calendar!.Name,
+                            Color = x.Calendar!.Color,
+                        }))
+                .ToListAsync();
 
             return Ok(calendars);
         }
@@ -61,10 +64,10 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var validationReponse = calendarValidation.ValidateCalendarCreationAsync(request);
-            if (!validationReponse.Success)
+            var validationResult = calendarValidation.ValidateCalendarCreation(request);
+            if (!validationResult.Success)
             {
-                return BadRequest(validationReponse.Message);
+                return BadRequest(validationResult.Message);
             }
 
             var calendar = new Calendar
@@ -95,20 +98,13 @@ namespace backend.Controllers
                 return BadRequest(CommonErrors.InvalidRoute);
             }
 
-            var accessibleCalendars = await calendarValidation.GetAccessibleCalendarsAsync(profileId.Value, new List<Guid> { calendarId });
-
-            if(accessibleCalendars.Count == 0 || accessibleCalendars.Where(x=>x.CalendarId==calendarId && x.Role == Models.Enums.Role.Viewer).Any())
+            var calendarResult = await calendarValidation.ValidateAndGetCalendarForUpdateAsync(profileId.Value, request);
+            if (!calendarResult.Success)
             {
-                return BadRequest(CommonErrors.ImATeapot);
+                return BadRequest(calendarResult.Message);
             }
 
-            var validationResponse = await calendarValidation.ValidateCalendarUpdateAsync(request);
-            if (!validationResponse.Success)
-            {
-                return BadRequest(validationResponse.Message);
-            }
-
-            var calendar = validationResponse.Data!;
+            var calendar = calendarResult.Data!;
 
             calendar.Name = request.Name;
             calendar.Color = request.Color;
@@ -145,17 +141,10 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var calendar = await context.Calendars.FindAsync(calendarId);
-            if (calendar == null)
+            var calendarResult = await calendarValidation.ValidateAndGetCalendarForDeletionAsync(profileId.Value, calendarId);
+            if (!calendarResult.Success)
             {
-                return NotFound("Calendar not found");
-            }
-
-            var accessibleCalendars = await calendarValidation.GetAccessibleCalendarsAsync(profileId.Value, new List<Guid> { calendarId });
-
-            if (accessibleCalendars.Count == 0 || accessibleCalendars.Where(x => x.CalendarId == calendarId && x.Role == Models.Enums.Role.Viewer).Any())
-            {
-                return BadRequest(CommonErrors.ImATeapot);
+                return BadRequest(calendarResult.Message);
             }
 
             var entries = await context.CalendarEntries.Where(x => x.CalendarId == calendarId).ToListAsync();
@@ -170,7 +159,7 @@ namespace backend.Controllers
                 context.SharedCalendars.RemoveRange(sharedCalendars);
             }
 
-            context.Calendars.Remove(calendar);
+            context.Calendars.Remove(calendarResult.Data!);
             await context.SaveChangesAsync();
 
             return NoContent();
