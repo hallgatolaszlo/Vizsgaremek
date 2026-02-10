@@ -30,7 +30,7 @@ namespace backend.Services.Calendar
                 return new ServiceResponse<Models.Calendar> { Success = false, Message = calendar.Message };
             }
 
-            var validateUserRole = await ValidateCalendarRoleAsync(createdBy, calendarDTO.Id);
+            var validateUserRole = await ValidateCalendarEditingPermissionAsync(createdBy, calendarDTO.Id);
             if (!validateUserRole.Success) 
             {
                 return new ServiceResponse<Models.Calendar> { Success = false, Message = validateUserRole.Message };
@@ -52,7 +52,7 @@ namespace backend.Services.Calendar
 
             return new ServiceResponse<bool> { Success = true };
         }
-        public async Task<ServiceResponse<bool>> ValidateCalendarRoleAsync(Guid createdBy, Guid calendarId)
+        public async Task<ServiceResponse<bool>> ValidateCalendarEditingPermissionAsync(Guid createdBy, Guid calendarId)
         {
             var isOwner = await context.Calendars.AnyAsync(x => x.Id == calendarId && x.ProfileId == createdBy);
             if (isOwner)
@@ -109,7 +109,7 @@ namespace backend.Services.Calendar
                 };
             }
 
-            var validateUser = await ValidateCalendarRoleAsync(createdBy, calendarId);
+            var validateUser = await ValidateCalendarEditingPermissionAsync(createdBy, calendarId);
             if (!validateUser.Success)
             {
                 return new ServiceResponse<Models.Calendar> { Success = false, Message = validateUser.Message };

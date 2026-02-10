@@ -225,7 +225,7 @@ namespace backend.Controllers
                 return NotFound("Entry not found");
             }
 
-            var validUser = await calendarValidation.ValidateCalendarRoleAsync(profileId!.Value, calendarEntry.CalendarId);
+            var validUser = await calendarValidation.ValidateCalendarEditingPermissionAsync(profileId!.Value, calendarEntry.CalendarId);
             if (!validUser.Success)
             {
                 return Forbid(CommonErrors.ImATeapot);

@@ -12,7 +12,7 @@ namespace backend.Services.Calendar
         Task<ServiceResponse<Models.Calendar>> ValidateAndGetCalendarForUpdateAsync(Guid createdBy, UpdateCalendarDTO calendarDTO);
         Task<bool> HasCalendarAccessAsync(Guid profileId, Guid calendarId);
         Task<List<AccessibleCalendarDTO>> GetAccessibleCalendarsAsync(Guid profileId, IEnumerable<Guid> calendarIds);
-        Task<ServiceResponse<bool>> ValidateCalendarRoleAsync(Guid createdBy, Guid calendarId);
+        Task<ServiceResponse<bool>> ValidateCalendarEditingPermissionAsync(Guid createdBy, Guid calendarId);
         Task<ServiceResponse<Models.Calendar>> ValidateAndGetCalendarForDeletionAsync(Guid createdBy, Guid calendarId);
     }
 }

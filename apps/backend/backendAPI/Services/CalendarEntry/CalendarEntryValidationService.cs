@@ -36,7 +36,7 @@ namespace backend.Services.CalendarEntry
         {
             var response = new ServiceResponse<bool>();
 
-            var validUser = await calendarValidation.ValidateCalendarRoleAsync(createdBy, calendarId);
+            var validUser = await calendarValidation.ValidateCalendarEditingPermissionAsync(createdBy, calendarId);
             if (!validUser.Success)
             {
                 response.Success = false;
