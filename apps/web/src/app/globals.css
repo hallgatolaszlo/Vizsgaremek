@@ -114,11 +114,30 @@
 	color: var(--color12) !important;
 }
 
+.react-datepicker__input-time-container {
+	min-width: 100% !important;
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+}
+
 .react-datepicker__input-time-container,
 .react-datepicker-time__input {
 	background-color: var(--color2) !important;
 	color: var(--color12) !important;
 	margin: 0 !important;
+	padding: 5px 0 !important;
+	border: 0 !important;
+}
+
+input.react-datepicker-time__input {
+	border: 1px solid var(--color5) !important;
+	border-radius: 5.5px !important;
+	padding: 5px 8px !important;
+}
+
+.react-datepicker-time__caption {
+	padding: 0 8px !important;
 }
 
 .react-datepicker__day:hover,
