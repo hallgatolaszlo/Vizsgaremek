@@ -76,6 +76,7 @@ export function CreateCalendarEntryForm() {
 	const [error, setError] = useState<string | null>(null);
 	const [selectedCalendar, setSelectedCalendar] =
 		useState<GetCalendarDTO | null>(myCalendars.data?.[0] || null);
+	const [useCalendarColor, setUseCalendarColor] = useState(true);
 
 	const startDate = useContextMenuStore((state) => state.date);
 	startDate?.setHours(new Date().getHours(), 0, 0, 0);
@@ -127,30 +128,31 @@ export function CreateCalendarEntryForm() {
 	type FormData = z.infer<typeof createCalendarEntrySchema>;
 
 	async function onSubmit(data: FormData) {
-		const startDate = data.startDate!.toISOString();
-		let endDate: string | undefined = undefined;
+		let startDate: Date = new Date(data.startDate);
+		let endDate: Date | undefined = data.endDate
+			? new Date(data.endDate)
+			: undefined;
 
-		if (
-			data.entryCategory === "Task" ||
-			data.entryCategory === "None" ||
-			data.entryCategory === "Event"
-		) {
-			if (data.isAllDay) {
-				endDate = undefined;
-			} else {
-				endDate = data.endDate!.toISOString();
+		if (data.isAllDay) {
+			startDate.setHours(0, 0, 0, 0);
+			endDate = new Date(startDate);
+			endDate.setHours(23, 59, 59, 999);
+		} else {
+			if (
+				data.endDate &&
+				(data.entryCategory === "Task" ||
+					data.entryCategory === "None" ||
+					data.entryCategory === "Event")
+			) {
+				endDate = data.endDate!;
 			}
-		} else if (
-			data.entryCategory === "BirthDay" ||
-			data.entryCategory === "Anniversary"
-		) {
-			endDate = undefined;
 		}
 
 		const request: CreateCalendarEntryDTO = {
 			...data,
-			startDate: startDate,
-			endDate: endDate,
+			color: useCalendarColor ? null : data.color,
+			startDate: startDate?.toISOString(),
+			endDate: endDate?.toISOString(),
 		};
 		createCalendarEntryMutation.mutate(request);
 	}
@@ -348,8 +350,12 @@ export function CreateCalendarEntryForm() {
 										: "en"
 								}
 								timeInputLabel="Time:"
-								dateFormat="MM/dd/yyyy hh:mm aa"
-								showTimeInput
+								dateFormat={
+									isAllDay
+										? "MM/dd/yyyy"
+										: "MM/dd/yyyy hh:mm aa"
+								}
+								showTimeInput={!isAllDay}
 								className="custom-datepicker"
 								wrapperClassName="custom-datepicker-wrapper"
 							/>
@@ -377,13 +383,36 @@ export function CreateCalendarEntryForm() {
 							)}
 						/>
 					)}
-					<Controller
-						control={control}
-						name="color"
-						render={({ field: { onChange, value } }) => (
-							<ColorSelect value={value} onChange={onChange} />
-						)}
-					/>
+					<XStack style={{ alignItems: "center" }} gap="$2">
+						<Checkbox
+							id="useCalendarColorCheckbox"
+							checked={useCalendarColor}
+							onCheckedChange={(value) => {
+								setUseCalendarColor(
+									value === "indeterminate" ? false : value,
+								);
+							}}
+						>
+							<Checkbox.Indicator>
+								<Check />
+							</Checkbox.Indicator>
+						</Checkbox>
+						<Label htmlFor="useCalendarColorCheckbox">
+							Use calendar color
+						</Label>
+					</XStack>
+					{!useCalendarColor && (
+						<Controller
+							control={control}
+							name="color"
+							render={({ field: { onChange, value } }) => (
+								<ColorSelect
+									value={value}
+									onChange={onChange}
+								/>
+							)}
+						/>
+					)}
 					<StyledButton
 						onPress={handleSubmit(onSubmit)}
 						disabled={createCalendarEntryMutation.isPending}

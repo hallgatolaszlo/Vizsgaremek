@@ -83,12 +83,11 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 			<XStack
 				flex={1}
 				gap={"$2"}
-				style={{
-					backgroundColor: "var(--color2)",
-					padding: 10,
-					border: "2px solid var(--color5)",
-					borderRadius: 10,
-				}}
+				bg="$color2"
+				p="$2"
+				borderWidth={2}
+				borderColor="$color5"
+				borderRadius="$2"
 			>
 				<Controller
 					control={control}

@@ -2,7 +2,7 @@
 
 import { config } from "@repo/config";
 import { useAuthStore, useContextMenuStore, useDialogStore } from "@repo/hooks";
-import { NextThemeProvider, useRootTheme } from "@tamagui/next-theme";
+import { NextThemeProvider, useThemeSetting } from "@tamagui/next-theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { OrbitProgress } from "react-loading-indicators";
@@ -117,7 +117,8 @@ function MainView({ children }: { children: React.ReactNode }) {
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const [queryClient] = useState(() => new QueryClient());
-	const [theme] = useRootTheme();
+	const { resolvedTheme } = useThemeSetting();
+	const theme = resolvedTheme === "dark" ? "dark" : "light";
 
 	const verifyAuth = useAuthStore((state) => state.verifyAuth);
 	const isLoading = useAuthStore((state) => state.isLoading);
@@ -144,15 +145,15 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<QueryClientProvider client={queryClient}>
-			<TamaguiProvider config={config} defaultTheme={theme}>
+		<TamaguiProvider config={config} defaultTheme={theme} key={theme}>
+			<QueryClientProvider client={queryClient}>
 				<MainView>
 					<ContextMenu />
 					<Navbar />
 					{children}
 				</MainView>
-			</TamaguiProvider>
-		</QueryClientProvider>
+			</QueryClientProvider>
+		</TamaguiProvider>
 	);
 }
 
