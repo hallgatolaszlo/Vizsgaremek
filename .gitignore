@@ -89,3 +89,5 @@ Thumbs.db
 .tamagui/
 apps/web/public/tamagui.css
 packages/types/src/swagger.ts
+
+.next

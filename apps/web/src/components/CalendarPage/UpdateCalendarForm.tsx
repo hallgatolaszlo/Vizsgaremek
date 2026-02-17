@@ -141,6 +141,7 @@ export function UpdateCalendarForm({
 		onSuccess: () => {
 			reset();
 			queryClient.invalidateQueries({ queryKey: ["myCalendars"] });
+			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 			onSuccess?.(); // Call the callback to close the popover
 		},
 		onError: (err) => {
