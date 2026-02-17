@@ -218,15 +218,7 @@ namespace backend.Services.Auth
         // Validate email format
         private bool IsValidEmail(string email)
         {
-            try
-            {
-                var addr = new MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
+            return Regex.IsMatch(email, @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*" + "@" + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$");
         }
 
         // Validate password strength

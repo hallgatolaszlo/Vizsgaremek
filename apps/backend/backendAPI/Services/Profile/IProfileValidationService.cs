@@ -7,5 +7,6 @@ namespace backend.Services.Profile
     {
         Task<ServiceResponse<bool>> ValidateProfileCreationAsync(Models.Profile profileDTO);
         Task<ServiceResponse<Models.Profile>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO);
+        Task<bool> ValidateUniqueUsername(string name, Guid? id = null);
     }
 }

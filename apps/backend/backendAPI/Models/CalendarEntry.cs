@@ -18,8 +18,7 @@ namespace backend.Models
         public DateTime EndDate { get; set; }
         public string? Location { get; set; }
         public DateTime? NotificationTime { get; set; }
-        [Range(1, 12)]
-        public int Color { get; set; } = 1;
+        public int? Color { get; set; }
         public bool? IsCompleted { get; set; }
         public bool IsAllDay { get; set; } = true;
         public Guid CalendarId { get; set; }

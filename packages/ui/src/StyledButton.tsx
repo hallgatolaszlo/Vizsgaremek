@@ -7,8 +7,12 @@ export function StyledButton(props: ButtonProps) {
 			{...props}
 			bg={props.bg ?? "$color4"}
 			hoverStyle={{
-				bg: "$color5",
+				bg: "$accent5",
 				borderColor: "$color8",
+				outlineWidth: 2,
+				outlineOffset: -2,
+				outlineColor: "$accent9",
+				outlineStyle: "solid",
 				...props.hoverStyle,
 			}}
 		/>

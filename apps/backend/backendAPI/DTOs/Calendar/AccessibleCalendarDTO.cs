@@ -2,7 +2,7 @@
 
 namespace backend.DTOs.Calendar
 {
-    public class CreateSharedCalendarDTO
+    public class AccessibleCalendarDTO
     {
         public Guid CalendarId { get; set; }
         public Role Role { get; set; }

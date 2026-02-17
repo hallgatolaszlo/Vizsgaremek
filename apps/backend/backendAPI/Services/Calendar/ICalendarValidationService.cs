@@ -7,10 +7,12 @@ namespace backend.Services.Calendar
 {
     public interface ICalendarValidationService
     {
-        ServiceResponse<bool> ValidateCalendarCreationAsync(Models.Calendar calendarDTO);
-        ServiceResponse<bool> ValidateCalendarCreationAsync(CreateCalendarDTO calendarDTO);
-
-        Task<ServiceResponse<Models.Calendar>> ValidateCalendarUpdateAsync(UpdateCalendarDTO calendarDTO);
-        //Task<ServiceResponse<bool>> ValidateCalendarUpdateAsync(UpdateCalendarDTO updateCalendarDTO);
+        ServiceResponse<bool> ValidateCalendarCreation(Models.Calendar calendarDTO);
+        ServiceResponse<bool> ValidateCalendarCreation(CreateCalendarDTO calendarDTO);
+        Task<ServiceResponse<Models.Calendar>> ValidateAndGetCalendarForUpdateAsync(Guid createdBy, UpdateCalendarDTO calendarDTO);
+        Task<bool> HasCalendarAccessAsync(Guid profileId, Guid calendarId);
+        Task<List<AccessibleCalendarDTO>> GetAccessibleCalendarsAsync(Guid profileId, IEnumerable<Guid> calendarIds);
+        Task<ServiceResponse<bool>> ValidateCalendarEditingPermissionAsync(Guid createdBy, Guid calendarId);
+        Task<ServiceResponse<Models.Calendar>> ValidateAndGetCalendarForDeletionAsync(Guid createdBy, Guid calendarId);
     }
 }

@@ -1,9 +1,10 @@
 ﻿using backend.Context;
-using backend.DTOs.Calendar;
+using backend.DTOs;
 using backend.DTOs.SharedCalendar;
 using backend.Extensions;
 using backend.Models;
 using backend.Services;
+using backend.Services.SharedCalendar;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,26 +13,41 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SharedCalendarController(AppDbContext context) : ControllerBase
+    public class SharedCalendarController(AppDbContext context, ISharedCalendarValidationService sharedCalendarValidation) : ControllerBase
     {
         [HttpPost]
         [Authorize]
         public async Task<ActionResult> CreateSharedCalendar(CreateSharedCalendarDTO request)
         {
-            var profileId = this.GetProfileId();
-            if (profileId == null)
+            if (request.Accounts == null || request.Accounts.Count == 0)
             {
-                return Unauthorized();
+                return BadRequest("At least one account is required.");
             }
 
-            var sharedCalendar = new SharedCalendar
+            var calendarExists = await context.Calendars.AnyAsync(c => c.Id == request.CalendarId);
+            if (!calendarExists)
             {
-                ProfileId = profileId.Value,
-                CalendarId = request.CalendarId,
-                Role = request.Role,
-            };
+                return NotFound("Calendar not found.");
+            }
 
-            context.SharedCalendars.Add(sharedCalendar);
+            var sharedCalendars = new List<SharedCalendar>();
+
+            foreach (var item in request.Accounts)
+            {
+                if (!Guid.TryParse(item.ProfileId, out var profileId))
+                {
+                    return BadRequest($"Invalid ProfileId: {item.ProfileId}");
+                }
+
+                sharedCalendars.Add(new SharedCalendar
+                {
+                    ProfileId = profileId,
+                    CalendarId = request.CalendarId,
+                    Role = item.Role,
+                });
+            }
+
+            context.SharedCalendars.AddRange(sharedCalendars);
             await context.SaveChangesAsync();
 
             return Ok();
@@ -47,17 +63,30 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var sharedCalendar = await context.SharedCalendars
-                .FirstOrDefaultAsync(sc => sc.CalendarId == id && sc.ProfileId == profileId.Value);
-
-            if (sharedCalendar == null)
+            var sharedCalendar = await sharedCalendarValidation.FindSharedCalendar(profileId.Value, id);
+            if (!sharedCalendar.Success)
             {
-                return NotFound();
+                return NotFound(sharedCalendar.Message);
             }
 
-            sharedCalendar.Role = request.Role;
+            sharedCalendar.Data!.Role = request.Role;
 
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var validationResult = await sharedCalendarValidation.FindSharedCalendar(profileId.Value, id);
+                if (!validationResult.Success)
+                {
+                    return NotFound(validationResult.Message);
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return Ok();
         }
@@ -85,7 +114,6 @@ namespace backend.Controllers
 
             return NoContent();
         }
-
         //[HttpGet]
         //[Authorize]
         //public async Task<ActionResult<IEnumerable<GetAllSharedCalendarDto>>> GetAllSharedCalendarsForUser()

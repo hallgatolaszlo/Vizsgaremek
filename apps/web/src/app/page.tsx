@@ -1,5 +1,5 @@
 "use client";
-import { FullscreenView } from "@/src/components/ui/FullscreenView";
+import { FullscreenView } from "@/src/components/FullscreenView";
 import { H1 } from "tamagui";
 
 export default function Home() {

@@ -57,10 +57,8 @@ namespace backend.Migrations
                     b.Property<Guid>("CalendarId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Color")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
+                    b.Property<int?>("Color")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
@@ -155,9 +153,7 @@ namespace backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<int>("Color")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
+                        .HasColumnType("integer");
 
                     b.Property<int?>("Days")
                         .HasColumnType("integer");
