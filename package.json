@@ -24,5 +24,8 @@
 		"openapi-typescript": "catalog:",
 		"turbo": "catalog:",
 		"wait-on": "catalog:"
+	},
+	"dependencies": {
+		"@microsoft/signalr": "^10.0.0"
 	}
 }

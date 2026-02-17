@@ -2,12 +2,14 @@
 using backend.DTOs;
 using backend.DTOs.Friend;
 using backend.Extensions;
+using backend.Hubs;
 using backend.Models;
 using backend.Models.Enums;
 using backend.Services;
 using backend.Services.Friend;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol;
 
@@ -15,7 +17,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FriendsController(AppDbContext context, ICommonValidationService commonValidation, IFriendValidationService friendValidation) : ControllerBase
+    public class FriendsController(AppDbContext context, ICommonValidationService commonValidation, IFriendValidationService friendValidation, IHubContext<NotificationHub> hubContext) : ControllerBase
     {
         [HttpGet]
         [Authorize]
@@ -56,7 +58,7 @@ namespace backend.Controllers
             return Ok(friends);
         }
 
-        [HttpPost]
+        [HttpPost("friend-request")]
         [Authorize]
         public async Task<ActionResult> AddFriend(AddFriendDTO request)
         {
@@ -82,6 +84,15 @@ namespace backend.Controllers
 
             context.Friends.Add(friend);
             await context.SaveChangesAsync();
+
+            await hubContext.Clients.User(request.ProfileId.ToString())
+                .SendAsync("ReceiveNotification", new 
+                { 
+                    Type = "FriendRequest", 
+                    Name = await context.Profiles.Where(x=> x.Id == profileId).Select(x=>x.Username).FirstOrDefaultAsync(), 
+                    Message = "Sent you a friend request!", 
+                    SentAt = DateTime.UtcNow 
+                });
 
             return Ok();
         }

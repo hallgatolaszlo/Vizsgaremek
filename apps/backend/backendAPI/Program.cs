@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using backend.Context;
+using backend.Hubs;
 using backend.Services;
 using backend.Services.Auth;
 using backend.Services.Calendar;
@@ -12,6 +13,7 @@ using backend.Services.Profile;
 using backend.Services.Registration;
 using backend.Services.SharedCalendar;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -101,6 +103,18 @@ namespace backend
                         // Try to get token from cookie first
                         context.Token = context.Request.Cookies["accessToken"];
 
+                        // Fallback to SignalR
+                        if (string.IsNullOrEmpty(context.Token))
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notifications"))
+                            {
+                                context.Token = accessToken;
+                            }
+                        }
+
                         // Fallback to Authorization header (useful for testing with Swagger)
                         if (string.IsNullOrEmpty(context.Token))
                         {
@@ -115,6 +129,10 @@ namespace backend
                     }
                 };
             });
+
+            //signalR for live requests
+            builder.Services.AddSignalR();
+            builder.Services.AddSingleton<IUserIdProvider, CustomUserProvider>();
 
             builder.Services
                 .AddScoped<IAuthService, AuthService>()
@@ -141,6 +159,7 @@ namespace backend
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapHub<NotificationHub>("/notifications");
 
             app.MapControllers();
 
