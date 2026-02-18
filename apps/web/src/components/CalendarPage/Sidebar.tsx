@@ -168,25 +168,30 @@ function CalendarListItem({
 					</Popover.Trigger>
 					<Popover.Content
 						style={{
-							borderWidth: 2,
-							borderStyle: "solid",
-							borderColor: "var(--color5)",
-							borderRadius: 0,
-							padding: 0,
+							outlineWidth: 2,
+							outlineColor: "var(--color5)",
+							outlineStyle: "solid",
+							borderRadius: 10,
+							padding: 3,
 						}}
 						elevate
 						animation={FADE_ANIMATION}
 					>
-						<ListItem p={0}>
+						<ListItem
+							p={0}
+							style={{
+								borderTopLeftRadius: 10,
+								borderTopRightRadius: 10,
+							}}
+						>
 							<StyledButton
 								iconAfter={<SquarePen />}
 								width={"100%"}
-								borderTopLeftRadius={0}
-								borderTopRightRadius={0}
-								borderBottomLeftRadius={0}
-								borderBottomRightRadius={0}
 								bg={"$color2"}
-								hoverStyle={{ bg: "$color3", outlineWidth: 0 }}
+								hoverStyle={{
+									bg: "$color3",
+									outlineWidth: 0,
+								}}
 								style={{
 									display: "flex",
 									justifyContent: "space-between",
@@ -198,16 +203,21 @@ function CalendarListItem({
 								<Text fontWeight={"$2"}>Edit</Text>
 							</StyledButton>
 						</ListItem>
-						<ListItem p={0}>
+						<ListItem
+							p={0}
+							style={{
+								borderBottomLeftRadius: 10,
+								borderBottomRightRadius: 10,
+							}}
+						>
 							<StyledButton
 								iconAfter={<Trash />}
 								width={"100%"}
-								borderTopLeftRadius={0}
-								borderTopRightRadius={0}
-								borderBottomLeftRadius={0}
-								borderBottomRightRadius={0}
 								bg={"$color2"}
-								hoverStyle={{ bg: "$color3", outlineWidth: 0 }}
+								hoverStyle={{
+									bg: "$color3",
+									outlineWidth: 0,
+								}}
 								style={{
 									display: "flex",
 									justifyContent: "space-between",

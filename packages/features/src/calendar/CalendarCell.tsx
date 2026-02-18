@@ -126,7 +126,6 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		(d) =>
 			new Date(d.startDate!).toDateString() ===
 				cell.date.toDateString() &&
-			d.isAllDay &&
 			d.calendarId &&
 			checkedCalendarIds.includes(d.calendarId),
 	);
