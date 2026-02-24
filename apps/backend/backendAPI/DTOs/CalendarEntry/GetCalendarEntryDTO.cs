@@ -16,6 +16,8 @@ namespace backend.DTOs.CalendarEntry
         public bool? IsCompleted { get; set; }
         public bool? IsAllDay { get; set; }
         public Guid CalendarId { get; set; }
+        public required string CalendarName { get; set; }
         public Guid CreatedBy { get; set; }
+        public required string CreatedByName { get; set; }
     }
 }

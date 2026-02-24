@@ -1,7 +1,7 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { generateGrid, isNative, Week } from "@repo/utils";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
 
@@ -171,6 +171,72 @@ interface CalendarProps {
     grid?: Record<string, CalendarCellProps[]>;
 }
 
+const ENTRY_HEIGHT = 25;
+const HEADER_HEIGHT = 40;
+
+interface CalendarRowProps {
+    weekNumber: string;
+    row: CalendarCellProps[];
+    gap: "$1" | 0;
+    sidebarWidth: "$4" | "$6";
+    baseCellStyle: object;
+    style?: React.CSSProperties;
+}
+
+function CalendarRow({
+    weekNumber,
+    row,
+    gap,
+    sidebarWidth,
+    baseCellStyle,
+    style,
+}: CalendarRowProps) {
+    const [entryCounts, setEntryCounts] = useState<number[]>(row.map(() => 0));
+
+    const handleEntryCountChange = useCallback(
+        (index: number, count: number) => {
+            setEntryCounts((prev) => {
+                const next = [...prev];
+                next[index] = count;
+                return next;
+            });
+        },
+        [],
+    );
+
+    const maxEntries = Math.max(...entryCounts, 0);
+    const rowMinHeight = HEADER_HEIGHT + maxEntries * ENTRY_HEIGHT;
+
+    return (
+        <XStack gap={gap} style={style}>
+            <WeekNumberSidebar
+                weekNumber={weekNumber}
+                width={sidebarWidth}
+                borderTopWidth={BORDER_WIDTH}
+            />
+            {row.map((cell, i) => (
+                <CalendarCell
+                    key={i}
+                    cell={cell}
+                    visibleCount={Infinity}
+                    onEntryCountChange={(count) =>
+                        handleEntryCountChange(i, count)
+                    }
+                    style={{
+                        ...baseCellStyle,
+                        borderLeftWidth: BORDER_WIDTH,
+                        borderTopWidth: BORDER_WIDTH,
+                        borderBottomWidth: BORDER_WIDTH,
+                        borderRightWidth:
+                            i === row.length - 1 ? BORDER_WIDTH : 0,
+                        minHeight: rowMinHeight,
+                    }}
+                />
+            ))}
+        </XStack>
+    );
+}
+
 export function Calendar({ grid }: CalendarProps) {
     const { selectedDate, viewType } = useCalendarStore();
     const { locale, weekStartsOn, hour12 } = useProfileStore();
@@ -285,42 +351,15 @@ export function Calendar({ grid }: CalendarProps) {
                     {WeekdayHeader}
                 </XStack>
                 {gridEntries.map(([weekNumber, row], rowIndex) => (
-                    <XStack
+                    <CalendarRow
                         key={rowIndex}
-                        style={{
-                            marginRight: "var(--scrollbar-width)",
-                            height: "fit-content",
-                        }}
-                    >
-                        <WeekNumberSidebar
-                            weekNumber={weekNumber}
-                            width={sidebarWidth}
-                            borderTopWidth={BORDER_WIDTH}
-                            borderBottomWidth={BORDER_WIDTH}
-                        />
-                        {row.map((cell, i) => {
-                            return (
-                                <CalendarCell
-                                    key={i}
-                                    cell={cell}
-                                    style={{
-                                        ...baseCellStyle,
-                                        maxHeight: "fit-content",
-                                        borderLeftWidth: BORDER_WIDTH,
-                                        borderTopWidth: BORDER_WIDTH,
-                                        borderBottomWidth:
-                                            rowIndex === gridEntries.length - 1
-                                                ? BORDER_WIDTH
-                                                : 0,
-                                        borderRightWidth:
-                                            i === row.length - 1
-                                                ? BORDER_WIDTH
-                                                : 0,
-                                    }}
-                                />
-                            );
-                        })}
-                    </XStack>
+                        weekNumber={weekNumber}
+                        row={row}
+                        gap={gap}
+                        sidebarWidth={sidebarWidth}
+                        baseCellStyle={baseCellStyle}
+                        style={{ marginRight: "var(--scrollbar-width)" }}
+                    />
                 ))}
                 <HourlyScrollView
                     locale={locale}

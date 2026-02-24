@@ -54,6 +54,7 @@
     min-width: 100% !important;
     border: none !important;
     border-radius: 0 !important;
+    z-index: 10000000000000000000000000000000000000000000000000000000000000 !important;
 }
 
 .react-datepicker-popper {
@@ -152,8 +153,9 @@ input.react-datepicker-time__input {
 }
 
 .react-datepicker__input-container {
-    min-width: 100% !important;
+    width: 100% !important;
     height: 100% !important;
+    flex-shrink: 1 !important;
 }
 
 .react-datepicker__header {

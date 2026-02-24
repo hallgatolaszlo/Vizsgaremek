@@ -7,7 +7,10 @@ interface CustomDialog {
     description?: string | undefined;
     content?: React.ReactNode;
     children?: React.ReactNode;
+    onPointerDownOutside?: (e: PointerDownOutsideEvent) => void;
 }
+
+type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
 
 export default function CustomDialog({
     isDialogOpen,
@@ -16,6 +19,7 @@ export default function CustomDialog({
     description,
     content,
     children,
+    onPointerDownOutside,
 }: CustomDialog) {
     return (
         <Dialog
@@ -42,7 +46,11 @@ export default function CustomDialog({
                         enterStyle={{ opacity: 0 }}
                         exitStyle={{ opacity: 0 }}
                     />
-                    <Dialog.Content key={"dialogcontent"}>
+                    <Dialog.Content
+                        key={"dialogcontent"}
+                        onPointerDownOutside={onPointerDownOutside}
+                        style={{ maxHeight: "100vh" }}
+                    >
                         <Dialog.Title key={"dialogtitle"}>
                             {title ? (
                                 title

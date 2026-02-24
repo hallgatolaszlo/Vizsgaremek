@@ -13,6 +13,8 @@ import { CalendarEntry } from "./CalendarEntry";
 
 interface CalendarCellComponentProps extends CardProps {
     cell: CalendarCellProps;
+    visibleCount?: number;
+    onEntryCountChange?: (count: number) => void;
 }
 
 export default function CalendarCell(props: CalendarCellComponentProps) {
@@ -26,7 +28,11 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
     const { locale } = useProfileStore();
     const { setFieldType, setDate } = useContextMenuStore();
 
-    const { cell } = props;
+    const {
+        cell,
+        visibleCount: externalVisibleCount,
+        onEntryCountChange,
+    } = props;
 
     const myCalendars = useCalendars();
     const calendarEntries = useCalendarEntries(myCalendars);
@@ -136,6 +142,14 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 
     useEffect(() => {
         if (viewType != "month" && viewType != "multiweek") return;
+        if (onEntryCountChange) {
+            onEntryCountChange(filteredEntries?.length ?? 0);
+        }
+    }, [filteredEntries?.length]);
+
+    useEffect(() => {
+        if (viewType != "month" && viewType != "multiweek") return;
+        if (externalVisibleCount !== undefined) return; // skip if controlled externally
 
         const cardElement = cardRef.current;
         if (!cardElement) return;
@@ -158,9 +172,11 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 
         observer.observe(cardElement);
         return () => observer.disconnect();
-    }, [filteredEntries?.length]);
+    }, [filteredEntries?.length, externalVisibleCount]);
 
-    const visibleEntries = filteredEntries?.slice(0, visibleCount) ?? [];
+    const resolvedVisibleCount = externalVisibleCount ?? visibleCount;
+    const visibleEntries =
+        filteredEntries?.slice(0, resolvedVisibleCount) ?? [];
     const hiddenCount = (filteredEntries?.length ?? 0) - visibleEntries.length;
 
     return (
@@ -205,13 +221,19 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
             </AnimatePresence>
             {hiddenCount > 0 && (
                 <Text
-                    fontSize="$1"
-                    color="$color11"
-                    px="$2"
-                    py="$1"
-                    style={{ userSelect: "none" }}
+                    style={{
+                        userSelect: "none",
+                        height: "fit-content",
+                        paddingLeft: "10px",
+                        borderRadius: "10px",
+                    }}
+                    hoverStyle={{
+                        background: "grey",
+                        transition: "background 250ms ease",
+                    }}
+                    onPress={(e) => e.stopPropagation()}
                 >
-                    {hiddenCount} more
+                    {hiddenCount} more...
                 </Text>
             )}
         </Card>

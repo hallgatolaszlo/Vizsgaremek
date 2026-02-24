@@ -1,3 +1,4 @@
+import CalendarEntryDetail from "@/src/components/CalendarPage/CalendarEntryDetail";
 import CustomDialog from "@/src/components/CalendarPage/CustomDialog";
 import { useProfileStore } from "@repo/hooks";
 import { components } from "@repo/types";
@@ -45,12 +46,18 @@ export function CalendarEntry({ entry }: CalendarEntryProps) {
             style={{ backgroundColor }}
             className="entryCard"
             tabIndex={0}
+            onPress={(e) => e.stopPropagation()}
         >
             <CustomDialog
                 isDialogOpen={isDialogOpen}
                 setIsDialogOpen={setIsDialogOpen}
-                title={entryText() ?? "alma"}
-                content={<h1>Működik</h1>}
+                content={
+                    <CalendarEntryDetail
+                        entry={entry}
+                        onClose={() => setIsDialogOpen(false)}
+                    />
+                }
+                onPointerDownOutside={(e) => e.preventDefault()}
             >
                 <Dialog.Trigger asChild>
                     <Text

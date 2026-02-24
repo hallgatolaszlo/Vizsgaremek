@@ -63,7 +63,9 @@ namespace backend.Controllers
                     IsCompleted = x.IsCompleted,
                     IsAllDay = x.IsAllDay,
                     CalendarId = x.CalendarId,
-                    CreatedBy = x.CreatedBy
+                    CalendarName = x.Calendar!.Name,
+                    CreatedBy = x.CreatedBy,
+                    CreatedByName = x.Profile!.Username,
                 })
                 .ToListAsync();
 
@@ -118,7 +120,9 @@ namespace backend.Controllers
                     IsCompleted = x.IsCompleted,
                     IsAllDay = x.IsAllDay,
                     CalendarId = x.CalendarId,
-                    CreatedBy = x.CreatedBy
+                    CalendarName = x.Calendar!.Name,
+                    CreatedBy = x.CreatedBy,
+                    CreatedByName = x.Profile!.Username,
                 })
                 .ToListAsync();
 
@@ -191,6 +195,7 @@ namespace backend.Controllers
             calendarEntry.IsCompleted = dto.IsCompleted;
             calendarEntry.IsAllDay = dto.IsAllDay ?? true;
             calendarEntry.CreatedBy = profileId.Value;
+            calendarEntry.CalendarId = dto.CalendarId;
 
             try
             {
