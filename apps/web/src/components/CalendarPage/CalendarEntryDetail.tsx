@@ -39,7 +39,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
 type UpdateCalendarEntryDTO = components["schemas"]["UpdateCalendarEntryDTO"];
 type CalendarEntryCategory = components["schemas"]["EntryCategory"];
-type GetCalendarDTO = components["schemas"]["GetCalendarDTO"];
 
 interface CalendarEntryProps {
     entry: GetCalendarEntryDTO;
@@ -378,9 +377,6 @@ export default function CalendarEntryDetail({
                                                                 calendar.id ===
                                                                 value,
                                                         ) || null;
-                                                    setSelectedCalendar(
-                                                        calendar,
-                                                    );
                                                     if (calendar?.color) {
                                                         setValue(
                                                             "color",
@@ -501,7 +497,7 @@ export default function CalendarEntryDetail({
                                                     new Date(
                                                         value!.getTime() +
                                                             60 * 60 * 1000,
-                                                    ).toLocaleDateString(),
+                                                    ),
                                                 );
                                             }}
                                             locale={
