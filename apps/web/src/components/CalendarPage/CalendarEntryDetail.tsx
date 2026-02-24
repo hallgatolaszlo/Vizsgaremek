@@ -123,8 +123,6 @@ export default function CalendarEntryDetail({
         },
     });
     const myCalendars = useCalendars();
-    const [selectedCalendar, setSelectedCalendar] =
-        useState<GetCalendarDTO | null>(myCalendars.data?.[0] || null);
     const [error, setError] = useState<string | null>(null);
     const [useCalendarColor, setUseCalendarColor] = useState(true);
 
@@ -580,6 +578,16 @@ export default function CalendarEntryDetail({
                             </Text>
                         )}
                     </StyledButton>
+                    {error && (
+                        <Theme name="error">
+                            <Text
+                                style={{ textAlign: "center" }}
+                                color="$color9"
+                            >
+                                {error}
+                            </Text>
+                        </Theme>
+                    )}
                 </Form>
             ) : (
                 <YStack>
