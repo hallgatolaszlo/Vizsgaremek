@@ -3,7 +3,7 @@
 import { StyledButton } from "@repo/ui";
 import { Moon, Sun } from "@tamagui/lucide-icons";
 import { useThemeSetting } from "@tamagui/next-theme";
-import { Text } from "tamagui";
+import { Switch, XStack } from "tamagui";
 
 export function ThemeToggle({ circular = false }: { circular?: boolean }) {
 	const { resolvedTheme, set } = useThemeSetting();
@@ -26,26 +26,25 @@ export function ThemeToggle({ circular = false }: { circular?: boolean }) {
 	}
 
 	return (
-		<StyledButton
-			width={"100%"}
-			bg={"$color2"}
-			hoverStyle={{
-				bg: "$color3",
-				outlineWidth: 0,
-			}}
+		<XStack
 			style={{
 				display: "flex",
-				justifyContent: "space-between",
-			}}
-			scaleIcon={1.5}
-			iconAfter={resolvedTheme === "dark" ? Moon : Sun}
-			onPress={() => {
-				set(resolvedTheme === "dark" ? "light" : "dark");
+				alignItems: "center",
+				gap: 8,
+				padding: 4,
 			}}
 		>
-			<Text style={{ userSelect: "none" }}>
-				{resolvedTheme === "dark" ? "Dark Mode" : "Light Mode"}
-			</Text>
-		</StyledButton>
+			<Sun />
+			<Switch
+				checked={resolvedTheme === "dark"}
+				onPress={() => {
+					set(resolvedTheme === "dark" ? "light" : "dark");
+				}}
+				size="$4"
+			>
+				<Switch.Thumb animation="bouncy" />
+			</Switch>
+			<Moon />
+		</XStack>
 	);
 }

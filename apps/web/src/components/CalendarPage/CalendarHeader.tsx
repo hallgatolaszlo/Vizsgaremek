@@ -122,7 +122,7 @@ export default function CalendarHeader({
 
 	const ViewTypeToggle = () => {
 		return (
-			<View>
+			<View style={{ width: 120 }}>
 				<SelectElement
 					value={viewType}
 					onValueChange={(value) =>

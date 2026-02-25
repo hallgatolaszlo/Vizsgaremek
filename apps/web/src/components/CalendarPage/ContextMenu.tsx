@@ -1,11 +1,10 @@
 import { useContextMenuStore, useDialogStore } from "@repo/hooks";
+import { StyledButton } from "@repo/ui";
 import { Plus } from "@tamagui/lucide-icons";
-import { useState } from "react";
-import { Dialog, ListItem, YGroup } from "tamagui";
+import { Dialog, Text, YGroup } from "tamagui";
 import { CreateCalendarEntryForm } from "./CreateCalendarEntryForm";
 
 export default function ContextMenu() {
-	const [dialogOpen, setDialogOpen] = useState(false);
 	const { setContent } = useDialogStore();
 
 	const {
@@ -32,17 +31,20 @@ export default function ContextMenu() {
 			>
 				<YGroup.Item>
 					<Dialog.Trigger asChild scope="custom-dialog">
-						<ListItem
+						<StyledButton
 							height={"100%"}
 							icon={<Plus />}
-							title="New Event"
 							style={{ backgroundColor: "var(--color3)" }}
 							hoverStyle={{ bg: "$accent4" }}
 							onPress={() => {
 								hideMenu();
 								setContent(<CreateCalendarEntryForm />);
 							}}
-						/>
+						>
+							<Text style={{ userSelect: "none" }}>
+								New Event
+							</Text>
+						</StyledButton>
 					</Dialog.Trigger>
 				</YGroup.Item>
 			</YGroup>

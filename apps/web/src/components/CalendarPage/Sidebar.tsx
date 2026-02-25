@@ -50,7 +50,7 @@ type AnimationProp = GetProps<typeof YStack>["animation"];
 
 const FADE_ANIMATION: AnimationProp = "quick";
 
-const SIDEBAR_WIDTH = 400;
+const SIDEBAR_WIDTH = 375;
 
 function NavButton(props: ButtonProps) {
 	return (
@@ -142,7 +142,7 @@ function CalendarListItem({
 						{calendar.name}
 					</Label>
 				</XStack>
-				<Popover placement="bottom-start">
+				<Popover placement="bottom-end">
 					<Popover.Trigger asChild>
 						<Button
 							unstyled
@@ -173,10 +173,19 @@ function CalendarListItem({
 							outlineStyle: "solid",
 							borderRadius: 10,
 							padding: 3,
+							backgroundColor: "var(--color2)",
 						}}
+						enterStyle={{ y: -10, opacity: 0 }}
+						exitStyle={{ y: -10, opacity: 0 }}
 						elevate
 						animation={FADE_ANIMATION}
 					>
+						<Popover.Arrow
+							size="$4"
+							borderWidth={2}
+							borderColor="$color6"
+							bg="$color2"
+						/>
 						<ListItem
 							p={0}
 							style={{
@@ -223,7 +232,13 @@ function CalendarListItem({
 									justifyContent: "space-between",
 								}}
 								onPress={() => {
-									delCalendar(calendar.id!);
+									if (
+										confirm(
+											"Are you sure you want to delete this calendar?",
+										)
+									) {
+										delCalendar(calendar.id!);
+									}
 								}}
 							>
 								<Text fontWeight={"$2"}>Delete</Text>
@@ -253,8 +268,7 @@ export default function Sidebar() {
 
 	const { isPending, error, data } = useCalendars();
 
-	const [createCalendarPopoverOpen, setCreateCalendarPopoverOpen] =
-		useState(false);
+	const [createCalendarOpen, setCreateCalendarOpen] = useState(false);
 
 	const [editingCalendarId, setEditingCalendarId] = useState<string | null>(
 		null,
@@ -468,7 +482,9 @@ export default function Sidebar() {
 		<FullscreenView
 			maxHeight
 			flex={1}
-			px="$4"
+			pt={"$2"}
+			pl={"$4"}
+			pr={"$2"}
 			bg="$color2"
 			minW={SIDEBAR_WIDTH}
 			maxW={SIDEBAR_WIDTH}
@@ -629,38 +645,6 @@ export default function Sidebar() {
 				}}
 			>
 				<H3 style={{ userSelect: "none" }}>My calendars</H3>
-				<Popover
-					placement="bottom"
-					open={createCalendarPopoverOpen}
-					onOpenChange={setCreateCalendarPopoverOpen}
-				>
-					<Popover.Trigger asChild>
-						<StyledButton>
-							<Text>
-								<CalendarPlus />
-							</Text>
-						</StyledButton>
-					</Popover.Trigger>
-					<Popover.Content
-						style={{ padding: 0 }}
-						enterStyle={{ y: -10, opacity: 0 }}
-						exitStyle={{ y: -10, opacity: 0 }}
-						elevate
-						animation={FADE_ANIMATION}
-					>
-						<Popover.Arrow
-							size="$4"
-							borderWidth={2}
-							borderColor="$color6"
-							bg="$color2"
-						/>
-						<CreateCalendarForm
-							onSuccess={() =>
-								setCreateCalendarPopoverOpen(false)
-							}
-						/>
-					</Popover.Content>
-				</Popover>
 			</XStack>
 
 			{/* Calendars List */}
@@ -690,7 +674,7 @@ export default function Sidebar() {
 						{"No calendars yet :("}
 					</Text>
 				)}
-				<YGroup>
+				<YGroup mt={5}>
 					{data?.map((calendar) => (
 						<YGroup.Item key={calendar.id}>
 							{calendar.id === editingCalendarId ? (
@@ -721,6 +705,30 @@ export default function Sidebar() {
 						</YGroup.Item>
 					))}
 				</YGroup>
+				{!isPending && !createCalendarOpen && (
+					<StyledButton
+						style={{ margin: "5px 15px" }}
+						onPress={() => setCreateCalendarOpen(true)}
+					>
+						<Text
+							style={{
+								userSelect: "none",
+								display: "flex",
+								alignItems: "center",
+								gap: 10,
+							}}
+						>
+							Create new calendar
+							<CalendarPlus />
+						</Text>
+					</StyledButton>
+				)}
+				{createCalendarOpen && (
+					<CreateCalendarForm
+						onSuccess={() => setCreateCalendarOpen(false)}
+						onCancel={() => setCreateCalendarOpen(false)}
+					/>
+				)}
 			</YStack>
 		</FullscreenView>
 	);

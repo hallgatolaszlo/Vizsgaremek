@@ -1,8 +1,19 @@
-import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import { CreateCalendarEntryForm } from "@/src/components/CalendarPage/CreateCalendarEntryForm";
+import { useCalendarStore, useDialogStore, useProfileStore } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
+import { StyledButton } from "@repo/ui";
 import { generateGrid, isNative, Week } from "@repo/utils";
+import { Plus } from "@tamagui/lucide-icons";
 import { useCallback, useMemo, useState } from "react";
-import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
+import {
+	Card,
+	Dialog,
+	ScrollView,
+	Text,
+	useMedia,
+	XStack,
+	YStack,
+} from "tamagui";
 import CalendarCell from "./CalendarCell";
 
 // Constants
@@ -13,10 +24,15 @@ const DAYS_IN_WEEK = 7;
 
 // Common styles
 const containerStyle = {
-	margin: "10px",
-	borderRadius: "15px",
+	margin: "0px",
+	borderRadius: "0px",
 	overflow: "hidden",
-	border: `1px solid ${BORDER_COLOR}`,
+	borderStyle: "solid",
+	borderColor: BORDER_COLOR,
+	borderTopWidth: BORDER_WIDTH,
+	borderLeftWidth: 0,
+	borderRightWidth: 0,
+	borderBottomWidth: 0,
 } as const;
 
 const baseCellStyle = {
@@ -238,6 +254,32 @@ function CalendarRow({
 	);
 }
 
+function AddEntryButton() {
+	const { setContent } = useDialogStore();
+
+	return (
+		<Dialog.Trigger asChild scope="custom-dialog">
+			<StyledButton
+				style={{
+					position: "absolute",
+					bottom: 20,
+					right: 20,
+					zIndex: 100,
+				}}
+				circular
+				scaleIcon={1.25}
+				size={60}
+				icon={Plus}
+				onPress={() => {
+					setContent(
+						<CreateCalendarEntryForm isContextMenu={false} />,
+					);
+				}}
+			></StyledButton>
+		</Dialog.Trigger>
+	);
+}
+
 export function Calendar({ grid }: CalendarProps) {
 	const { selectedDate, viewType, mobileView, tabletView } =
 		useCalendarStore();
@@ -265,18 +307,23 @@ export function Calendar({ grid }: CalendarProps) {
 
 	// Weekday header
 	const WeekdayHeader = useMemo(() => {
-		const weekdayLabels =
-			isNative() || mobileView
-				? Week.getWeekdayLabels(locale, "narrow", weekStartsOn)
-				: Week.getWeekdayLabels(
-						locale,
-						media.xl ? "long" : "short",
-						weekStartsOn,
-					);
+		let length;
+		if (mobileView || isNative()) {
+			length = "narrow";
+		} else if (tabletView) {
+			length = "short";
+		} else {
+			length = "long";
+		}
+		const weekdayLabels = Week.getWeekdayLabels(
+			locale,
+			length as Intl.DateTimeFormatOptions["weekday"],
+			weekStartsOn,
+		);
 
 		return (
 			<XStack width="100%">
-				{!mobileView && (
+				{(!mobileView || viewType === "week") && (
 					<Card
 						width={sidebarWidth}
 						bg="$color1"
@@ -325,16 +372,8 @@ export function Calendar({ grid }: CalendarProps) {
 	// Month/Multiweek View
 	if (viewType === "month" || viewType === "multiweek") {
 		return (
-			<YStack
-				style={{
-					...containerStyle,
-					margin: mobileView || tabletView ? 0 : "10px",
-					borderRadius: mobileView || tabletView ? 0 : "15px",
-				}}
-				bg="$color1"
-				flex={1}
-				width="100%"
-			>
+			<YStack style={containerStyle} bg="$color1" flex={1} width="100%">
+				<AddEntryButton />
 				{WeekdayHeader}
 				<YStack flex={1} gap={gap} flexBasis={0}>
 					{gridEntries.map(([weekNumber, row], rowIndex) => (
@@ -370,19 +409,12 @@ export function Calendar({ grid }: CalendarProps) {
 	// Week View
 	if (viewType === "week") {
 		return (
-			<YStack
-				style={{
-					...containerStyle,
-					margin: mobileView || tabletView ? 0 : "10px",
-					borderRadius: mobileView || tabletView ? 0 : "15px",
-				}}
-				bg="$color1"
-				flex={1}
-				width="100%"
-			>
+			<YStack style={containerStyle} bg="$color1" flex={1} width="100%">
+				<AddEntryButton />
 				<XStack style={{ marginRight: "var(--scrollbar-width)" }}>
 					{WeekdayHeader}
 				</XStack>
+
 				{gridEntries.map(([weekNumber, row], rowIndex) => (
 					<CalendarRow
 						key={rowIndex}
@@ -407,16 +439,8 @@ export function Calendar({ grid }: CalendarProps) {
 	// Day View
 	if (viewType === "day") {
 		return (
-			<YStack
-				style={{
-					...containerStyle,
-					margin: mobileView || tabletView ? 0 : "10px",
-					borderRadius: mobileView || tabletView ? 0 : "15px",
-				}}
-				bg="$color1"
-				flex={1}
-				width="100%"
-			>
+			<YStack style={containerStyle} bg="$color1" flex={1} width="100%">
+				<AddEntryButton />
 				{gridEntries.map(([weekNumber, row], rowIndex) => (
 					<XStack
 						key={rowIndex}

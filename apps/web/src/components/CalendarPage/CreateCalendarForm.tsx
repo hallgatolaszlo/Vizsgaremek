@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createCalendar } from "@repo/api";
 import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
-import { Check } from "@tamagui/lucide-icons";
+import { Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState } from "react";
@@ -33,7 +33,13 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
-export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
+export function CreateCalendarForm({
+	onSuccess,
+	onCancel,
+}: {
+	onSuccess?: () => void;
+	onCancel?: () => void;
+}) {
 	const [error, setError] = useState<string | null>(null);
 
 	const queryClient = useQueryClient();
@@ -80,60 +86,70 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 
 	return (
 		<Form>
-			<XStack
-				flex={1}
-				gap={"$2"}
-				bg="$color2"
-				p="$2"
-				borderWidth={2}
-				borderColor="$color5"
-				style={{ borderRadius: 10 }}
-			>
-				<Controller
-					control={control}
-					name="color"
-					render={({ field: { onChange, value } }) => (
-						<ColorSelect value={value} onChange={onChange} />
-					)}
-				/>
-				<Controller
-					control={control}
-					name="name"
-					render={({ field: { onChange, onBlur, value, ref } }) => (
-						<YStack>
-							<StyledInput
-								autoFocus
-								style={{ flexGrow: 1 }}
-								ref={ref}
-								placeholder="Name"
-								onBlur={onBlur}
-								onChange={onChange}
-								value={value}
-								returnKeyType="done"
-								onSubmitEditing={handleSubmit(onSubmit)}
-							/>
-							{errors.name && (
-								<ErrorText message={errors.name.message} />
-							)}
-						</YStack>
-					)}
-				/>
-				<StyledButton
-					onPress={handleSubmit(onSubmit)}
-					disabled={createCalendarMutation.isPending}
-					icon={
-						createCalendarMutation.isPending
-							? () => <Spinner color="$color12" />
-							: undefined
-					}
-					scaleIcon={1.5}
-					iconAfter={
-						!createCalendarMutation.isPending ? (
-							<Check />
-						) : undefined
-					}
-				></StyledButton>
-			</XStack>
+			<YStack px={15} pt={5} gap={"$2"}>
+				<XStack
+					gap={"$2"}
+					bg="$color2"
+					style={{
+						borderRadius: 10,
+					}}
+				>
+					<Controller
+						control={control}
+						name="color"
+						render={({ field: { onChange, value } }) => (
+							<ColorSelect value={value} onChange={onChange} />
+						)}
+					/>
+					<Controller
+						control={control}
+						name="name"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<YStack flex={1}>
+								<StyledInput
+									autoFocus
+									ref={ref}
+									placeholder="Name"
+									onBlur={onBlur}
+									onChange={onChange}
+									value={value}
+									returnKeyType="done"
+									onSubmitEditing={handleSubmit(onSubmit)}
+								/>
+								{errors.name && (
+									<ErrorText message={errors.name.message} />
+								)}
+							</YStack>
+						)}
+					/>
+				</XStack>
+				<XStack gap={"$2"} style={{ width: "100%" }}>
+					<StyledButton
+						flex={20}
+						onPress={handleSubmit(onSubmit)}
+						disabled={createCalendarMutation.isPending}
+						icon={
+							createCalendarMutation.isPending
+								? () => <Spinner color="$color12" />
+								: undefined
+						}
+						scaleIcon={1.5}
+						iconAfter={
+							!createCalendarMutation.isPending ? (
+								<Check />
+							) : undefined
+						}
+					/>
+					<StyledButton
+						icon={X}
+						scaleIcon={1.5}
+						flex={1}
+						onPress={onCancel}
+					/>
+				</XStack>
+			</YStack>
 		</Form>
 	);
 }
