@@ -1,10 +1,16 @@
-import { useCalendarStore, useProfileStore } from "@repo/hooks";
+import {
+    useCalendarEntries,
+    useCalendars,
+    useCalendarStore,
+    useProfileStore,
+} from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
 import { generateGrid, isNative, Week } from "@repo/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
 import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
+import { getPositionedEntries, PositionedEntry } from "@repo/utils";
 
 // Constants
 const BORDER_WIDTH = 1;
@@ -110,9 +116,15 @@ interface HourGridProps {
     columnCount: number;
     hour: number;
     dates: Date[];
+    positionedEntriesByDate: Map<string, PositionedEntry[]>;
 }
 
-function HourGridCells({ columnCount, hour, dates }: HourGridProps) {
+function HourGridCells({
+    columnCount,
+    hour,
+    dates,
+    positionedEntriesByDate,
+}: HourGridProps) {
     return (
         <>
             {[...Array(columnCount).keys()].map((_, i) => (
@@ -121,6 +133,10 @@ function HourGridCells({ columnCount, hour, dates }: HourGridProps) {
                     columnCount={columnCount}
                     hour={hour}
                     date={dates[i]}
+                    positionedEntries={
+                        positionedEntriesByDate.get(dates[i].toDateString()) ??
+                        []
+                    }
                     key={i}
                 />
             ))}
@@ -143,6 +159,27 @@ function HourlyScrollView({
     columnCount,
     dates,
 }: HourlyScrollViewProps) {
+    const myCalendars = useCalendars();
+    const calendarEntries = useCalendarEntries(myCalendars);
+    const { checkedCalendarIds } = useCalendarStore();
+
+    // Compute positionedEntries once per date
+    const positionedEntriesByDate = useMemo(() => {
+        const map = new Map<string, PositionedEntry[]>();
+        dates.forEach((date) => {
+            const dayEntries =
+                calendarEntries.data?.filter(
+                    (d) =>
+                        new Date(d.startDate!).toDateString() ===
+                            date.toDateString() &&
+                        d.calendarId &&
+                        checkedCalendarIds.includes(d.calendarId) &&
+                        !d.isAllDay,
+                ) ?? [];
+            map.set(date.toDateString(), getPositionedEntries(dayEntries));
+        });
+        return map;
+    }, [calendarEntries.data, dates, checkedCalendarIds]);
     return (
         <ScrollView flex={1} flexBasis={0}>
             <YStack>
@@ -161,6 +198,7 @@ function HourlyScrollView({
                             columnCount={columnCount}
                             hour={hour}
                             dates={dates}
+                            positionedEntriesByDate={positionedEntriesByDate}
                         />
                     </XStack>
                 ))}

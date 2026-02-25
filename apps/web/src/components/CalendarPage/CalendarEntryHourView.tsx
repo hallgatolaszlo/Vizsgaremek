@@ -1,12 +1,7 @@
 import { CalendarEntry } from "@repo/features";
-import {
-    useCalendarEntries,
-    useCalendars,
-    useCalendarStore,
-} from "@repo/hooks";
-import { components } from "@repo/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, View } from "tamagui";
+import { PositionedEntry } from "./calendarEntryUtils";
 
 const BORDER_COLOR = "var(--color5)";
 const BORDER_WIDTH = 1;
@@ -16,69 +11,7 @@ interface HourGridProps {
     columnCount: number;
     hour: number;
     date: Date;
-}
-
-type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
-
-interface PositionedEntry {
-    entry: GetCalendarEntryDTO;
-    column: number;
-    totalColumns: number;
-}
-
-function getOverlappingGroups(
-    entries: GetCalendarEntryDTO[],
-): PositionedEntry[] {
-    if (!entries.length) return [];
-
-    // Sort by start time
-    const sorted = [...entries].sort(
-        (a, b) =>
-            new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime(),
-    );
-
-    const result: PositionedEntry[] = [];
-
-    // Group overlapping entries
-    let currentGroup: GetCalendarEntryDTO[] = [];
-    let groupEnd = 0;
-
-    for (const entry of sorted) {
-        const start = new Date(entry.startDate!).getTime();
-        const end = new Date(entry.endDate!).getTime();
-
-        if (currentGroup.length === 0 || start < groupEnd) {
-            // Overlaps with current group
-            currentGroup.push(entry);
-            groupEnd = Math.max(groupEnd, end);
-        } else {
-            // No overlap, process current group and start new one
-            assignColumns(currentGroup, result);
-            currentGroup = [entry];
-            groupEnd = end;
-        }
-    }
-
-    // Process last group
-    if (currentGroup.length > 0) {
-        assignColumns(currentGroup, result);
-    }
-
-    return result;
-}
-
-function assignColumns(
-    group: GetCalendarEntryDTO[],
-    result: PositionedEntry[],
-) {
-    const totalColumns = group.length;
-    group.forEach((entry, index) => {
-        result.push({
-            entry,
-            column: index,
-            totalColumns,
-        });
-    });
+    positionedEntries: PositionedEntry[]; // Receive from parent
 }
 
 export function CalendarEntryHourView({
@@ -86,34 +19,12 @@ export function CalendarEntryHourView({
     columnCount,
     hour,
     date,
+    positionedEntries,
 }: HourGridProps) {
     const baseCellStyle = {
         borderRadius: 0,
         borderColor: BORDER_COLOR,
     } as const;
-
-    const myCalendars = useCalendars();
-    const calendarEntries = useCalendarEntries(myCalendars);
-    const { checkedCalendarIds } = useCalendarStore();
-
-    const filteredEntries = useMemo(
-        () =>
-            calendarEntries.data?.filter(
-                (d) =>
-                    new Date(d.startDate!).toDateString() ===
-                        date.toDateString() &&
-                    hour === new Date(d.startDate!).getHours() &&
-                    d.calendarId &&
-                    checkedCalendarIds.includes(d.calendarId) &&
-                    !d.isAllDay,
-            ) ?? [],
-        [calendarEntries.data, date, hour, checkedCalendarIds],
-    );
-
-    const positionedEntries = useMemo(
-        () => getOverlappingGroups(filteredEntries),
-        [filteredEntries],
-    );
 
     const cardRef = useRef<HTMLDivElement>(null);
     const [cellHeight, setCellHeight] = useState(0);
@@ -124,21 +35,21 @@ export function CalendarEntryHourView({
         }
     }, []);
 
-    const calculateEntryHeight = (entry: GetCalendarEntryDTO): number => {
+    // Only render entries that START in this hour
+    const entriesForThisHour = positionedEntries.filter(
+        ({ entry }) => new Date(entry.startDate!).getHours() === hour,
+    );
+
+    const calculateEntryHeight = (entry: PositionedEntry["entry"]): number => {
         const startDate = new Date(entry.startDate!);
         const endDate = new Date(entry.endDate!);
-
-        const startMinutes = startDate.getHours() * 60 + startDate.getMinutes();
-        const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
-        const durationMinutes = endMinutes - startMinutes;
-        const durationHours = durationMinutes / 60;
-
-        return durationHours * cellHeight;
+        const durationMinutes =
+            (endDate.getTime() - startDate.getTime()) / 60000;
+        return (durationMinutes / 60) * cellHeight;
     };
 
-    const calculateTopOffset = (entry: GetCalendarEntryDTO): number => {
-        const startDate = new Date(entry.startDate!);
-        const minutesIntoHour = startDate.getMinutes();
+    const calculateTopOffset = (entry: PositionedEntry["entry"]): number => {
+        const minutesIntoHour = new Date(entry.startDate!).getMinutes();
         return (minutesIntoHour / 60) * cellHeight;
     };
 
@@ -155,9 +66,10 @@ export function CalendarEntryHourView({
                 borderRightWidth: i === columnCount - 1 ? BORDER_WIDTH : 0,
                 minHeight: "50px",
                 position: "relative",
+                overflow: "visible",
             }}
         >
-            {positionedEntries.map(({ entry, column, totalColumns }) => (
+            {entriesForThisHour.map(({ entry, column, totalColumns }) => (
                 <View
                     key={entry.id}
                     style={{

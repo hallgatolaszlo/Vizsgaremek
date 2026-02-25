@@ -19,8 +19,9 @@ export function CalendarEntry({
     height,
     marginTop,
 }: CalendarEntryProps) {
-    const theme = useTheme({ name: "calendarColors" });
-    const backgroundColor = theme[`color${entry.color}`]?.val;
+    const calendarTheme = useTheme({ name: "calendarColors" });
+    const baseTheme = useTheme();
+    const backgroundColor = calendarTheme[`color${entry.color}`]?.val;
     const textColor = getContrastFromHSLA(backgroundColor);
     const { locale } = useProfileStore();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -64,6 +65,7 @@ export function CalendarEntry({
                         backgroundColor,
                         height: height,
                         marginTop: marginTop ?? "$1",
+                        outline: `1px solid ${baseTheme["color2"]?.val}`,
                     }}
                     className="entryCard"
                     tabIndex={0}
