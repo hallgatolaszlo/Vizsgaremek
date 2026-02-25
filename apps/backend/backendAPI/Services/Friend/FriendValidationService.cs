@@ -29,7 +29,7 @@ namespace backend.Services.Friend
             var friend = await FriendExists(profileId, request.ProfileId);
             if (!friend.Success)
             { 
-                return new ServiceResponse<Models.Friend> { Success = false, Message = "Friend already exists" };
+                return new ServiceResponse<Models.Friend> { Success = false, Message = friend.Message };
             }
 
             if(!NotSameUserValidation(profileId, request.ProfileId))
