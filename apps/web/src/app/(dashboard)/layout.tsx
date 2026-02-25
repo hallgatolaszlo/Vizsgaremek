@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { startConnection, isConnected } = useNotificationStore();
+    const { startConnection } = useNotificationStore();
 
     useEffect(() => {
         console.log("starting connection");
