@@ -34,6 +34,8 @@ namespace backend.Controllers
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 BirthDate = x.BirthDate,
+                UserCreatedAt = x.User!.CreatedAt,
+                UserEmail = x.User!.Email
             }).FirstOrDefaultAsync();
 
             return Ok(profile);
@@ -56,7 +58,7 @@ namespace backend.Controllers
             }
 
             var profile = validationResponse.Data;
-            
+
             profile!.Username = request.Username;
             profile!.IsPrivate = request.IsPrivate;
             profile!.FirstName = request.FirstName;

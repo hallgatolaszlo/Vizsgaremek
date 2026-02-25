@@ -10,7 +10,7 @@ namespace backend.Services.Profile
     {
         public async Task<ServiceResponse<bool>> ValidateProfileCreationAsync(Models.Profile profileDTO)
         {
-            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.BirthDate, profileDTO.UserId );
+            return await ValidateCommonProfileRulesAsync(profileDTO.Username, profileDTO.BirthDate, profileDTO.UserId);
         }
 
         public async Task<ServiceResponse<Models.Profile>> ValidateProfileUpdateAsync(UpdateProfileDTO profileDTO)
@@ -46,19 +46,20 @@ namespace backend.Services.Profile
                     return response;
                 }
             }
-            
+
 
             //logic
-            if (!commonValidation.ValidateText(name, 3, 64).Success) 
+            if (!commonValidation.ValidateText(name, 3, 64).Success)
             {
                 response.Success = false;
-                response.Message = "Name must be 3-64 long";
+                response.Message = "Name must be 3-64 characters long";
                 return response;
-            };
+            }
+            ;
 
             if (birthDate.HasValue)
             {
-                if(birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow))
+                if (birthDate.Value > DateOnly.FromDateTime(DateTime.UtcNow))
                 {
                     response.Success = false;
                     response.Message = "Are you from the future?";
