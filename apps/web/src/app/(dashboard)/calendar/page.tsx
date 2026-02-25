@@ -5,9 +5,9 @@ import Sidebar from "@/src/components/CalendarPage/Sidebar";
 import { FullscreenView } from "@/src/components/FullscreenView";
 import { Calendar } from "@repo/features";
 import {
-    useCalendarStore,
-    useNotificationStore,
-    useProfileStore,
+	useCalendarStore,
+	useNotificationStore,
+	useProfileStore,
 } from "@repo/hooks";
 import { components } from "@repo/types";
 import { generateGrid } from "@repo/utils";
@@ -18,108 +18,108 @@ import { XStack } from "tamagui";
 type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
 
 export default function CalendarPage() {
-    const {
-        selectedDate,
-        viewType,
-        setViewType,
-        decMonth,
-        incMonth,
-        decWeek,
-        incWeek,
-        decDay,
-        incDay,
-    } = useCalendarStore();
+	const {
+		selectedDate,
+		viewType,
+		setViewType,
+		decMonth,
+		incMonth,
+		decWeek,
+		incWeek,
+		decDay,
+		incDay,
+	} = useCalendarStore();
 
-    const { weekStartsOn } = useProfileStore();
+	const { weekStartsOn } = useProfileStore();
 
-    const { isConnected, connection } = useNotificationStore();
-    useEffect(() => {
-        console.log("isConnected state:", isConnected);
-        console.log("Actual connection state:", connection?.state);
-    }, [isConnected, connection]);
+	const { isConnected, connection } = useNotificationStore();
+	useEffect(() => {
+		console.log("isConnected state:", isConnected);
+		console.log("Actual connection state:", connection?.state);
+	}, [isConnected, connection]);
 
-    const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-    const grid = useMemo(
-        () =>
-            generateGrid({
-                selectedDate: selectedDate,
-                weekStartsOn: weekStartsOn,
-                viewType: viewType,
-            }),
-        [selectedDate, weekStartsOn, viewType],
-    );
+	const grid = useMemo(
+		() =>
+			generateGrid({
+				selectedDate: selectedDate,
+				weekStartsOn: weekStartsOn,
+				viewType: viewType,
+			}),
+		[selectedDate, weekStartsOn, viewType],
+	);
 
-    function decreaseView() {
-        if (viewType === "month") {
-            decMonth();
-            return;
-        }
-        if (viewType === "day") {
-            decDay();
-            return;
-        }
-        decWeek();
-    }
+	function decreaseView() {
+		if (viewType === "month") {
+			decMonth();
+			return;
+		}
+		if (viewType === "day") {
+			decDay();
+			return;
+		}
+		decWeek();
+	}
 
-    function increaseView() {
-        if (viewType === "month") {
-            incMonth();
-            return;
-        }
-        if (viewType === "day") {
-            incDay();
-            return;
-        }
-        incWeek();
-    }
+	function increaseView() {
+		if (viewType === "month") {
+			incMonth();
+			return;
+		}
+		if (viewType === "day") {
+			incDay();
+			return;
+		}
+		incWeek();
+	}
 
-    // Attach a non-passive wheel listener to allow preventDefault
-    const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
+	// Attach a non-passive wheel listener to allow preventDefault
+	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-        const el = wheelableYStackRef.current;
-        if (!el || viewType === "day" || viewType === "week") return;
+	useEffect(() => {
+		const el = wheelableYStackRef.current;
+		if (!el || viewType === "day" || viewType === "week") return;
 
-        const handleWheel = (e: WheelEvent) => {
-            // Only triggers while the cursor is over this Calendar wrapper.
-            e.preventDefault();
-            e.stopPropagation();
+		const handleWheel = (e: WheelEvent) => {
+			// Only triggers while the cursor is over this Calendar wrapper.
+			e.preventDefault();
+			e.stopPropagation();
 
-            if (e.deltaY > 0) {
-                increaseView();
-                return;
-            }
-            if (e.deltaY < 0) {
-                decreaseView();
-            }
-        };
+			if (e.deltaY > 0) {
+				increaseView();
+				return;
+			}
+			if (e.deltaY < 0) {
+				decreaseView();
+			}
+		};
 
-        el.addEventListener("wheel", handleWheel, { passive: false });
-        return () => el.removeEventListener("wheel", handleWheel);
-    }, [increaseView, decreaseView, viewType]);
+		el.addEventListener("wheel", handleWheel, { passive: false });
+		return () => el.removeEventListener("wheel", handleWheel);
+	}, [increaseView, decreaseView, viewType]);
 
-    return (
-        <FullscreenView
-            flex={1}
-            stack="XStack"
-            maxHeight
-            overflow="hidden"
-            bg={"$color2"}
-        >
-            <Sidebar />
-            {/* My calendars */}
-            <FullscreenView maxHeight minW={0} flex={1}>
-                {/* Calendar Header */}
-                <CalendarHeader
-                    grid={grid}
-                    decreaseView={decreaseView}
-                    increaseView={increaseView}
-                />
-                <XStack ref={wheelableYStackRef} flex={1} minW={0}>
-                    <Calendar grid={grid} />
-                </XStack>
-            </FullscreenView>
-        </FullscreenView>
-    );
+	return (
+		<FullscreenView
+			flex={1}
+			stack="XStack"
+			maxHeight
+			overflow="hidden"
+			bg={"$color2"}
+		>
+			<Sidebar />
+			{/* My calendars */}
+			<FullscreenView maxHeight minW={0} flex={1}>
+				{/* Calendar Header */}
+				<CalendarHeader
+					grid={grid}
+					decreaseView={decreaseView}
+					increaseView={increaseView}
+				/>
+				<XStack ref={wheelableYStackRef} flex={1} minW={0}>
+					<Calendar grid={grid} />
+				</XStack>
+			</FullscreenView>
+		</FullscreenView>
+	);
 }

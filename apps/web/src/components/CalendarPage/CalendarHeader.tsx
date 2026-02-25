@@ -1,13 +1,12 @@
 import { useCalendarStore, useProfileStore } from "@repo/hooks";
-import { CalendarCellProps } from "@repo/types";
-import { StyledButton } from "@repo/ui";
+import { CalendarCellProps, CalendarViewType } from "@repo/types";
+import { SelectElement, StyledButton } from "@repo/ui";
 import {
 	ArrowBigLeft,
 	ArrowBigRight,
 	CalendarDays,
 } from "@tamagui/lucide-icons";
-import { useEffect, useRef, useState } from "react";
-import { Separator, Text, XGroup, XStack } from "tamagui";
+import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
 
 interface CalendarHeaderProps {
 	grid: Record<string, CalendarCellProps[]>;
@@ -23,36 +22,6 @@ export default function CalendarHeader({
 	const { selectedDate, viewType, setViewType, resetToToday } =
 		useCalendarStore();
 	const profileStore = useProfileStore();
-	const [isWrapped, setIsWrapped] = useState(false);
-	const headerRef = useRef<HTMLDivElement>(null);
-
-	// Detect if header items wrap to two lines
-	useEffect(() => {
-		const checkWrap = () => {
-			if (headerRef.current) {
-				const children = headerRef.current.children;
-				if (children.length >= 2) {
-					const firstChild = children[0].getBoundingClientRect();
-					const secondChild = children[1].getBoundingClientRect();
-					setIsWrapped(firstChild.top !== secondChild.top);
-				}
-			}
-		};
-
-		checkWrap();
-
-		// Use ResizeObserver to detect changes in the container size
-		const resizeObserver = new ResizeObserver(checkWrap);
-		if (headerRef.current) {
-			resizeObserver.observe(headerRef.current);
-		}
-
-		window.addEventListener("resize", checkWrap);
-		return () => {
-			window.removeEventListener("resize", checkWrap);
-			resizeObserver.disconnect();
-		};
-	}, [grid, viewType]);
 
 	const headerDateText = () => {
 		const date = selectedDate;
@@ -153,84 +122,74 @@ export default function CalendarHeader({
 
 	const ViewTypeToggle = () => {
 		return (
-			<XGroup>
-				<StyledButton
-					bg={viewType === "day" ? "$color5" : "$color4"}
-					onPress={() => setViewType("day")}
-				>
-					<Text style={{ userSelect: "none" }}>Day</Text>
-				</StyledButton>
-
-				<Separator vertical />
-
-				<StyledButton
-					bg={viewType === "week" ? "$color5" : "$color4"}
-					onPress={() => setViewType("week")}
-				>
-					<Text style={{ userSelect: "none" }}>Week</Text>
-				</StyledButton>
-
-				<Separator vertical />
-
-				<StyledButton
-					bg={viewType === "multiweek" ? "$color5" : "$color4"}
-					onPress={() => setViewType("multiweek")}
-				>
-					<Text style={{ userSelect: "none" }}>Multiweek</Text>
-				</StyledButton>
-
-				<Separator vertical />
-
-				<StyledButton
-					bg={viewType === "month" ? "$color5" : "$color4"}
-					onPress={() => setViewType("month")}
-				>
-					<Text style={{ userSelect: "none" }}>Month</Text>
-				</StyledButton>
-			</XGroup>
+			<View>
+				<SelectElement
+					value={viewType}
+					onValueChange={(value) =>
+						setViewType(value as CalendarViewType)
+					}
+					renderValue={(value) => (
+						<Select.ItemText>
+							{value.charAt(0).toUpperCase() + value.slice(1)}
+						</Select.ItemText>
+					)}
+					triggerPlaceholder=""
+					groupItems={["month", "multiweek", "week", "day"].map(
+						(view, index) => (
+							<Select.Item
+								style={{
+									backgroundColor:
+										(view as CalendarViewType) == viewType
+											? "var(--accent4)"
+											: "var(--color2)",
+								}}
+								value={view as CalendarViewType}
+								index={index}
+								key={view}
+							>
+								<Select.ItemText
+									style={{ textTransform: "capitalize" }}
+								>
+									{view}
+								</Select.ItemText>
+							</Select.Item>
+						),
+					)}
+				/>
+			</View>
 		);
 	};
 
 	return (
-		<XStack
-			ref={headerRef}
-			flex={1}
-			flexBasis={0}
+		<YStack
 			bg={"$color2"}
 			p="$4"
 			gap="$2"
 			style={{
 				maxHeight: "fit-content",
-				flexWrap: "wrap",
-				justifyContent: "space-between",
 				gap: 20,
 			}}
 		>
 			<XStack
-				flex={1}
 				style={{
-					justifyContent: "start",
+					justifyContent: "space-between",
 					alignItems: "center",
 					gap: 20,
 				}}
 			>
 				<HeaderDateButtonGroup />
-				<Text fontWeight="$2" textTransform="capitalize">
-					{headerDateText()}
-				</Text>
+				<ViewTypeToggle />
 			</XStack>
 			<XStack
-				flex={1}
 				style={{
-					justifyContent: isWrapped ? "start" : "end",
 					alignItems: "center",
 					gap: 20,
 				}}
 			>
-				{isWrapped && <ViewTypeToggle />}
-				<Text fontWeight="$2">{headerWeekText()}</Text>
-				{!isWrapped && <ViewTypeToggle />}
+				<Text fontWeight="$2" textTransform="capitalize">
+					{headerDateText()}
+				</Text>
 			</XStack>
-		</XStack>
+		</YStack>
 	);
 }

@@ -20,7 +20,7 @@ const createCalendarEntrySchema = z.object({
 		.string()
 		.min(1, "The name field is required")
 		.min(3, "The name should be at least 3 characters long")
-		.max(20, "The name should be at most 20 characters long"),
+		.max(32, "The name should be at most 32 characters long"),
 	color: z.number().min(1).max(12),
 });
 
@@ -87,7 +87,7 @@ export function CreateCalendarForm({ onSuccess }: { onSuccess?: () => void }) {
 				p="$2"
 				borderWidth={2}
 				borderColor="$color5"
-				borderRadius="$2"
+				style={{ borderRadius: 10 }}
 			>
 				<Controller
 					control={control}
