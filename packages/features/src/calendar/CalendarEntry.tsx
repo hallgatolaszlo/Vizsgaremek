@@ -10,10 +10,15 @@ type GetCalendarEntryDTO = components["schemas"]["GetCalendarEntryDTO"];
 
 interface CalendarEntryProps {
     entry: GetCalendarEntryDTO;
+    height?: string;
+    marginTop?: string;
 }
 
-export function CalendarEntry({ entry }: CalendarEntryProps) {
-    const currentTheme = useTheme();
+export function CalendarEntry({
+    entry,
+    height,
+    marginTop,
+}: CalendarEntryProps) {
     const theme = useTheme({ name: "calendarColors" });
     const backgroundColor = theme[`color${entry.color}`]?.val;
     const textColor = getContrastFromHSLA(backgroundColor);
@@ -36,30 +41,34 @@ export function CalendarEntry({ entry }: CalendarEntryProps) {
     }
 
     return (
-        <Card
-            p={"$1"}
-            pl={"$3"}
-            m={"$1"}
-            enterStyle={{ y: -10, opacity: 0 }}
-            exitStyle={{ y: -10, opacity: 0 }}
-            animation={"quickest"}
-            style={{ backgroundColor }}
-            className="entryCard"
-            tabIndex={0}
-            onPress={(e) => e.stopPropagation()}
+        <CustomDialog
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+            content={
+                <CalendarEntryDetail
+                    entry={entry}
+                    onClose={() => setIsDialogOpen(false)}
+                />
+            }
+            onPointerDownOutside={(e) => e.preventDefault()}
         >
-            <CustomDialog
-                isDialogOpen={isDialogOpen}
-                setIsDialogOpen={setIsDialogOpen}
-                content={
-                    <CalendarEntryDetail
-                        entry={entry}
-                        onClose={() => setIsDialogOpen(false)}
-                    />
-                }
-                onPointerDownOutside={(e) => e.preventDefault()}
-            >
-                <Dialog.Trigger asChild>
+            <Dialog.Trigger asChild>
+                <Card
+                    p={"$1"}
+                    pl={"$3"}
+                    m={"$1"}
+                    enterStyle={{ y: -10, opacity: 0 }}
+                    exitStyle={{ y: -10, opacity: 0 }}
+                    animation={"quickest"}
+                    style={{
+                        backgroundColor,
+                        height: height,
+                        marginTop: marginTop ?? "$1",
+                    }}
+                    className="entryCard"
+                    tabIndex={0}
+                    onPress={(e) => e.stopPropagation()}
+                >
                     <Text
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
@@ -68,8 +77,8 @@ export function CalendarEntry({ entry }: CalendarEntryProps) {
                     >
                         {entryText()}
                     </Text>
-                </Dialog.Trigger>
-            </CustomDialog>
-        </Card>
+                </Card>
+            </Dialog.Trigger>
+        </CustomDialog>
     );
 }

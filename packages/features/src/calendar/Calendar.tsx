@@ -4,6 +4,7 @@ import { generateGrid, isNative, Week } from "@repo/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
+import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
 
 // Constants
 const BORDER_WIDTH = 1;
@@ -108,24 +109,19 @@ function HourLabel({ hour, locale, hour12, sidebarWidth }: HourLabelProps) {
 interface HourGridProps {
     columnCount: number;
     hour: number;
+    dates: Date[];
 }
 
-function HourGridCells({ columnCount, hour }: HourGridProps) {
+function HourGridCells({ columnCount, hour, dates }: HourGridProps) {
     return (
         <>
             {[...Array(columnCount).keys()].map((_, i) => (
-                <Card
+                <CalendarEntryHourView
+                    i={i}
+                    columnCount={columnCount}
+                    hour={hour}
+                    date={dates[i]}
                     key={i}
-                    flex={1}
-                    flexBasis={0}
-                    bg="$color1"
-                    style={{
-                        ...baseCellStyle,
-                        borderLeftWidth: BORDER_WIDTH,
-                        borderTopWidth: hour === 0 ? 0 : BORDER_WIDTH,
-                        borderRightWidth:
-                            i === columnCount - 1 ? BORDER_WIDTH : 0,
-                    }}
                 />
             ))}
         </>
@@ -137,6 +133,7 @@ interface HourlyScrollViewProps {
     hour12: boolean;
     sidebarWidth: "$4" | "$6";
     columnCount: number;
+    dates: Date[];
 }
 
 function HourlyScrollView({
@@ -144,6 +141,7 @@ function HourlyScrollView({
     hour12,
     sidebarWidth,
     columnCount,
+    dates,
 }: HourlyScrollViewProps) {
     return (
         <ScrollView flex={1} flexBasis={0}>
@@ -159,7 +157,11 @@ function HourlyScrollView({
                             hour12={hour12}
                             sidebarWidth={sidebarWidth}
                         />
-                        <HourGridCells columnCount={columnCount} hour={hour} />
+                        <HourGridCells
+                            columnCount={columnCount}
+                            hour={hour}
+                            dates={dates}
+                        />
                     </XStack>
                 ))}
             </YStack>
@@ -214,6 +216,7 @@ function CalendarRow({
                 width={sidebarWidth}
                 borderTopWidth={BORDER_WIDTH}
             />
+            {/* eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee */}
             {row.map((cell, i) => (
                 <CalendarCell
                     key={i}
@@ -366,6 +369,7 @@ export function Calendar({ grid }: CalendarProps) {
                     hour12={hour12}
                     sidebarWidth={sidebarWidth}
                     columnCount={DAYS_IN_WEEK}
+                    dates={gridEntries[0][1].map((cell) => cell.date)}
                 />
             </YStack>
         );
@@ -416,6 +420,7 @@ export function Calendar({ grid }: CalendarProps) {
                     hour12={hour12}
                     sidebarWidth={sidebarWidth}
                     columnCount={1}
+                    dates={[gridEntries[0][1][0].date]}
                 />
             </YStack>
         );

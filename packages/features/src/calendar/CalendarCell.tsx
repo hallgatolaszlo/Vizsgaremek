@@ -8,8 +8,19 @@ import {
 import { CalendarCellProps } from "@repo/types";
 import { isNative } from "@repo/utils";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, Card, CardProps, Text } from "tamagui";
+import {
+    AnimatePresence,
+    Card,
+    CardProps,
+    Dialog,
+    DialogClose,
+    Text,
+    XStack,
+    YStack,
+} from "tamagui";
 import { CalendarEntry } from "./CalendarEntry";
+import CustomDialog from "@/src/components/CalendarPage/CustomDialog";
+import { X } from "@tamagui/lucide-icons";
 
 interface CalendarCellComponentProps extends CardProps {
     cell: CalendarCellProps;
@@ -27,6 +38,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
     } = useCalendarStore();
     const { locale } = useProfileStore();
     const { setFieldType, setDate } = useContextMenuStore();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const {
         cell,
@@ -137,7 +149,10 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
             new Date(d.startDate!).toDateString() ===
                 cell.date.toDateString() &&
             d.calendarId &&
-            checkedCalendarIds.includes(d.calendarId),
+            checkedCalendarIds.includes(d.calendarId) &&
+            (viewType == "week" || viewType == "day"
+                ? d.isAllDay
+                : d.isAllDay || !d.isAllDay),
     );
 
     useEffect(() => {
@@ -220,21 +235,67 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
                 ))}
             </AnimatePresence>
             {hiddenCount > 0 && (
-                <Text
-                    style={{
-                        userSelect: "none",
-                        height: "fit-content",
-                        paddingLeft: "10px",
-                        borderRadius: "10px",
-                    }}
-                    hoverStyle={{
-                        background: "grey",
-                        transition: "background 250ms ease",
-                    }}
-                    onPress={(e) => e.stopPropagation()}
+                <CustomDialog
+                    isDialogOpen={isDialogOpen}
+                    setIsDialogOpen={setIsDialogOpen}
+                    content={
+                        <YStack minW={"15vw"}>
+                            <XStack
+                                ml={10}
+                                cursor="pointer"
+                                onPress={(e) => {
+                                    e.stopPropagation();
+                                    setIsDialogOpen(false);
+                                }}
+                                style={{
+                                    right: 0,
+                                    position: "absolute",
+                                }}
+                            >
+                                <X />
+                            </XStack>
+                            <Text
+                                fontWeight="$2"
+                                style={{
+                                    userSelect: "none",
+                                    textAlign: "center",
+                                    textWrap: "none",
+                                    wordBreak: "unset",
+                                    wordWrap: "unset",
+                                    overflowWrap: "unset",
+                                    textTransform: "capitalize",
+                                    fontSize: "1.25rem",
+                                    marginBottom: "15px",
+                                }}
+                            >
+                                {headerLabel()}
+                            </Text>
+                            {filteredEntries?.map((entry) => (
+                                <CalendarEntry key={entry.id} entry={entry} />
+                            ))}
+                        </YStack>
+                    }
+                    transparent={true}
                 >
-                    {hiddenCount} more...
-                </Text>
+                    <Dialog.Trigger asChild>
+                        <Text
+                            style={{
+                                userSelect: "none",
+                                height: "fit-content",
+                                paddingLeft: "10px",
+                                borderRadius: "10px",
+                                cursor: "pointer",
+                            }}
+                            hoverStyle={{
+                                background: "grey",
+                                transition: "background 250ms ease",
+                            }}
+                            onPress={(e) => e.stopPropagation()}
+                        >
+                            {hiddenCount} more...
+                        </Text>
+                    </Dialog.Trigger>
+                </CustomDialog>
             )}
         </Card>
     );
