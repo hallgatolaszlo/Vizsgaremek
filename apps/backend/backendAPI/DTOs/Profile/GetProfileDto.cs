@@ -12,5 +12,7 @@ namespace backend.DTOs.Profile
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public DateOnly? BirthDate { get; set; }
+        public DateTime UserCreatedAt { get; set; }
+        public required string UserEmail { get; set; }
     }
 }

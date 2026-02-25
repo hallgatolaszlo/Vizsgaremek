@@ -6,3 +6,4 @@ export * from "./src/useContextMenuStore";
 export * from "./src/useDialogStore";
 export * from "./src/useProfileStore";
 export * from "./src/useNotificationStore";
+export * from "./src/useProfile";
