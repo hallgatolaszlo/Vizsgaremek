@@ -6,23 +6,27 @@ import { Card, ToggleGroup } from "tamagui";
 import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
 
+type FormType = "sign-in" | "sign-up";
+
 interface AuthCardProps {
 	onSignIn?: () => void;
 	style?: CSSProperties;
 }
 
+function getToggleItemStyles(isActive: boolean) {
+	return {
+		backgroundColor: isActive ? "$color4" : "$color2",
+		focusStyle: { backgroundColor: "$color4" },
+		hoverStyle: {
+			cursor: isActive ? "default" : "pointer",
+			backgroundColor: isActive ? "$color4" : "$color3",
+			borderColor: isActive ? "$color5" : "$color7",
+		},
+	} as const;
+}
+
 export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
-	const [selectedForm, setSelectedForm] = useState<string>("sign-in");
-
-	function handleSelectedForm(form: string | null) {
-		if (form !== null) {
-			setSelectedForm(form);
-		}
-	}
-
-	function handleSignInSuccess() {
-		onSignIn();
-	}
+	const [selectedForm, setSelectedForm] = useState<FormType>("sign-in");
 
 	return (
 		<Card
@@ -34,39 +38,19 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 				disableDeactivation
 				value={selectedForm}
 				type="single"
-				onValueChange={(value) => handleSelectedForm(value)}
+				onValueChange={(value) =>
+					value && setSelectedForm(value as FormType)
+				}
 				borderColor="$color7"
 			>
 				<ToggleGroup.Item
-					backgroundColor={
-						selectedForm === "sign-in" ? "$color4" : "$color2"
-					}
-					focusStyle={{ backgroundColor: "$color4" }}
-					hoverStyle={{
-						cursor:
-							selectedForm === "sign-in" ? "default" : "pointer",
-						backgroundColor:
-							selectedForm === "sign-in" ? "$color4" : "$color3",
-						borderColor:
-							selectedForm === "sign-in" ? "$color5" : "$color7",
-					}}
+					{...getToggleItemStyles(selectedForm === "sign-in")}
 					value="sign-in"
 				>
 					<ToggleGroupItemText text="Sign-In" />
 				</ToggleGroup.Item>
 				<ToggleGroup.Item
-					backgroundColor={
-						selectedForm === "sign-up" ? "$color4" : "$color2"
-					}
-					focusStyle={{ backgroundColor: "$color4" }}
-					hoverStyle={{
-						cursor:
-							selectedForm === "sign-up" ? "default" : "pointer",
-						backgroundColor:
-							selectedForm === "sign-up" ? "$color4" : "$color3",
-						borderColor:
-							selectedForm === "sign-up" ? "$color5" : "$color7",
-					}}
+					{...getToggleItemStyles(selectedForm === "sign-up")}
 					value="sign-up"
 				>
 					<ToggleGroupItemText text="Sign-Up" />
@@ -80,7 +64,7 @@ export function AuthCard({ style, onSignIn = () => {} }: AuthCardProps) {
 				elevate
 			>
 				{selectedForm === "sign-in" ? (
-					<SignInForm onSuccessfulSignIn={handleSignInSuccess} />
+					<SignInForm onSuccessfulSignIn={onSignIn} />
 				) : (
 					<SignUpForm />
 				)}

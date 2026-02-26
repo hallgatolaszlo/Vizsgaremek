@@ -1,23 +1,30 @@
 "use client";
 
 import { ProtectedRoute } from "@repo/features";
-import { useNotificationStore } from "@repo/hooks";
+import { useCalendarStore, useNotificationStore } from "@repo/hooks";
 import { useEffect } from "react";
 
 export default function DashboardLayout({
-    children,
+	children,
 }: {
-    children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-    const { startConnection } = useNotificationStore();
+	const { startConnection } = useNotificationStore();
+	const initResizeListener = useCalendarStore(
+		(state) => state.initResizeListener,
+	);
 
-    useEffect(() => {
-        console.log("starting connection");
-        async function start() {
-            await startConnection();
-        }
-        start();
-    }, []);
+	useEffect(() => {
+		return initResizeListener();
+	}, [initResizeListener]);
 
-    return <ProtectedRoute>{children}</ProtectedRoute>;
+	useEffect(() => {
+		console.log("starting connection");
+		async function start() {
+			await startConnection();
+		}
+		start();
+	}, []);
+
+	return <ProtectedRoute>{children}</ProtectedRoute>;
 }

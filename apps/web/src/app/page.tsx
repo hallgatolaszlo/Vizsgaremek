@@ -1,11 +1,5 @@
-"use client";
-import { FullscreenView } from "@/src/components/FullscreenView";
-import { H1 } from "tamagui";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-	return (
-		<FullscreenView>
-			<H1>Welcome to the Home Page</H1>
-		</FullscreenView>
-	);
+	redirect("/sign-in");
 }
