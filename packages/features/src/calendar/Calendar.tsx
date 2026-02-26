@@ -1,11 +1,14 @@
 import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
+import { CreateCalendarEntryForm } from "@/src/components/CalendarPage/CreateCalendarEntryForm";
 import {
 	useCalendarEntries,
 	useCalendars,
 	useCalendarStore,
+	useDialogStore,
 	useProfileStore,
 } from "@repo/hooks";
 import { CalendarCellProps } from "@repo/types";
+import { StyledButton } from "@repo/ui";
 import {
 	generateGrid,
 	getPositionedEntries,
@@ -13,8 +16,17 @@ import {
 	PositionedEntry,
 	Week,
 } from "@repo/utils";
+import { Plus } from "@tamagui/lucide-icons";
 import { useCallback, useMemo, useState } from "react";
-import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
+import {
+	Card,
+	Dialog,
+	ScrollView,
+	Text,
+	useMedia,
+	XStack,
+	YStack,
+} from "tamagui";
 import CalendarCell from "./CalendarCell";
 
 // Constants
@@ -285,6 +297,32 @@ function CalendarRow({
 				/>
 			))}
 		</XStack>
+	);
+}
+
+function AddEntryButton() {
+	const { setContent } = useDialogStore();
+
+	return (
+		<Dialog.Trigger asChild scope="custom-dialog">
+			<StyledButton
+				style={{
+					position: "absolute",
+					bottom: 20,
+					right: 20,
+					zIndex: 100,
+				}}
+				circular
+				scaleIcon={1.25}
+				size={60}
+				icon={Plus}
+				onPress={() => {
+					setContent(
+						<CreateCalendarEntryForm isContextMenu={false} />,
+					);
+				}}
+			></StyledButton>
+		</Dialog.Trigger>
 	);
 }
 
