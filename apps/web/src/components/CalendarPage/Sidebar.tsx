@@ -715,7 +715,7 @@ export default function Sidebar() {
 								<UpdateCalendarForm
 									calendar={calendar}
 									onSuccess={() => setEditingCalendarId(null)}
-									onBlur={() => setEditingCalendarId(null)}
+									onCancel={() => setEditingCalendarId(null)}
 								/>
 							) : (
 								<CalendarListItem

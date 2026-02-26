@@ -12,21 +12,34 @@ interface CalendarEntryProps {
 	entry: GetCalendarEntryDTO;
 	height?: string;
 	marginTop?: string;
+	isMultiDay?: boolean;
+	isStart?: boolean;
+	isEnd?: boolean;
+	showText?: boolean;
+	isRowStart?: boolean;
+	isRowEnd?: boolean;
 }
 
 export function CalendarEntry({
 	entry,
 	height,
 	marginTop,
+	isMultiDay,
+	isStart,
+	isEnd,
+	showText,
+	isRowStart,
+	isRowEnd,
 }: CalendarEntryProps) {
 	const calendarTheme = useTheme({ name: "calendarColors" });
-	const baseTheme = useTheme();
 	const backgroundColor = calendarTheme[`color${entry.color}`]?.val;
 	const textColor = getContrastFromHSLA(backgroundColor);
-	const { locale } = useProfileStore();
+	const { locale, hour12 } = useProfileStore();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	function entryText() {
+		// For multi-day entries in month/multiweek, show only the name
+		if (isMultiDay) return entry.name;
 		return entry.isAllDay
 			? entry.name
 			: `${entry.name} (${new Date(entry.startDate!).toLocaleTimeString(
@@ -34,10 +47,12 @@ export function CalendarEntry({
 					{
 						hour: "numeric",
 						minute: "2-digit",
+						hour12,
 					},
 				)} - ${new Date(entry.endDate!).toLocaleTimeString(locale, {
 					hour: "numeric",
 					minute: "2-digit",
+					hour12,
 				})})`;
 	}
 
@@ -57,15 +72,29 @@ export function CalendarEntry({
 				<Card
 					p={"$1"}
 					pl={"$2"}
-					m={"$1"}
+					m={"0"}
+					mb={"1px"}
 					enterStyle={{ y: -10, opacity: 0 }}
 					exitStyle={{ y: -10, opacity: 0 }}
 					animation={"quickest"}
 					style={{
 						backgroundColor,
 						height: height,
-						marginTop: marginTop ?? "$1",
-						outline: `1px solid ${baseTheme["color2"]?.val}`,
+						marginTop: "$1",
+						minHeight: 20,
+						width: "100%",
+						borderRadius: isMultiDay
+							? isStart && isEnd
+								? 8
+								: isStart || isRowStart
+									? "8px 0 0 8px"
+									: isEnd || isRowEnd
+										? "0 8px 8px 0"
+										: 0
+							: undefined,
+						overflow: "hidden",
+						display: "flex",
+						justifyContent: "center",
 					}}
 					className="entryCard"
 					tabIndex={0}
@@ -78,7 +107,11 @@ export function CalendarEntry({
 						color={textColor}
 						fontSize={"$3"}
 					>
-						{entryText()}
+						{isMultiDay
+							? showText
+								? entryText()
+								: null
+							: entryText()}
 					</Text>
 				</Card>
 			</Dialog.Trigger>

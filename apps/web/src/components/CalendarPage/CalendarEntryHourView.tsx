@@ -41,8 +41,15 @@ export function CalendarEntryHourView({
 	const calculateEntryHeight = (entry: PositionedEntry["entry"]): number => {
 		const startDate = new Date(entry.startDate!);
 		const endDate = new Date(entry.endDate!);
+
+		// Clamp end to end of the start day to avoid rendering beyond 24h
+		const endOfDay = new Date(startDate);
+		endOfDay.setHours(23, 59, 59, 999);
+		const effectiveEnd =
+			endDate.getTime() > endOfDay.getTime() ? endOfDay : endDate;
+
 		const durationMinutes =
-			(endDate.getTime() - startDate.getTime()) / 60000;
+			(effectiveEnd.getTime() - startDate.getTime()) / 60000;
 		return (durationMinutes / 60) * cellHeight;
 	};
 
