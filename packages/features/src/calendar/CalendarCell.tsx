@@ -219,7 +219,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 				ref={headRef}
 			>
 				<Text
-					fontWeight="$2"
+					fontWeight="bold"
 					style={{
 						userSelect: "none",
 						textAlign: "center",
@@ -260,7 +260,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 								<X />
 							</XStack>
 							<Text
-								fontWeight="$2"
+								fontWeight="bold"
 								style={{
 									userSelect: "none",
 									textAlign: "center",

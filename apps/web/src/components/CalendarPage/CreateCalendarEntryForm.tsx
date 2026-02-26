@@ -20,13 +20,14 @@ import { CalendarPlus2, Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
-import { DatePicker } from "react-datepicker";
-import { Controller, useForm } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import {
 	Checkbox,
 	Form,
 	Label,
 	Select,
+	Separator,
 	Spinner,
 	Text,
 	Theme,
@@ -87,16 +88,15 @@ export function CreateCalendarEntryForm({
 	const myCalendars = useCalendars();
 
 	const { selectedDate } = useCalendarStore();
+	const { date } = useContextMenuStore();
 
 	const [error, setError] = useState<string | null>(null);
 	const [selectedCalendar, setSelectedCalendar] =
 		useState<GetCalendarDTO | null>(myCalendars.data?.[0] || null);
 	const [useCalendarColor, setUseCalendarColor] = useState(true);
 
-	const startDate = isContextMenu
-		? useContextMenuStore((state) => state.date)
-		: selectedDate;
-	startDate?.setHours(new Date().getHours(), 0, 0, 0);
+	const initialDate = isContextMenu ? date : selectedDate;
+	initialDate?.setHours(new Date().getHours(), 0, 0, 0);
 	const { locale } = useProfileStore();
 
 	const [isStartDatePickerOpen, setIsStartDatePickerOpen] = useState(false);
@@ -107,7 +107,6 @@ export function CreateCalendarEntryForm({
 		handleSubmit,
 		reset,
 		setValue,
-		watch,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(createCalendarEntrySchema),
@@ -117,13 +116,15 @@ export function CreateCalendarEntryForm({
 			name: "",
 			description: "",
 			isAllDay: true,
-			startDate: startDate!,
-			endDate: new Date(startDate!.getTime() + 60 * 60 * 1000),
+			startDate: initialDate ?? new Date(),
+			endDate: new Date(
+				(initialDate ?? new Date()).getTime() + 60 * 60 * 1000,
+			),
 			color: selectedCalendar?.color || 1,
 		},
 	});
 
-	const isAllDay = watch("isAllDay");
+	const isAllDay = useWatch({ control, name: "isAllDay" });
 
 	// Mutation for sign-up action
 	const createCalendarEntryMutation = useMutation({
@@ -147,6 +148,7 @@ export function CreateCalendarEntryForm({
 	});
 
 	type FormData = z.infer<typeof createCalendarEntrySchema>;
+	type ThemeColor = ReturnType<typeof useTheme>["color1"];
 
 	async function onSubmit(data: FormData) {
 		const startDate: Date = new Date(data.startDate);
@@ -179,7 +181,7 @@ export function CreateCalendarEntryForm({
 	}
 
 	const theme = useTheme({ name: "calendarColors" });
-	const colors = useRef<Record<string, any>>({
+	const colors = useRef<Record<string, ThemeColor>>({
 		"1": theme.color1,
 		"2": theme.color2,
 		"3": theme.color3,
@@ -199,6 +201,7 @@ export function CreateCalendarEntryForm({
 			<YStack gap="$4">
 				<YStack gap={"$2"} style={{ alignItems: "center" }}>
 					<Text color={"$color11"}>Calendar</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="calendarId"
@@ -225,14 +228,25 @@ export function CreateCalendarEntryForm({
 
 										return (
 											<Select.ItemText>
-												<ColorIcon
-													color={
-														colors.current[
-															calendar?.color!
-														].val
-													}
-												/>
-												<Text>{calendar?.name}</Text>
+												<XStack
+													gap="$2"
+													alignItems="center"
+												>
+													{calendar &&
+													calendar.color ? (
+														<ColorIcon
+															color={
+																colors.current[
+																	calendar
+																		.color
+																]?.val
+															}
+														/>
+													) : null}
+													<Text>
+														{calendar?.name}
+													</Text>
+												</XStack>
 											</Select.ItemText>
 										);
 									}}
@@ -240,7 +254,6 @@ export function CreateCalendarEntryForm({
 										display: "flex",
 										flexDirection: "row",
 										flexWrap: "nowrap",
-										alignItems: "center",
 										gap: 15,
 									}}
 									defaultValue={""}
@@ -258,19 +271,26 @@ export function CreateCalendarEntryForm({
 														gap: 15,
 													}}
 												>
-													{
-														<ColorIcon
-															color={
-																colors.current[
-																	calendar
-																		?.color!
-																].val
-															}
-														/>
-													}
-													<Text>
-														{calendar?.name}
-													</Text>
+													<XStack
+														gap="$2"
+														alignItems="center"
+													>
+														{calendar &&
+														calendar.color ? (
+															<ColorIcon
+																color={
+																	colors
+																		.current[
+																		calendar
+																			.color
+																	]?.val
+																}
+															/>
+														) : null}
+														<Text>
+															{calendar?.name}
+														</Text>
+													</XStack>
 												</Select.ItemText>
 											</Select.Item>
 										),
@@ -282,6 +302,7 @@ export function CreateCalendarEntryForm({
 				</YStack>
 				<YStack gap={"$2"} style={{ alignItems: "center" }}>
 					<Text color={"$color11"}>Entry Type</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="entryCategory"
@@ -313,6 +334,7 @@ export function CreateCalendarEntryForm({
 				</YStack>
 				<YStack gap={"$2"} style={{ alignItems: "center" }}>
 					<Text color={"$color11"}>Title & Description</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="name"
@@ -346,42 +368,44 @@ export function CreateCalendarEntryForm({
 						<ErrorText message={errors.description.message} />
 					)}
 				</YStack>
-				<Controller
-					control={control}
-					name="isAllDay"
-					render={({ field: { onChange, value, ref } }) => (
-						<XStack style={{ alignItems: "center" }} gap="$2">
-							<Checkbox
-								id="isAllDayCheckbox"
-								ref={ref}
-								checked={value}
-								onCheckedChange={(value) => {
-									onChange(value);
+				<YStack gap={"$2"} style={{ textAlign: "center" }}>
+					<Text color={"$color11"}>Time</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
+					<Controller
+						control={control}
+						name="isAllDay"
+						render={({ field: { onChange, value, ref } }) => (
+							<XStack
+								style={{
+									alignItems: "center",
 								}}
+								gap="$2"
 							>
-								<Checkbox.Indicator>
-									<Check />
-								</Checkbox.Indicator>
-							</Checkbox>
-							<Label htmlFor="isAllDayCheckbox">All Day</Label>
-						</XStack>
-					)}
-				/>
-				<XStack
-					gap={"$2"}
-					style={{
-						display: "flex",
-						height: 40,
-						alignItems: "center",
-					}}
-				>
+								<Checkbox
+									id="isAllDayCheckbox"
+									ref={ref}
+									checked={value}
+									onCheckedChange={(value) => {
+										onChange(value);
+									}}
+								>
+									<Checkbox.Indicator>
+										<Check />
+									</Checkbox.Indicator>
+								</Checkbox>
+								<Label htmlFor="isAllDayCheckbox">
+									All Day
+								</Label>
+							</XStack>
+						)}
+					/>
 					<Controller
 						control={control}
 						name="startDate"
 						render={({ field: { onChange, value } }) => (
 							<View
 								style={{
-									height: "100%",
+									height: "40px",
 									flexGrow: 1,
 									flexShrink: 1,
 								}}
@@ -394,14 +418,14 @@ export function CreateCalendarEntryForm({
 									onInputClick={() =>
 										setIsStartDatePickerOpen(true)
 									}
-									selected={value}
-									onChange={(value: Date | null) => {
-										onChange(value);
+									selected={value ?? new Date()}
+									onChange={(val: Date | null) => {
+										if (!val) return;
+										onChange(val);
 										setValue(
 											"endDate",
 											new Date(
-												value!.getTime() +
-													60 * 60 * 1000,
+												val.getTime() + 60 * 60 * 1000,
 											),
 										);
 									}}
@@ -424,82 +448,88 @@ export function CreateCalendarEntryForm({
 						)}
 					/>
 					{!isAllDay && (
-						<>
-							<Text color={"$color11"}>-</Text>
-							<Controller
-								control={control}
-								name="endDate"
-								render={({ field: { onChange, value } }) => (
-									<View
-										style={{
-											height: "100%",
-											flexGrow: 1,
-											flexShrink: 1,
+						<Controller
+							control={control}
+							name="endDate"
+							render={({ field: { onChange, value } }) => (
+								<View
+									style={{
+										height: "40px",
+										flexGrow: 1,
+										flexShrink: 1,
+									}}
+								>
+									<DatePicker
+										open={isEndDatePickerOpen}
+										onClickOutside={() =>
+											setIsEndDatePickerOpen(false)
+										}
+										onInputClick={() =>
+											setIsEndDatePickerOpen(true)
+										}
+										selected={value ?? new Date()}
+										onChange={(val: Date | null) => {
+											if (!val) return;
+											onChange(val);
 										}}
-									>
-										<DatePicker
-											open={isEndDatePickerOpen}
-											onClickOutside={() =>
-												setIsEndDatePickerOpen(false)
-											}
-											onInputClick={() =>
-												setIsEndDatePickerOpen(true)
-											}
-											selected={value}
-											onChange={onChange}
-											locale={
-												locale instanceof Intl.Locale
-													? locale.language
-													: "en"
-											}
-											timeInputLabel="Time:"
-											dateFormat="MM/dd/yyyy hh:mm aa"
-											showTimeInput
-											className="custom-datepicker"
-											wrapperClassName="custom-datepicker-wrapper"
-										/>
-									</View>
-								)}
-							/>
-						</>
+										locale={
+											locale instanceof Intl.Locale
+												? locale.language
+												: "en"
+										}
+										timeInputLabel="Time:"
+										dateFormat="MM/dd/yyyy hh:mm aa"
+										showTimeInput
+										className="custom-datepicker"
+										wrapperClassName="custom-datepicker-wrapper"
+									/>
+								</View>
+							)}
+						/>
 					)}
-				</XStack>
-				<XStack
-					style={{
-						justifyContent: "space-between",
-						alignItems: "center",
-					}}
-				>
-					<Controller
-						control={control}
-						name="color"
-						render={({ field: { onChange, value } }) => (
-							<ColorSelect
-								disabled={useCalendarColor}
-								value={value}
-								onChange={onChange}
-							/>
-						)}
-					/>
-					<XStack style={{ alignItems: "center" }} gap="$2">
-						<Checkbox
-							id="useCalendarColorCheckbox"
-							checked={useCalendarColor}
-							onCheckedChange={(value) => {
-								setUseCalendarColor(
-									value === "indeterminate" ? false : value,
-								);
-							}}
-						>
-							<Checkbox.Indicator>
-								<Check />
-							</Checkbox.Indicator>
-						</Checkbox>
-						<Label htmlFor="useCalendarColorCheckbox">
-							Use calendar color
-						</Label>
+				</YStack>
+				<YStack gap={"$2"} style={{ textAlign: "center" }}>
+					<Text color={"$color11"}>Color</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
+					<XStack
+						style={{
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<Controller
+							control={control}
+							name="color"
+							render={({ field: { onChange, value } }) => (
+								<ColorSelect
+									disabled={useCalendarColor}
+									value={value}
+									onChange={onChange}
+								/>
+							)}
+						/>
+						<XStack style={{ alignItems: "center" }} gap="$2">
+							<Checkbox
+								id="useCalendarColorCheckbox"
+								checked={useCalendarColor}
+								onCheckedChange={(value) => {
+									setUseCalendarColor(
+										value === "indeterminate"
+											? false
+											: value,
+									);
+								}}
+							>
+								<Checkbox.Indicator>
+									<Check />
+								</Checkbox.Indicator>
+							</Checkbox>
+							<Label htmlFor="useCalendarColorCheckbox">
+								Use calendar color
+							</Label>
+						</XStack>
 					</XStack>
-				</XStack>
+				</YStack>
 				<XStack gap={"$2"} style={{ width: "100%" }}>
 					<StyledButton
 						style={{ flexGrow: 1 }}
@@ -524,9 +554,7 @@ export function CreateCalendarEntryForm({
 						)}
 					</StyledButton>
 					<StyledButton
-						onPress={() => {
-							onClose?.();
-						}}
+						onPress={() => onClose?.()}
 						icon={X}
 						scaleIcon={1.5}
 					/>

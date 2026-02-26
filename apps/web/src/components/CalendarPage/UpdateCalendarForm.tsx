@@ -4,7 +4,6 @@ import { components } from "@repo/types";
 import { SelectElement, StyledButton, StyledInput } from "@repo/ui";
 import { Check } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -42,11 +41,13 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
+type ThemeColor = ReturnType<typeof useTheme>["color1"];
+
 function ColorSelectItem({
 	color,
 	index,
 }: {
-	color: any;
+	color: ThemeColor;
 	index: number;
 	isSelected: boolean;
 }) {
@@ -99,11 +100,9 @@ export function UpdateCalendarForm({
 		id?: string | undefined;
 	};
 }) {
-	const [error, setError] = useState<string | null>(null);
-	const [isSelectOpen, setIsSelectOpen] = useState(false);
 	const theme = useTheme({ name: "calendarColors" });
 	const queryClient = useQueryClient();
-	const colors = useRef<Record<string, any>>({
+	const colors = useRef<Record<string, ThemeColor>>({
 		"1": theme.color1,
 		"2": theme.color2,
 		"3": theme.color3,
@@ -130,7 +129,6 @@ export function UpdateCalendarForm({
 			color: calendar.color!,
 		},
 	});
-	0;
 
 	// Mutation for sign-up action
 	const updateCalendarMutation = useMutation({
@@ -142,15 +140,6 @@ export function UpdateCalendarForm({
 			queryClient.invalidateQueries({ queryKey: ["myCalendars"] });
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 			onSuccess?.(); // Call the callback to close the popover
-		},
-		onError: (err) => {
-			if (err instanceof AxiosError && err.status === 400) {
-				setError(err.response?.data);
-			} else {
-				setError(
-					"An unexpected error occurred. Please try again later.",
-				);
-			}
 		},
 	});
 
@@ -186,7 +175,13 @@ export function UpdateCalendarForm({
 
 	return (
 		<Form style={{ width: "100%" }}>
-			<XStack gap={"$2"} p={"$2"} onBlur={handleBlur} width="100%">
+			<XStack
+				gap={"$2"}
+				p={"$2"}
+				px={15}
+				onBlur={handleBlur}
+				width="100%"
+			>
 				<Controller
 					control={control}
 					name="color"
@@ -197,7 +192,6 @@ export function UpdateCalendarForm({
 								onValueChange={(value) =>
 									onChange(Number(value))
 								}
-								onOpenChange={setIsSelectOpen}
 								renderValue={(value) => (
 									<View
 										bg={"red"}

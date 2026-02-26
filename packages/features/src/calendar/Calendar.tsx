@@ -81,7 +81,7 @@ function WeekNumberSidebar({
 			}}
 		>
 			<Card.Header p={padding}>
-				<Text fontWeight="$2" style={{ textAlign: "center" }}>
+				<Text fontWeight="bold" style={{ textAlign: "center" }}>
 					{weekNumber}
 				</Text>
 			</Card.Header>
@@ -118,7 +118,7 @@ function HourLabel({ hour, locale, hour12, sidebarWidth }: HourLabelProps) {
 			}}
 		>
 			<Text
-				fontWeight="$2"
+				fontWeight="bold"
 				color="$color11"
 				style={{
 					width: "100%",
@@ -155,7 +155,6 @@ function HourGridCells({
 					i={i}
 					columnCount={columnCount}
 					hour={hour}
-					date={dates[i]}
 					positionedEntries={
 						positionedEntriesByDate.get(dates[i].toDateString()) ??
 						[]
@@ -410,7 +409,7 @@ export function Calendar({ grid }: CalendarProps) {
 									: 0,
 						}}
 					>
-						<Text fontWeight="$2" style={{ textAlign: "center" }}>
+						<Text fontWeight="bold" style={{ textAlign: "center" }}>
 							{day}
 						</Text>
 					</Card>

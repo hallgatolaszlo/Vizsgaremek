@@ -28,12 +28,12 @@ import {
 	Checkbox,
 	GetProps,
 	H3,
-	Label,
 	ListItem,
 	Popover,
 	Separator,
 	Spinner,
 	Text,
+	Tooltip,
 	useTheme,
 	View,
 	XGroup,
@@ -50,7 +50,7 @@ type AnimationProp = GetProps<typeof YStack>["animation"];
 
 const FADE_ANIMATION: AnimationProp = "quick";
 
-const SIDEBAR_WIDTH = 375;
+const SIDEBAR_WIDTH = 350;
 
 function NavButton(props: ButtonProps) {
 	return (
@@ -103,10 +103,6 @@ function CalendarListItem({
 	return (
 		<AnimatePresence>
 			<ListItem
-				style={{
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
 				enterStyle={{ y: -10, opacity: 0 }}
 				exitStyle={{ y: -10, opacity: 0 }}
 				animation={FADE_ANIMATION}
@@ -114,138 +110,155 @@ function CalendarListItem({
 				py={0}
 				display="flex"
 			>
-				<XStack gap="$3" style={{ alignItems: "center" }}>
-					<Checkbox
-						id={`checkbox-${calendar.id}`}
-						checked={isChecked}
-						onCheckedChange={(checked) =>
-							onCheckedChange(checked === true)
-						}
-						style={checkboxStyles.base}
-						hoverStyle={checkboxStyles.hover}
-						focusStyle={checkboxStyles.hover}
-					>
-						<Checkbox.Indicator>
-							<Check
-								strokeWidth={3}
-								color={getContrastFromHSLA(themeColor)}
+				<XStack
+					style={{
+						alignItems: "center",
+						justifyContent: "space-between",
+						width: "100%",
+					}}
+				>
+					<XStack gap={"$3"} flexShrink={1}>
+						<Checkbox
+							checked={isChecked}
+							onCheckedChange={(checked) =>
+								onCheckedChange(checked === true)
+							}
+							style={checkboxStyles.base}
+							hoverStyle={checkboxStyles.hover}
+							focusStyle={checkboxStyles.hover}
+						>
+							<Checkbox.Indicator>
+								<Check
+									strokeWidth={3}
+									color={getContrastFromHSLA(themeColor)}
+								/>
+							</Checkbox.Indicator>
+						</Checkbox>
+						<Tooltip>
+							<Tooltip.Trigger asChild>
+								<Text
+									textOverflow="ellipsis"
+									whiteSpace="nowrap"
+									overflow="hidden"
+									style={{ userSelect: "none" }}
+								>
+									{calendar.name}
+								</Text>
+							</Tooltip.Trigger>
+							<Tooltip.Content backgroundColor={"$color10"}>
+								<Tooltip.Arrow
+									size={"$4"}
+									backgroundColor={"$color10"}
+								/>
+								<Text color={"$color2"}>{calendar.name}</Text>
+							</Tooltip.Content>
+						</Tooltip>
+					</XStack>
+					<Popover placement="bottom-end">
+						<Popover.Trigger asChild>
+							<Button
+								unstyled
+								icon={<EllipsisVertical />}
+								scaleIcon={1.25}
+								size="$3"
+								borderWidth={0}
+								bg="transparent"
+								aspectRatio={1}
+								display="flex"
+								style={{
+									borderTopLeftRadius: "50%",
+									borderBottomLeftRadius: "50%",
+									borderTopRightRadius: "50%",
+									borderBottomRightRadius: "50%",
+									alignItems: "center",
+									justifyContent: "center",
+								}}
+								cursor="pointer"
+								hoverStyle={{ bg: "$color3" }}
+								animation={FADE_ANIMATION}
 							/>
-						</Checkbox.Indicator>
-					</Checkbox>
-					<Label
-						htmlFor={`checkbox-${calendar.id}`}
-						textOverflow="ellipsis"
-						whiteSpace="nowrap"
-						overflow="hidden"
-						style={{ userSelect: "none" }}
-					>
-						{calendar.name}
-					</Label>
-				</XStack>
-				<Popover placement="bottom-end">
-					<Popover.Trigger asChild>
-						<Button
-							unstyled
-							icon={<EllipsisVertical />}
-							scaleIcon={1.25}
-							size="$3"
-							borderWidth={0}
-							bg="transparent"
-							aspectRatio={1}
-							display="flex"
+						</Popover.Trigger>
+						<Popover.Content
 							style={{
-								borderTopLeftRadius: "50%",
-								borderBottomLeftRadius: "50%",
-								borderTopRightRadius: "50%",
-								borderBottomRightRadius: "50%",
-								alignItems: "center",
-								justifyContent: "center",
+								outlineWidth: 2,
+								outlineColor: "var(--color5)",
+								outlineStyle: "solid",
+								borderRadius: 10,
+								padding: 3,
+								backgroundColor: "var(--color2)",
 							}}
-							cursor="pointer"
-							hoverStyle={{ bg: "$color3" }}
+							enterStyle={{ y: -10, opacity: 0 }}
+							exitStyle={{ y: -10, opacity: 0 }}
+							elevate
 							animation={FADE_ANIMATION}
-						/>
-					</Popover.Trigger>
-					<Popover.Content
-						style={{
-							outlineWidth: 2,
-							outlineColor: "var(--color5)",
-							outlineStyle: "solid",
-							borderRadius: 10,
-							padding: 3,
-							backgroundColor: "var(--color2)",
-						}}
-						enterStyle={{ y: -10, opacity: 0 }}
-						exitStyle={{ y: -10, opacity: 0 }}
-						elevate
-						animation={FADE_ANIMATION}
-					>
-						<Popover.Arrow
-							size="$4"
-							borderWidth={2}
-							borderColor="$color6"
-							bg="$color2"
-						/>
-						<ListItem
-							p={0}
-							style={{
-								borderTopLeftRadius: 10,
-								borderTopRightRadius: 10,
-							}}
 						>
-							<StyledButton
-								iconAfter={<SquarePen />}
-								width={"100%"}
-								bg={"$color2"}
-								hoverStyle={{
-									bg: "$color3",
-									outlineWidth: 0,
-								}}
+							<Popover.Arrow
+								size="$4"
+								borderWidth={2}
+								borderColor="$color6"
+								bg="$color2"
+							/>
+							<ListItem
+								p={0}
 								style={{
-									display: "flex",
-									justifyContent: "space-between",
+									borderTopLeftRadius: 10,
+									borderTopRightRadius: 10,
 								}}
-								onPress={() =>
-									setEditingCalendarId(calendar.id!)
-								}
 							>
-								<Text fontWeight={"$2"}>Edit</Text>
-							</StyledButton>
-						</ListItem>
-						<ListItem
-							p={0}
-							style={{
-								borderBottomLeftRadius: 10,
-								borderBottomRightRadius: 10,
-							}}
-						>
-							<StyledButton
-								iconAfter={<Trash />}
-								width={"100%"}
-								bg={"$color2"}
-								hoverStyle={{
-									bg: "$color3",
-									outlineWidth: 0,
-								}}
-								style={{
-									display: "flex",
-									justifyContent: "space-between",
-								}}
-								onPress={() => {
-									if (
-										confirm(
-											"Are you sure you want to delete this calendar?",
-										)
-									) {
-										delCalendar(calendar.id!);
+								<StyledButton
+									iconAfter={<SquarePen />}
+									width={"100%"}
+									bg={"$color2"}
+									hoverStyle={{
+										bg: "$color3",
+										outlineWidth: 0,
+									}}
+									style={{
+										display: "flex",
+										justifyContent: "space-between",
+									}}
+									onPress={() =>
+										setEditingCalendarId(calendar.id!)
 									}
+								>
+									<Text fontWeight={"$2"}>Edit</Text>
+								</StyledButton>
+							</ListItem>
+							<ListItem
+								p={0}
+								style={{
+									borderBottomLeftRadius: 10,
+									borderBottomRightRadius: 10,
 								}}
 							>
-								<Text fontWeight={"$2"}>Delete</Text>
-							</StyledButton>
-						</ListItem>
-					</Popover.Content>
-				</Popover>
+								<StyledButton
+									iconAfter={<Trash />}
+									width={"100%"}
+									bg={"$color2"}
+									hoverStyle={{
+										bg: "$color3",
+										outlineWidth: 0,
+									}}
+									style={{
+										display: "flex",
+										justifyContent: "space-between",
+									}}
+									onPress={() => {
+										if (
+											confirm(
+												"Are you sure you want to delete this calendar?",
+											)
+										) {
+											delCalendar(calendar.id!);
+										}
+									}}
+								>
+									<Text fontWeight={"$2"}>Delete</Text>
+								</StyledButton>
+							</ListItem>
+						</Popover.Content>
+					</Popover>
+				</XStack>
 			</ListItem>
 		</AnimatePresence>
 	);
@@ -481,13 +494,11 @@ export default function Sidebar() {
 	return (
 		<FullscreenView
 			maxHeight
-			flex={1}
 			pt={"$2"}
 			pl={"$4"}
 			pr={"$2"}
 			bg="$color2"
-			minW={SIDEBAR_WIDTH}
-			maxW={SIDEBAR_WIDTH}
+			width={SIDEBAR_WIDTH}
 			stack="YStack"
 			overflow="scroll"
 			gap="$2"
@@ -498,9 +509,13 @@ export default function Sidebar() {
 			borderRightColor={"$color5"}
 		>
 			{/* Year Selector */}
-			<XGroup mt={"$2"} ref={wheelableYearXGroupRef}>
+			<XGroup ref={wheelableYearXGroupRef}>
 				<XGroup.Item>
-					<NavButton onPress={() => decYearSidebar(10)} width={40}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={() => decYearSidebar(10)}
+						width={40}
+					>
 						<Text>
 							<ArrowBigLeftDash />
 						</Text>
@@ -508,7 +523,11 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<NavButton onPress={() => decYearSidebar(1)} width={40}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={() => decYearSidebar(1)}
+						width={40}
+					>
 						<Text>
 							<ArrowBigLeft />
 						</Text>
@@ -516,7 +535,7 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<View style={{ flexGrow: 1 }}>
+					<View style={{ width: 150 }}>
 						<DatePicker
 							selected={sidebarDate}
 							onChange={(date: Date | null) => {
@@ -534,7 +553,11 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<NavButton onPress={() => incYearSidebar(1)} width={40}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={() => incYearSidebar(1)}
+						width={40}
+					>
 						<Text>
 							<ArrowBigRight />
 						</Text>
@@ -542,7 +565,11 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<NavButton onPress={() => incYearSidebar(10)} width={40}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={() => incYearSidebar(10)}
+						width={40}
+					>
 						<Text>
 							<ArrowBigRightDash />
 						</Text>
@@ -553,7 +580,11 @@ export default function Sidebar() {
 			{/* Month Selector */}
 			<XGroup ref={wheelableMonthXGroupRef}>
 				<XGroup.Item>
-					<NavButton onPress={decMonthSidebar} width={80}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={decMonthSidebar}
+						width={80}
+					>
 						<Text>
 							<ArrowBigLeft />
 						</Text>
@@ -561,7 +592,7 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<View style={{ flexGrow: 1 }}>
+					<View style={{ width: 150 }}>
 						<DatePicker
 							selected={sidebarDate}
 							onChange={(date: Date | null) => {
@@ -585,7 +616,11 @@ export default function Sidebar() {
 				</XGroup.Item>
 				<Separator vertical />
 				<XGroup.Item>
-					<NavButton onPress={incMonthSidebar} width={80}>
+					<NavButton
+						style={{ flexShrink: 1 }}
+						onPress={incMonthSidebar}
+						width={80}
+					>
 						<Text>
 							<ArrowBigRight />
 						</Text>
@@ -604,7 +639,7 @@ export default function Sidebar() {
 					style={{ textAlign: "center" }}
 				>
 					{weekdayLabels.map((day, i) => (
-						<Text width="100%" key={i} fontWeight="$2">
+						<Text width="100%" key={i} fontWeight="bold">
 							{day}
 						</Text>
 					))}
@@ -616,9 +651,8 @@ export default function Sidebar() {
 							<StyledButton
 								key={cell.date.getTime()}
 								{...getCellStyle(cell)}
-								flex={1}
+								flexBasis={0}
 								minW={0}
-								aspectRatio={1}
 								onPress={() => handleDaySelect(cell.date)}
 							>
 								<Text

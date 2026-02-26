@@ -10,7 +10,6 @@ interface HourGridProps {
 	i: number;
 	columnCount: number;
 	hour: number;
-	date: Date;
 	positionedEntries: PositionedEntry[]; // Receive from parent
 }
 
@@ -18,7 +17,6 @@ export function CalendarEntryHourView({
 	i,
 	columnCount,
 	hour,
-	date,
 	positionedEntries,
 }: HourGridProps) {
 	const baseCellStyle = {

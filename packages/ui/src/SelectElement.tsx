@@ -36,7 +36,7 @@ export function SelectElement(props: SelectScopedProps<SelectElementProps>) {
 				/>
 			</Select.Trigger>
 
-			<Select.FocusScope>
+			<Select.FocusScope enabled={false}>
 				<Select.Content zIndex={200000}>
 					<Select.Viewport
 						style={{

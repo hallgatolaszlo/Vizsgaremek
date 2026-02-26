@@ -49,6 +49,7 @@ export default function CustomDialog({
 						exitStyle={{ opacity: 0 }}
 					/>
 					<Dialog.Content
+						tabIndex={10000}
 						key={"dialogcontent"}
 						onPointerDownOutside={onPointerDownOutside}
 						style={{
