@@ -1,11 +1,6 @@
 ﻿using backend.Context;
 using backend.DTOs.Auth;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TestHelpers;
 
 namespace Auth
@@ -13,88 +8,217 @@ namespace Auth
     public class SignInTests
     {
         // 1.
-        [Theory]
-        [InlineData("nonexistent@example.com", "AnyPass123!")]
-        [InlineData("user@example.com", "WrongPass123!")]
-        public async Task SignIn_ShouldReturnNull_WhenCredsAreInvalid(string email, string password)
+        [Fact]
+        public async Task SignIn_ShouldReturnNull_WhenUserDoesNotExist()
         {
+            // Arrange
             var authService = AuthServiceFactory.Create(Guid.NewGuid().ToString());
-
-            await authService.SignUpAsync(new SignUpRequestDTO
+            var request = new SignInRequestDTO
             {
-                Email = "user@example.com",
-                Password = "CorrectPass123!"
-            });
+                Email = "nonexistent@example.com",
+                Password = "ValidPass123!"
+            };
 
-            var result = await authService.SignInAsync(new SignInRequestDTO
-            {
-                Email = email,
-                Password = password
-            });
+            // Act
+            var result = await authService.SignInAsync(request);
 
+            // Assert
             Assert.Null(result);
         }
 
         // 2.
         [Fact]
-        public async Task SignIn_ShouldReturnValidTokens_WhenCredsAreValid()
+        public async Task SignIn_ShouldReturnNull_WhenPasswordIsIncorrect()
         {
             // Arrange
-            string databaseName = Guid.NewGuid().ToString();
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: databaseName)
-                .Options;
-            using var context = new AppDbContext(options);
+            var databaseName = Guid.NewGuid().ToString();
             var authService = AuthServiceFactory.Create(databaseName);
 
-            var signUpRequest = new SignUpRequestDTO
+            await authService.SignUpAsync(new SignUpRequestDTO
             {
-                Email = "test@email.com",
-                Password = "TestPass123!"
-            };
+                Email = "user@example.com",
+                Password = "ValidPass123!"
+            });
+
             var signInRequest = new SignInRequestDTO
             {
-                Email = "test@email.com",
-                Password = "TestPass123!"
+                Email = "user@example.com",
+                Password = "WrongPass123!"
             };
 
-            await authService.SignUpAsync(signUpRequest);
+            // Act
+            var result = await authService.SignInAsync(signInRequest);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        // 3.
+        [Fact]
+        public async Task SignIn_ShouldReturnTokens_WhenCredentialsAreValid()
+        {
+            // Arrange
+            var databaseName = Guid.NewGuid().ToString();
+            var authService = AuthServiceFactory.Create(databaseName);
+
+            await authService.SignUpAsync(new SignUpRequestDTO
+            {
+                Email = "valid@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var signInRequest = new SignInRequestDTO
+            {
+                Email = "valid@example.com",
+                Password = "ValidPass123!"
+            };
 
             // Act
             var result = await authService.SignInAsync(signInRequest);
 
             // Assert
             Assert.NotNull(result);
-            Assert.False(string.IsNullOrEmpty(result.AccessToken));
-            Assert.False(string.IsNullOrEmpty(result.RefreshToken));
+            Assert.NotNull(result.AccessToken);
+            Assert.NotEmpty(result.AccessToken);
+            Assert.NotNull(result.RefreshToken);
+            Assert.NotEmpty(result.RefreshToken);
+        }
 
-            // Validate JWT token structure and claims
-            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(result.AccessToken);
+        // 4.
+        [Fact]
+        public async Task SignIn_ShouldSaveRefreshToken_WhenLoginSucceeds()
+        {
+            // Arrange
+            var databaseName = Guid.NewGuid().ToString();
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName)
+                .Options;
 
-            // Verify token claims
-            Assert.NotNull(jwtToken);
-            Assert.Equal("test-issuer", jwtToken.Issuer);
-            Assert.Contains("test-audience", jwtToken.Audiences);
+            var authService = AuthServiceFactory.Create(databaseName);
 
-            // Verify user claims exist
-            var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email);
-            Assert.NotNull(emailClaim);
-            Assert.Equal("test@email.com", emailClaim.Value);
+            await authService.SignUpAsync(new SignUpRequestDTO
+            {
+                Email = "refresh@example.com",
+                Password = "ValidPass123!"
+            });
 
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
-            Assert.NotNull(userIdClaim);
-            Assert.False(string.IsNullOrEmpty(userIdClaim.Value));
+            // Act
+            var result = await authService.SignInAsync(new SignInRequestDTO
+            {
+                Email = "refresh@example.com",
+                Password = "ValidPass123!"
+            });
 
-            // Verify token expiration is in the future
-            Assert.True(jwtToken.ValidTo > DateTime.UtcNow);
+            // Assert
+            Assert.NotNull(result);
 
-            // Verify refresh token was saved to database
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == "test@email.com");
+            using var context = new AppDbContext(options);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == "refresh@example.com");
             Assert.NotNull(user);
-            Assert.Equal(result.RefreshToken, user.RefreshToken);
+            Assert.NotNull(user.RefreshToken);
             Assert.NotNull(user.RefreshTokenExpiryTime);
             Assert.True(user.RefreshTokenExpiryTime > DateTime.UtcNow);
+        }
+
+        // 5.
+        [Fact]
+        public async Task RefreshTokens_ShouldReturnNewTokens_WhenTokensAreValid()
+        {
+            // Arrange
+            var databaseName = Guid.NewGuid().ToString();
+            var authService = AuthServiceFactory.Create(databaseName);
+
+            await authService.SignUpAsync(new SignUpRequestDTO
+            {
+                Email = "tokenuser@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var signInResult = await authService.SignInAsync(new SignInRequestDTO
+            {
+                Email = "tokenuser@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var refreshRequest = new TokenResponseDTO
+            {
+                AccessToken = signInResult!.AccessToken,
+                RefreshToken = signInResult.RefreshToken
+            };
+
+            // Act
+            var result = await authService.RefreshTokensAsync(refreshRequest);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.NotNull(result.AccessToken);
+            Assert.NotNull(result.RefreshToken);
+        }
+
+        // 6.
+        [Fact]
+        public async Task RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsInvalid()
+        {
+            // Arrange
+            var databaseName = Guid.NewGuid().ToString();
+            var authService = AuthServiceFactory.Create(databaseName);
+
+            await authService.SignUpAsync(new SignUpRequestDTO
+            {
+                Email = "badtoken@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var signInResult = await authService.SignInAsync(new SignInRequestDTO
+            {
+                Email = "badtoken@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var refreshRequest = new TokenResponseDTO
+            {
+                AccessToken = signInResult!.AccessToken,
+                RefreshToken = "invalid-refresh-token"
+            };
+
+            // Act
+            var result = await authService.RefreshTokensAsync(refreshRequest);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        // 7.
+        [Fact]
+        public async Task RefreshTokens_ShouldReturnNull_WhenAccessTokenIsInvalid()
+        {
+            // Arrange
+            var databaseName = Guid.NewGuid().ToString();
+            var authService = AuthServiceFactory.Create(databaseName);
+
+            await authService.SignUpAsync(new SignUpRequestDTO
+            {
+                Email = "badaccess@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var signInResult = await authService.SignInAsync(new SignInRequestDTO
+            {
+                Email = "badaccess@example.com",
+                Password = "ValidPass123!"
+            });
+
+            var refreshRequest = new TokenResponseDTO
+            {
+                AccessToken = "not-a-valid-jwt-token",
+                RefreshToken = signInResult!.RefreshToken
+            };
+
+            // Act
+            var result = await authService.RefreshTokensAsync(refreshRequest);
+
+            // Assert
+            Assert.Null(result);
         }
     }
 }

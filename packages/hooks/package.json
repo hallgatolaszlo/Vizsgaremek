@@ -1,13 +1,21 @@
 {
-	"name": "@repo/hooks",
-	"private": true,
-	"main": "./index.ts",
-	"types": "./src",
-	"dependencies": {
-		"@repo/api": "workspace:*",
-		"@repo/types": "workspace:*",
-		"@repo/utils": "workspace:*",
-		"@tanstack/react-query": "catalog:",
-		"zustand": "catalog:"
-	}
+    "name": "@repo/hooks",
+    "private": true,
+    "main": "./index.ts",
+    "types": "./src",
+    "scripts": {
+        "test": "jest"
+    },
+    "dependencies": {
+        "@repo/api": "workspace:*",
+        "@repo/types": "workspace:*",
+        "@repo/utils": "workspace:*",
+        "@tanstack/react-query": "catalog:",
+        "zustand": "catalog:"
+    },
+    "devDependencies": {
+        "@jest/globals": "catalog:",
+        "jest": "catalog:",
+        "ts-jest": "catalog:"
+    }
 }
