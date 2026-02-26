@@ -1,0 +1,749 @@
+TESZT DOKUMENTÁCIÓ
+Projekt: Vizsgaremek
+Dátum: 2026.02.26.
+
+
+Ez a dokumentum tartalmazza az összes backend és frontend egységteszt leírását.
+
+
+
+═══════════════════════════════════════════════════════════════
+I. BACKEND TESZTEK (C# / xUnit)
+═══════════════════════════════════════════════════════════════
+
+A backend tesztek a backendTests projektben találhatók.
+Az adatbázis-műveletekhez InMemory adatbázist használnak,
+így valós adatbázis-kapcsolat nélkül futtathatók.
+Keretrendszer: xUnit / .NET 8 / Entity Framework Core InMemory
+
+
+
+1. BEJELENTKEZÉS TESZTEK
+   Fájl: Auth/SignInTests.cs
+   Az AuthService bejelentkezés és token frissítés funkcióinak tesztelése.
+───────────────────────────────────────────────────────────────
+
+1.1  SignIn_ShouldReturnNull_WhenUserDoesNotExist
+     Null-t ad vissza, ha a felhasználó nem létezik az adatbázisban.
+
+1.2  SignIn_ShouldReturnNull_WhenPasswordIsIncorrect
+     Null-t ad vissza, ha a jelszó helytelen.
+
+1.3  SignIn_ShouldReturnTokens_WhenCredentialsAreValid
+     Sikeres bejelentkezés esetén access és refresh tokeneket ad vissza.
+     Ellenőrzi, hogy mindkét token nem null és nem üres.
+
+1.4  SignIn_ShouldSaveRefreshToken_WhenLoginSucceeds
+     Sikeres bejelentkezés után a refresh token mentésre kerül az
+     adatbázisba, a lejárati idő jövőbeli dátumra van állítva.
+
+1.5  RefreshTokens_ShouldReturnNewTokens_WhenTokensAreValid
+     Érvényes tokenekkel történő frissítés esetén új access és refresh
+     tokeneket ad vissza.
+
+1.6  RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsInvalid
+     Null-t ad vissza, ha a refresh token érvénytelen (manipulált).
+
+1.7  RefreshTokens_ShouldReturnNull_WhenAccessTokenIsInvalid
+     Null-t ad vissza, ha az access token érvénytelen (nem valós JWT).
+
+
+
+2. REGISZTRÁCIÓ TESZTEK
+   Fájl: Auth/SignUpTests.cs
+   Az AuthService regisztráció funkciójának tesztelése.
+───────────────────────────────────────────────────────────────
+
+2.1  SignUp_ShouldReturnError_WhenEmailIsInvalid
+     Hibát ad vissza, ha az e-mail cím formátuma érvénytelen
+     (pl. "invalidemail.com" @ jel nélkül).
+
+2.2  SignUp_ShouldReturnError_WhenPasswordIsInvalid (Theory – 6 eset)
+     Hibát ad vissza érvénytelen jelszó esetén:
+       - Túl rövid jelszó
+       - Túl hosszú jelszó (140+ karakter)
+       - Csak nagybetűs jelszó
+       - Csak kisbetűs jelszó
+       - Speciális karakter nélküli jelszó
+       - Szám nélküli jelszó
+
+2.3  SignUp_ShouldCreateUser_WhenDataIsValid
+     Érvényes adatokkal sikeres regisztráció. Ellenőrzi, hogy a felhasználó
+     létrejön az adatbázisban helyes e-mail címmel és nem üres jelszó hash-sel.
+
+2.4  SignUp_ShouldHashPassword_WhenUserIsCreated
+     A jelszó hash-elve kerül tárolásra – a PasswordHash nem egyezik
+     meg az eredeti jelszóval.
+
+2.5  SignUp_ShouldReturnError_WhenEmailAlreadyExists
+     Hibát ad vissza, ha az e-mail cím már foglalt.
+
+
+
+3. TOKEN TESZTEK
+   Fájl: Auth/TokenTests.cs
+   A token frissítési mechanizmus részletes tesztelése.
+───────────────────────────────────────────────────────────────
+
+3.1  RefreshTokens_ShouldReturnNewTokens_WhenTokensAreValid
+     Érvényes tokenek frissítése esetén új access és refresh tokeneket ad
+     vissza. Az új tokenek különböznek a régiektől, és az új refresh token
+     mentésre kerül az adatbázisba.
+
+3.2  RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsInvalid
+     Null-t ad vissza, ha a refresh token érvénytelen.
+
+3.3  RefreshTokens_ShouldReturnNull_WhenAccessTokenIsInvalid
+     Null-t ad vissza, ha az access token érvénytelen.
+
+3.4  RefreshTokens_ShouldReturnNull_WhenRefreshTokenIsExpired
+     Null-t ad vissza, ha a refresh token lejárt. Manuálisan hoz létre
+     egy felhasználót tegnapi lejárati dátummal.
+
+
+
+4. ÁLTALÁNOS VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/CommonValidationServiceTests.cs
+   A CommonValidationService általános validációs metódusainak tesztelése.
+───────────────────────────────────────────────────────────────
+
+EntityExists
+
+4.1  EntityExists_ShouldReturnSuccess_WhenEntityExists
+     Sikert ad vissza, ha az entitás létezik az adatbázisban.
+
+4.2  EntityExists_ShouldReturnFailure_WhenEntityDoesNotExist
+     Hibát ad vissza ("User not found"), ha az entitás nem található.
+
+ValidateEnum
+
+4.3  ValidateEnum_ShouldReturnSuccess_WhenValueIsValid
+     Sikert ad vissza érvényes enum értékkel (pl. "Editor").
+
+4.4  ValidateEnum_ShouldReturnSuccess_WhenValueIsCaseInsensitive
+     Sikert ad vissza kis-nagybetű érzéketlenül (pl. "viewer" → Viewer).
+
+4.5  ValidateEnum_ShouldReturnFailure_WhenValueIsInvalid
+     Hibát ad vissza ("Invalid Role value"), ha az enum érték nem létezik.
+
+ValidateText
+
+4.6  ValidateText_ShouldReturnSuccess_WhenTextIsValid
+     Sikert ad vissza érvényes szöveg esetén.
+
+4.7  ValidateText_ShouldReturnFailure_WhenTextIsTooShort
+     Hibát ad vissza, ha a szöveg túl rövid (2 karakter, minimum 3).
+
+4.8  ValidateText_ShouldReturnFailure_WhenTextIsTooLong
+     Hibát ad vissza, ha a szöveg túl hosszú (33 karakter, maximum 32).
+
+4.9  ValidateText_ShouldReturnFailure_WhenTextIsEmpty
+     Hibát ad vissza, ha a szöveg üres (csak szóközök).
+
+4.10 ValidateText_ShouldRespectCustomMinAndMaxLength
+     Egyedi minimum és maximum hossz megadása esetén is helyesen validál.
+
+
+
+5. PROFIL VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/ProfileValidationServiceTests.cs
+   Profil létrehozás, módosítás és felhasználónév egyediség tesztelése.
+───────────────────────────────────────────────────────────────
+
+ValidateProfileCreationAsync
+
+5.1  ValidateProfileCreation_ShouldReturnSuccess_WhenDataIsValid
+     Sikert ad vissza érvényes profil adatokkal.
+
+5.2  ValidateProfileCreation_ShouldReturnFailure_WhenUserDoesNotExist
+     Hibát ad vissza ("User not found"), ha a UserId-hez nincs felhasználó.
+
+5.3  ValidateProfileCreation_ShouldReturnFailure_WhenUsernameIsTooShort
+     Hibát ad vissza, ha a felhasználónév túl rövid (2 karakter).
+
+5.4  ValidateProfileCreation_ShouldReturnFailure_WhenBirthDateIsInFuture
+     Hibát ad vissza ("Are you from the future?"), ha a születési dátum
+     a jövőben van.
+
+ValidateProfileUpdateAsync
+
+5.5  ValidateProfileUpdate_ShouldReturnSuccess_WhenDataIsValid
+     Sikert ad vissza érvényes módosítási adatokkal.
+
+5.6  ValidateProfileUpdate_ShouldReturnFailure_WhenUsernameAlreadyExists
+     Hibát ad vissza ("Username already exists"), ha a felhasználónév foglalt.
+
+5.7  ValidateProfileUpdate_ShouldReturnFailure_WhenProfileDoesNotExist
+     Hibát ad vissza ("Profile not found"), ha a profil nem létezik.
+
+ValidateUniqueUsername
+
+5.8  ValidateUniqueUsername_ShouldReturnTrue_WhenUsernameIsTaken
+     True-t ad vissza, ha a felhasználónév már foglalt.
+
+5.9  ValidateUniqueUsername_ShouldReturnFalse_WhenUsernameIsAvailable
+     False-t ad vissza, ha a felhasználónév elérhető.
+
+5.10 ValidateUniqueUsername_ShouldExcludeOwnId_WhenIdProvided
+     Saját profil Id megadásával kizárja a saját profilt az ellenőrzésből.
+
+
+
+6. NAPTÁR VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/CalendarValidationServiceTests.cs
+   Naptár létrehozás, módosítás, törlés, jogosultság és hozzáférés tesztelése.
+───────────────────────────────────────────────────────────────
+
+ValidateCalendarCreation
+
+6.1  ValidateCalendarCreation_ShouldReturnSuccess_WhenNameIsValid
+     Sikert ad vissza érvényes naptárnévvel.
+
+6.2  ValidateCalendarCreation_ShouldReturnFailure_WhenNameIsTooShort
+     Hibát ad vissza, ha a naptárnév túl rövid.
+
+6.3  ValidateCalendarCreation_WithDTO_ShouldReturnSuccess_WhenValid
+     Sikert ad vissza DTO-val történő létrehozás esetén.
+
+ValidateAndGetCalendarForUpdateAsync
+
+6.4  ValidateCalendarUpdate_ShouldReturnSuccess_WhenOwnerUpdates
+     Sikert ad vissza, ha a tulajdonos végez módosítást.
+
+6.5  ValidateCalendarUpdate_ShouldReturnFailure_WhenCalendarDoesNotExist
+     Hibát ad vissza ("Calendar not found"), ha a naptár nem létezik.
+
+ValidateCalendarEditingPermissionAsync
+
+6.6  ValidatePermission_ShouldReturnSuccess_WhenUserIsOwner
+     Sikert ad vissza, ha a felhasználó a naptár tulajdonosa.
+
+6.7  ValidatePermission_ShouldReturnFailure_WhenUserIsViewer
+     Hibát ad vissza, ha a felhasználó csak megtekintő jogosultsággal
+     rendelkezik a megosztott naptárban.
+
+HasCalendarAccessAsync
+
+6.8  HasCalendarAccess_ShouldReturnTrue_WhenUserIsOwner
+     True-t ad vissza, ha a felhasználó a naptár tulajdonosa.
+
+6.9  HasCalendarAccess_ShouldReturnFalse_WhenUserHasNoAccess
+     False-t ad vissza, ha a felhasználónak nincs hozzáférése.
+
+ValidateAndGetCalendarForDeletionAsync
+
+6.10 ValidateCalendarDeletion_ShouldReturnSuccess_WhenOwnerDeletes
+     Sikert ad vissza, ha a tulajdonos törli a naptárat.
+
+6.11 ValidateCalendarDeletion_ShouldReturnFailure_WhenCalendarNotFound
+     Hibát ad vissza ("Calendar not found"), ha a naptár nem található.
+
+GetAccessibleCalendarsAsync
+
+6.12 GetAccessibleCalendars_ShouldReturnOwnAndShared
+     Visszaadja a saját és a megosztott naptárakat is (1 saját + 1 megosztott).
+
+
+
+7. NAPTÁR BEJEGYZÉS VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/CalendarEntryValidationServiceTests.cs
+   Naptár bejegyzés létrehozás és módosítás validációjának tesztelése.
+───────────────────────────────────────────────────────────────
+
+ValidateCalendarEntryCreationAsync
+
+7.1  ValidateEntryCreation_ShouldReturnSuccess_WhenDataIsValid
+     Sikert ad vissza érvényes bejegyzés adatokkal.
+
+7.2  ValidateEntryCreation_ShouldReturnFailure_WhenCalendarDoesNotExist
+     Hibát ad vissza, ha a megadott naptár nem létezik.
+
+7.3  ValidateEntryCreation_ShouldReturnFailure_WhenStartDateIsAfterEndDate
+     Hibát ad vissza ("End date cannot be sooner than start date"),
+     ha a kezdő dátum a befejező dátum után van.
+
+ValidateAndGetCalendarEntryForUpdateAsync
+
+7.4  ValidateEntryUpdate_ShouldReturnSuccess_WhenDataIsValid
+     Sikert ad vissza érvényes módosítási adatokkal.
+
+7.5  ValidateEntryUpdate_ShouldReturnFailure_WhenEntryDoesNotExist
+     Hibát ad vissza ("Entry not found"), ha a bejegyzés nem létezik.
+
+Jogosultság ellenőrzés
+
+7.6  ValidateEntryCreation_ShouldReturnFailure_WhenViewerTriesToCreate
+     Hibát ad vissza, ha egy megtekintő jogosultságú felhasználó
+     próbál bejegyzést létrehozni megosztott naptárba.
+
+
+
+8. MEGOSZTOTT NAPTÁR VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/SharedCalendarValidationServiceTests.cs
+   Megosztott naptár létrehozás és keresés validációjának tesztelése.
+───────────────────────────────────────────────────────────────
+
+SharedCalendarCreationAsync
+
+8.1  SharedCalendarCreation_ShouldReturnSuccess_WhenNotAlreadyShared
+     Sikert ad vissza, ha a naptár még nincs megosztva az adott profillal.
+
+8.2  SharedCalendarCreation_ShouldReturnFailure_WhenAlreadyShared
+     Hibát ad vissza, ha a naptár már meg van osztva az adott profillal.
+
+FindSharedCalendar
+
+8.3  FindSharedCalendar_ShouldReturnSuccess_WhenFound
+     Sikert ad vissza és visszaadja a megosztott naptár adatait.
+
+8.4  FindSharedCalendar_ShouldReturnFailure_WhenNotFound
+     Hibát ad vissza ("Calendar not found"), ha nem található.
+
+
+
+9. SZOKÁS (HABIT) VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+   Fájl: Services/HabitValidationServiceTests.cs
+   A szokás módosítás validációjának tesztelése.
+───────────────────────────────────────────────────────────────
+
+ValidateHabitUpdateAsync
+
+9.1  ValidateHabitUpdate_ShouldReturnSuccess_WhenDataIsValid
+     Sikert ad vissza érvényes szokás módosítási adatokkal.
+
+9.2  ValidateHabitUpdate_ShouldReturnFailure_WhenHabitDoesNotExist
+     Hibát ad vissza ("Habit not found"), ha a szokás nem létezik.
+
+9.3  ValidateHabitUpdate_ShouldReturnFailure_WhenNameIsTooShort
+     Hibát ad vissza, ha a szokás neve túl rövid (2 karakter).
+
+
+
+10. BARÁT VALIDÁCIÓS SZOLGÁLTATÁS TESZTEK
+    Fájl: Services/FriendValidationServiceTests.cs
+    Barátkérelem létrehozás, keresés és módosítás validációjának tesztelése.
+───────────────────────────────────────────────────────────────
+
+ValidateFriendCreationAsync
+
+10.1 ValidateFriendCreation_ShouldReturnSuccess_WhenFriendDoesNotExist
+     Sikert ad vissza, ha a barátkapcsolat még nem létezik.
+
+10.2 ValidateFriendCreation_ShouldReturnFailure_WhenFriendAlreadyExists
+     Hibát ad vissza ("Friend already exists"), ha a barátkapcsolat már létezik.
+
+10.3 ValidateFriendCreation_ShouldReturnFailure_WhenSameUser
+     Hibát ad vissza ("Users cannot be the same"), ha a felhasználó saját
+     magát próbálja hozzáadni.
+
+FriendExists
+
+10.4 FriendExists_ShouldReturnSuccess_WhenFriendshipExists
+     Sikert ad vissza és visszaadja a barátkapcsolat adatait.
+
+10.5 FriendExists_ShouldReturnFailure_WhenNoFriendship
+     Hibát ad vissza ("Friend not found"), ha nincs barátkapcsolat.
+
+ValidateAndGetFriendForUpdateAsync
+
+10.6 ValidateFriendUpdate_ShouldReturnSuccess_WhenFriendExists
+     Sikert ad vissza, ha a barátkapcsolat létezik és módosítható.
+
+10.7 ValidateFriendUpdate_ShouldReturnFailure_WhenFriendNotFound
+     Hibát ad vissza ("Friend not found"), ha nem található.
+
+10.8 ValidateFriendUpdate_ShouldReturnFailure_WhenSameUser
+     Hibát ad vissza ("Users cannot be the same"), ha a felhasználó
+     saját magának próbálja módosítani a barát státuszát.
+
+
+
+═══════════════════════════════════════════════════════════════
+II. FRONTEND TESZTEK (TypeScript / Jest)
+═══════════════════════════════════════════════════════════════
+
+A frontend tesztek a packages/hooks és packages/utils csomagokban találhatók.
+Keretrendszer: Jest / TypeScript / Zustand állapotkezelő
+
+
+
+1. AUTENTIKÁCIÓS STORE TESZTEK
+   Fájl: hooks/src/useAuthStore.test.ts
+   A useAuthStore Zustand store tesztelése. A verify és refresh API hívások
+   mockolva vannak.
+───────────────────────────────────────────────────────────────
+
+Kezdeti állapot
+
+1.1  isAuthorized alapértéke false.
+1.2  isLoading alapértéke true.
+
+setIsAuthorized
+
+1.3  Az isAuthorized értékét true-ra állítja.
+1.4  Az isAuthorized értékét vissza tudja állítani false-ra.
+
+verifyAuth
+
+1.5  Ha a verify() sikeres, isAuthorized true lesz, isLoading false-ra áll,
+     és a refresh() nem hívódik meg.
+
+1.6  Ha a verify() sikertelen, a refresh()-re esik vissza. Sikeres refresh
+     esetén isAuthorized true lesz.
+
+1.7  Ha mind a verify() mind a refresh() sikertelen, isAuthorized false
+     marad és isLoading false-ra áll.
+
+1.8  A verifyAuth futása közben isLoading true, befejezés után false.
+
+
+
+2. KONTEXTUS MENÜ STORE TESZTEK
+   Fájl: hooks/src/useContextMenuStore.test.ts
+   A useContextMenuStore Zustand store tesztelése – a jobb klikkes
+   kontextus menü állapotát kezeli.
+───────────────────────────────────────────────────────────────
+
+Kezdeti állapot
+
+2.1  display alapértéke "none".
+2.2  contextMenuOpen alapértéke false.
+2.3  position alapértéke {x: 0, y: 0}.
+2.4  fieldType alapértéke null.
+2.5  date alapértéke null.
+
+showMenu / hideMenu
+
+2.6  A menü megjelenítésekor display "block" és contextMenuOpen true.
+2.7  A menü elrejtésekor display "none" és contextMenuOpen false.
+2.8  A hideMenu hívása már elrejtett állapotban is biztonságos.
+
+setPosition
+
+2.9  A pozíciót helyesen állítja be ({x: 150, y: 300}).
+
+setDisplay
+
+2.10 A display értékét "block"-ra állítja.
+2.11 A display értékét "none"-ra állítja.
+
+setFieldType
+
+2.12 A fieldType-ot "cell"-re állítja.
+2.13 A fieldType-ot "schedule"-ra állítja.
+2.14 A fieldType-ot null-ra állítja.
+
+setDate
+
+2.15 A dátumot egy Date objektumra állítja (év, hónap, nap ellenőrzése).
+2.16 A dátumot null-ra állítja.
+2.17 Új Date példányt hoz létre (nem referenciát) – immutabilitás biztosítása.
+
+
+
+3. NAPTÁR STORE TESZTEK
+   Fájl: hooks/src/useCalendarStore.test.ts
+   A useCalendarStore Zustand store tesztelése – naptár navigációs állapot
+   kezelése (kiválasztott dátum, nézettípus, hónap/hét/nap léptetés).
+───────────────────────────────────────────────────────────────
+
+Kezdeti állapot
+
+3.1  selectedDate az aktuális időhöz közeli (5 másodpercen belül).
+3.2  viewType alapértéke "month".
+3.3  checkedCalendarIds alapértéke üres tömb.
+
+setSelectedDate
+
+3.4  A kiválasztott dátumot helyesen állítja be.
+3.5  Új Date példányt hoz létre az immutabilitás érdekében.
+
+setViewType
+
+3.6  A nézet típusát "week"-re állítja.
+3.7  A nézet típusát "day"-re állítja.
+3.8  A nézet típusát "multiweek"-re állítja.
+
+setCheckedCalendarIds
+
+3.9  A naptár azonosítókat helyesen állítja be.
+3.10 Az előző azonosítókat felülírja az újakkal.
+
+incMonth / decMonth
+
+3.11 Egy hónappal előre lép (március → április).
+3.12 Egy hónappal hátra lép (március → február).
+3.13 Decemberről januárra lép és az évet is növeli.
+3.14 Januárról decemberre lép és az évet is csökkenti.
+
+incWeek / decWeek
+
+3.15 7 nappal előre lép.
+3.16 7 nappal hátra lép.
+3.17 Hónap határ átlépése 7 napos léptetésnél (március → április).
+
+incDay / decDay
+
+3.18 1 nappal előre lép.
+3.19 1 nappal hátra lép.
+3.20 Hónap határ átlépése előre (március 31 → április 1).
+3.21 Hónap határ átlépése hátra (április 1 → március 31).
+
+incYear / decYear
+
+3.22 A megadott számú évvel előre lép.
+3.23 A megadott számú évvel hátra lép.
+
+resetToToday
+
+3.24 A kiválasztott dátumot visszaállítja a mai napra.
+
+
+
+4. PROFIL STORE TESZTEK
+   Fájl: hooks/src/useProfileStore.test.ts
+   A useProfileStore Zustand store tesztelése – felhasználói profil
+   beállítások kezelése. A localStorage mockolva van.
+───────────────────────────────────────────────────────────────
+
+Kezdeti állapot
+
+4.1  weekStartsOn alapértéke "monday".
+4.2  hour12 (12 órás formátum) alapértéke false.
+4.3  locale egy Intl.Locale példány.
+4.4  locale nyelve megegyezik a böngésző nyelvével.
+
+setLocale
+
+4.5  A locale-t magyar nyelvre ("hu-HU") állítja.
+4.6  A locale-t német nyelvre ("de-DE") változtatja.
+
+setWeekStartsOn
+
+4.7  A hét kezdőnapját vasárnapra állítja.
+4.8  A hét kezdőnapját vissza tudja állítani hétfőre.
+4.9  A weekStartsOn értéket elmenti a localStorage-ba.
+
+setHour12
+
+4.10 A 12 órás formátumot true-ra állítja.
+4.11 A 12 órás formátumot false-ra állítja.
+4.12 Az hour12 értéket elmenti a localStorage-ba.
+
+
+
+5. SZÍN KONTRASZT TESZTEK
+   Fájl: utils/src/colors.test.ts
+   A getContrastFromHSLA segédfüggvény tesztelése – HSLA szín alapján
+   eldönti, hogy fekete vagy fehér szöveg legyen rajta.
+───────────────────────────────────────────────────────────────
+
+Feketét ad vissza világos színekre
+
+5.1  Tiszta fehér hsl(0, 0%, 100%) → "black"
+5.2  Fehér alfa értékkel hsla(0, 0%, 100%, 1) → "black"
+5.3  Világos sárga hsl(60, 100%, 80%) → "black"
+5.4  Világos szürke hsl(0, 0%, 80%) → "black"
+5.5  Világos cián hsl(180, 80%, 75%) → "black"
+5.6  Világos zöld hsl(120, 60%, 70%) → "black"
+
+Fehéret ad vissza sötét színekre
+
+5.7  Tiszta fekete hsl(0, 0%, 0%) → "white"
+5.8  Fekete alfa értékkel hsla(0, 0%, 0%, 1) → "white"
+5.9  Sötét kék hsl(240, 100%, 25%) → "white"
+5.10 Sötét piros hsl(0, 100%, 25%) → "white"
+5.11 Sötét zöld hsl(120, 100%, 15%) → "white"
+5.12 Sötét lila hsl(270, 80%, 20%) → "white"
+
+Szóközös HSL szintaxis
+
+5.13 hsl(210 50% 50%) – szóközzel elválasztott szintaxist is kezel.
+5.14 hsl(0 0% 100%) → "black"
+
+Tizedes értékek
+
+5.15 hsla(210.5, 50.5%, 50.5%, 0.8) – tizedes értékeket is feldolgoz.
+
+Hibás bemenet kezelése
+
+5.16 Üres string → "Invalid HSLA string format" hibát dob.
+5.17 Véletlenszerű szöveg → hibát dob.
+5.18 Hiányos HSL érték → hibát dob.
+
+Határesetek
+
+5.19 50%-os szürke hsl(0, 0%, 50%) → "white" (brightness = 128).
+5.20 55%-os szürke hsl(0, 0%, 55%) → "black" (brightness > 128).
+
+
+
+6. HÉT SEGÉDFÜGGVÉNY TESZTEK
+   Fájl: utils/src/calendar/Week.test.ts
+   A Week segédosztály tesztelése – a hétnapjainak címkéi különböző
+   lokalizációkban és formátumokban.
+───────────────────────────────────────────────────────────────
+
+getWeekLabel
+
+6.1  weekdayIndex 0, long, en-US → "Sunday"
+6.2  weekdayIndex 6, long, en-US → "Saturday"
+6.3  weekdayIndex 0, short, en-US → "Sun"
+6.4  weekdayIndex 3, short, en-US → "Wed"
+6.5  weekdayIndex 0, narrow, en-US → "S"
+
+getWeekdayLabels
+
+6.6  7 darab címkét ad vissza.
+6.7  Vasárnapi kezdésnél "Sun"-nal kezdődik, "Sat"-tel végződik.
+6.8  Hétfői kezdésnél "Mon"-nal kezdődik, "Sun"-nal végződik.
+6.9  Hétfői kezdéssel a teljes sorrend: Monday → Sunday.
+6.10 Vasárnapi kezdéssel a teljes sorrend: Sunday → Saturday.
+6.11 Minden címke nem üres string.
+
+getWeekdayLabel (alias)
+
+6.12 Ugyanazt az eredményt adja, mint a getWeekLabel.
+
+
+
+7. HÓNAP SEGÉDFÜGGVÉNY TESZTEK
+   Fájl: utils/src/calendar/Month.test.ts
+   A Month segédosztály tesztelése – hónapok címkéi különböző formátumokban.
+───────────────────────────────────────────────────────────────
+
+getMonthLabel
+
+7.1  monthIndex 0, long, en-US → "January"
+7.2  monthIndex 11, long, en-US → "December"
+7.3  monthIndex 0, short, en-US → "Jan"
+7.4  monthIndex 5, short, en-US → "Jun"
+7.5  monthIndex 0, narrow, en-US → "J"
+7.6  monthIndex 0, 2-digit, en-US → "01"
+7.7  monthIndex 11, numeric, en-US → "12"
+
+getMonthsLabels
+
+7.8  12 darab címkét ad vissza.
+7.9  Az első "January", az utolsó "December".
+7.10 Rövid címkék sorrendje: Jan, Feb, Mar, ..., Dec.
+7.11 Minden címke nem üres string.
+
+getMonthLabels (alias)
+
+7.12 Ugyanazt az eredményt adja, mint a getMonthLabel.
+
+
+
+8. DÁTUM METÓDUS TESZTEK
+   Fájl: utils/src/calendar/dateMethods.test.ts
+   Dátumkezelő segédfüggvények tesztelése.
+───────────────────────────────────────────────────────────────
+
+getFirstDayOfTheYear
+
+8.1  2026. január 1. → csütörtök (4)
+8.2  2024. január 1. → hétfő (1)
+
+getFirstDayOfMonth
+
+8.3  2026. március 1. → vasárnap (0)
+8.4  2024. február 1. → csütörtök (4)
+
+getOrdinalDate
+
+8.5  2026. január 1. → 1 (az év első napja)
+8.6  2026. december 31. → 365 (az év utolsó napja)
+8.7  2024. december 31. → 366 (szökőév utolsó napja)
+
+getWeekNumberISO
+
+8.8  2026. január 1. → 1. hét
+8.9  2026. december 31. → 53. hét
+8.10 2026. január 4. (vasárnap) → 1. hét
+
+
+
+9. NAPTÁR RÁCS GENERÁTOR TESZTEK
+   Fájl: utils/src/calendar/calendarGridFactory.test.ts
+   A naptár rács generátor függvények tesztelése – különböző naptár nézetekhez
+   (hónap, többhetes, heti, napi) generálják a cellákat.
+───────────────────────────────────────────────────────────────
+
+generateMonthCells
+
+9.1  Hat hetet átfogó hónapnál 42 cellát generál.
+9.2  Öt hetet átfogó hónapnál 35 cellát generál.
+9.3  Az első cella az előző hónapból vagy az aktuális hónap elsejéről.
+9.4  Minden cella érvényes dátummal rendelkezik.
+9.5  Az inCurrentMonth flag csak az aktuális hónap napjainál true.
+9.6  Cellák kronológikus sorrendben vannak.
+9.7  Vasárnapi/hétfői kezdésnél az első cella a megfelelő napra esik.
+
+generateMultiweekCells
+
+9.8  Mindig pontosan 28 cellát generál (4 hét).
+9.9  Hétfői kezdésnél az első cella hétfő.
+9.10 Vasárnapi kezdésnél az első cella vasárnap.
+9.11 Cellák kronológikus sorrendben vannak.
+
+generateWeekCells
+
+9.12 Mindig pontosan 7 cellát generál.
+9.13 Hétfői kezdésnél az első cella hétfő.
+9.14 Vasárnapi kezdésnél az első cella vasárnap.
+9.15 Az utolsó cella a hétkezdetét megelőző nap.
+9.16 Cellák pontosan 7 egymást követő napot fednek le (86400000 ms).
+
+generateDayCell
+
+9.17 Egyetlen cellát ad vissza a megadott dátummal, inCurrentMonth = true.
+
+generateGrid
+
+9.18 Havi nézet: 6 sor 6-hetes hónapnál.
+9.19 Havi nézet: 5 sor 5-hetes hónapnál.
+9.20 Többhetes nézet: 4 sor.
+9.21 Heti nézet: 1 sor.
+9.22 Heti sor pontosan 7 cellát tartalmaz.
+9.23 Napi nézet: 1 sor.
+9.24 Napi sor pontosan 1 cellát tartalmaz.
+9.25 Sor kulcsok ISO hétszám formátumúak (W01, W02, stb.).
+9.26 Havi sorok mindegyike pontosan 7 cellát tartalmaz.
+
+
+
+═══════════════════════════════════════════════════════════════
+III. ÖSSZESÍTÉS
+═══════════════════════════════════════════════════════════════
+
+BACKEND (69 teszt)
+
+  Auth/SignInTests.cs ............................. 7
+  Auth/SignUpTests.cs ............................. 5
+  Auth/TokenTests.cs .............................. 4
+  Services/CommonValidationServiceTests.cs ....... 10
+  Services/ProfileValidationServiceTests.cs ...... 10
+  Services/CalendarValidationServiceTests.cs ..... 12
+  Services/CalendarEntryValidationServiceTests.cs . 6
+  Services/SharedCalendarValidationServiceTests.cs  4
+  Services/HabitValidationServiceTests.cs ......... 3
+  Services/FriendValidationServiceTests.cs ........ 8
+
+FRONTEND (141 teszt)
+
+  hooks/useAuthStore.test.ts ...................... 8
+  hooks/useContextMenuStore.test.ts .............. 17
+  hooks/useCalendarStore.test.ts ................. 24
+  hooks/useProfileStore.test.ts .................. 12
+  utils/colors.test.ts ........................... 20
+  utils/calendar/Week.test.ts .................... 12
+  utils/calendar/Month.test.ts ................... 12
+  utils/calendar/dateMethods.test.ts ............. 10
+  utils/calendar/calendarGridFactory.test.ts ..... 26
+
+ÖSSZES TESZT: 210
+
+Technológiák:
+  Backend:  C# / .NET 8 / xUnit / Entity Framework Core InMemory
+  Frontend: TypeScript / Jest / Zustand
