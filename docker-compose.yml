@@ -1,28 +1,26 @@
 services:
-    # ---- PostgreSQL Database ----
     db:
-        image: postgres:17.6-alpine # Official Postgres image, no Dockerfile needed
+        image: postgres:17.6-alpine
         container_name: vizsgaremek-db
-        restart: unless-stopped # Auto-restart if it crashes
+        restart: unless-stopped
         environment:
             POSTGRES_USER: admin
             POSTGRES_PASSWORD: admin123
             POSTGRES_DB: vizsgaremek
         ports:
-            - "5432:5432" # host:container - lets you connect with pgAdmin too
+            - "5432:5432"
         volumes:
-            - postgres_data:/var/lib/postgresql/data # Persist data even if container is deleted
+            - postgres_data:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U admin -d vizsgaremek"]
-            interval: 5s # Check every 5 seconds
-            timeout: 5s # Fail if no response in 5 seconds
-            retries: 5 # Try 5 times before marking as unhealthy
-            start_period: 10s # Give postgres 10 seconds to start before checking
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
 
-    # ---- .NET Backend ----
     backend:
         build:
-            context: ./apps/backend # Where to find the Dockerfile
+            context: ./apps/backend
             dockerfile: Dockerfile
         container_name: vizsgaremek-backend
         restart: unless-stopped
@@ -37,22 +35,51 @@ services:
             - AppSettings__Audience=MyAppAudienc
         depends_on:
             db:
-                condition: service_healthy # Wait for DB to be ready before starting
+                condition: service_healthy
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 10
+            start_period: 600s
 
-    # ---- Next.js Frontend ----
+    typegen:
+        image: node:21-alpine
+        container_name: vizsgaremek-typegen
+        working_dir: /app
+        volumes:
+            # Mount directly into the host source tree so web build can see it
+            - ./packages/types/src:/app/out
+        command: >
+            sh -c "
+                apk add --no-cache wget &&
+                npx --yes openapi-typescript@latest http://backend:8080/swagger/v1/swagger.json -o /app/out/swagger.ts &&
+                echo '✅ Types generated'
+            "
+        depends_on:
+            backend:
+                condition: service_healthy
+        restart: "no"
+
     web:
         build:
-            context: . # Root of monorepo (needs access to packages/)
+            context: .
             dockerfile: apps/web/Dockerfile
         container_name: vizsgaremek-web
         restart: unless-stopped
         ports:
             - "3000:3000"
         env_file:
-            # Tell the frontend where the backend is
             - ./apps/web/.env.docker
         depends_on:
-            - backend # Start backend first
+            typegen:
+                condition: service_completed_successfully
+            backend:
+                condition: service_healthy
 
 volumes:
-    postgres_data: # Named volume - data survives container restarts
+    postgres_data:
