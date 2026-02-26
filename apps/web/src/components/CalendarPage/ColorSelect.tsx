@@ -35,9 +35,11 @@ function ColorSelectItem({ color, index }: { color: any; index: number }) {
 export default function ColorSelect({
 	value,
 	onChange,
+	disabled = false,
 }: {
 	value: number;
 	onChange: (value: number) => void;
+	disabled?: boolean;
 }) {
 	const theme = useTheme({ name: "calendarColors" });
 	const colors = useRef<Record<string, any>>({
@@ -58,6 +60,7 @@ export default function ColorSelect({
 	return (
 		<View>
 			<SelectElement
+				disabled={disabled}
 				value={value.toString()}
 				onValueChange={(value) => onChange(Number(value))}
 				renderValue={(value) => (
@@ -70,7 +73,6 @@ export default function ColorSelect({
 						}}
 					></View>
 				)}
-				triggerPlaceholder=""
 				groupItems={Object.values(colors.current).map((color, i) => (
 					<ColorSelectItem key={i} color={color} index={i} />
 				))}

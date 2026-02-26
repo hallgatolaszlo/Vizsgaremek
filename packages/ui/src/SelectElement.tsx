@@ -1,10 +1,11 @@
 import { Select, SelectProps, SelectScopedProps } from "tamagui";
 
 interface SelectElementProps extends SelectProps {
-	triggerPlaceholder: string;
 	groupItems: React.ReactNode;
 	triggerStyle?: React.CSSProperties;
 	groupStyle?: React.CSSProperties;
+	valueStyle?: React.CSSProperties;
+	disabled?: boolean;
 }
 
 export function SelectElement(props: SelectScopedProps<SelectElementProps>) {
@@ -12,10 +13,11 @@ export function SelectElement(props: SelectScopedProps<SelectElementProps>) {
 		value,
 		onValueChange,
 		renderValue,
-		triggerPlaceholder,
 		groupItems,
 		triggerStyle,
 		groupStyle,
+		valueStyle,
+		disabled = false,
 	} = props;
 
 	return (
@@ -26,21 +28,35 @@ export function SelectElement(props: SelectScopedProps<SelectElementProps>) {
 			// renderValue enables SSR support by providing the label synchronously
 			renderValue={renderValue}
 		>
-			<Select.Trigger flex={1} minWidth={0} style={{ ...triggerStyle }}>
-				<Select.Value placeholder={triggerPlaceholder} />
+			<Select.Trigger disabled={disabled} style={{ ...triggerStyle }}>
+				<Select.Value
+					style={{
+						...valueStyle,
+					}}
+				/>
 			</Select.Trigger>
 
-			<Select.Content zIndex={200000}>
-				<Select.Viewport>
-					<Select.Group
+			<Select.FocusScope>
+				<Select.Content zIndex={200000}>
+					<Select.Viewport
 						style={{
-							...groupStyle,
+							overflowY: "auto",
+							scrollbarWidth: "thin",
+							scrollbarColor: "var(--accent5) transparent",
 						}}
 					>
-						{groupItems}
-					</Select.Group>
-				</Select.Viewport>
-			</Select.Content>
+						<Select.Group
+							style={{
+								...groupStyle,
+								overflowY: "auto",
+								maxHeight: "calc(100vh - 200px)",
+							}}
+						>
+							{groupItems}
+						</Select.Group>
+					</Select.Viewport>
+				</Select.Content>
+			</Select.FocusScope>
 		</Select>
 	);
 }

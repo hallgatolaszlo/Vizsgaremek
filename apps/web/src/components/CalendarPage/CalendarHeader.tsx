@@ -133,7 +133,6 @@ export default function CalendarHeader({
 							{value.charAt(0).toUpperCase() + value.slice(1)}
 						</Select.ItemText>
 					)}
-					triggerPlaceholder=""
 					groupItems={["month", "multiweek", "week", "day"].map(
 						(view, index) => (
 							<Select.Item

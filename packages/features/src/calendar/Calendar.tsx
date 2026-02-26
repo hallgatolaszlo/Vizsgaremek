@@ -1,5 +1,6 @@
 import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
 import { CreateCalendarEntryForm } from "@/src/components/CalendarPage/CreateCalendarEntryForm";
+import CustomDialog from "@/src/components/CalendarPage/CustomDialog";
 import {
 	useCalendarEntries,
 	useCalendars,
@@ -302,27 +303,39 @@ function CalendarRow({
 
 function AddEntryButton() {
 	const { setContent } = useDialogStore();
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	return (
-		<Dialog.Trigger asChild scope="custom-dialog">
-			<StyledButton
-				style={{
-					position: "absolute",
-					bottom: 20,
-					right: 20,
-					zIndex: 100,
-				}}
-				circular
-				scaleIcon={1.25}
-				size={60}
-				icon={Plus}
-				onPress={() => {
-					setContent(
-						<CreateCalendarEntryForm isContextMenu={false} />,
-					);
-				}}
-			></StyledButton>
-		</Dialog.Trigger>
+		<CustomDialog
+			isDialogOpen={isDialogOpen}
+			setIsDialogOpen={setIsDialogOpen}
+			onPointerDownOutside={(e) => e.preventDefault()}
+			content={
+				<CreateCalendarEntryForm
+					onClose={() => setIsDialogOpen(false)}
+				/>
+			}
+		>
+			<Dialog.Trigger asChild>
+				<StyledButton
+					style={{
+						position: "absolute",
+						bottom: 20,
+						right: 20,
+						zIndex: 100,
+					}}
+					circular
+					scaleIcon={1.25}
+					size={60}
+					icon={Plus}
+					onPress={() => {
+						setContent(
+							<CreateCalendarEntryForm isContextMenu={false} />,
+						);
+					}}
+				></StyledButton>
+			</Dialog.Trigger>
+		</CustomDialog>
 	);
 }
 

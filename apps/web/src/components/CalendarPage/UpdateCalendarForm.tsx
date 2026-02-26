@@ -210,7 +210,6 @@ export function UpdateCalendarForm({
 										}}
 									></View>
 								)}
-								triggerPlaceholder=""
 								groupItems={Object.values(colors.current).map(
 									(color, i) => (
 										<ColorSelectItem
