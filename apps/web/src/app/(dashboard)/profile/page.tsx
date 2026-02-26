@@ -72,7 +72,11 @@ export default function ProfilePage() {
 
     return (
         <YStack>
-            <Text fontWeight="bold" textAlign="center" width="100%">
+            <Text
+                fontWeight="bold"
+                width="100%"
+                style={{ textAlign: "center" }}
+            >
                 My Profile
             </Text>
 
@@ -83,7 +87,7 @@ export default function ProfilePage() {
                         Profile information
                     </Text>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>Username: </Text>
                         {isEditing ? (
                             <Input
@@ -96,7 +100,7 @@ export default function ProfilePage() {
                         )}
                     </XStack>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>Email Address: </Text>
                         {isEditing ? (
                             <Input
@@ -109,14 +113,16 @@ export default function ProfilePage() {
                         )}
                     </XStack>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>Birth Date: </Text>
                         {isEditing ? (
                             <DatePicker
                                 wrapperClassName="custom-datepicker-wrapper"
                                 className="custom-datepicker"
                                 selected={birthDate}
-                                onChange={(date) => setBirthDate(date)}
+                                onChange={(date: Date | null) =>
+                                    setBirthDate(date)
+                                }
                                 dateFormat="yyyy-MM-dd"
                                 placeholderText="Select your birth date"
                             />
@@ -136,7 +142,7 @@ export default function ProfilePage() {
                             : ""}
                     </Text>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>Private: </Text>
                         {isEditing ? (
                             <Checkbox
@@ -152,7 +158,7 @@ export default function ProfilePage() {
                         )}
                     </XStack>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>First Name: </Text>
                         {isEditing ? (
                             <Input
@@ -165,7 +171,7 @@ export default function ProfilePage() {
                         )}
                     </XStack>
 
-                    <XStack alignItems="center" gap="$2">
+                    <XStack gap="$2" style={{ alignItems: "center" }}>
                         <Text>Last Name: </Text>
                         {isEditing ? (
                             <Input

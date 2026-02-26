@@ -1,7 +1,7 @@
 import { CalendarEntry } from "@repo/features";
 import { useEffect, useRef, useState } from "react";
 import { Card, View } from "tamagui";
-import { PositionedEntry } from "./calendarEntryUtils";
+import { PositionedEntry } from "@repo/utils";
 
 const BORDER_COLOR = "var(--color5)";
 const BORDER_WIDTH = 1;
