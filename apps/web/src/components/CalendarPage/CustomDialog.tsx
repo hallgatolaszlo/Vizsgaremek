@@ -8,6 +8,7 @@ interface CustomDialog {
     content?: React.ReactNode;
     children?: React.ReactNode;
     onPointerDownOutside?: (e: PointerDownOutsideEvent) => void;
+    transparent?: boolean;
 }
 
 type PointerDownOutsideEvent = CustomEvent<{ originalEvent: PointerEvent }>;
@@ -20,6 +21,7 @@ export default function CustomDialog({
     content,
     children,
     onPointerDownOutside,
+    transparent,
 }: CustomDialog) {
     return (
         <Dialog
@@ -33,7 +35,7 @@ export default function CustomDialog({
                 <Dialog.Portal key={"dialogportal"}>
                     <Dialog.Overlay
                         key={"dialogoverlay"}
-                        bg="$shadow6"
+                        bg={transparent ? "transparent" : "$shadow6"}
                         animateOnly={["transform", "opacity"]}
                         animation={[
                             "quicker",

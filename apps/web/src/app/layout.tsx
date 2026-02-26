@@ -5,6 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
 	title: "Planova",
+	description: "User first calendar application",
 };
 
 export default function RootLayout({

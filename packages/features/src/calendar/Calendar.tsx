@@ -1,19 +1,20 @@
-import { CreateCalendarEntryForm } from "@/src/components/CalendarPage/CreateCalendarEntryForm";
-import { useCalendarStore, useDialogStore, useProfileStore } from "@repo/hooks";
-import { CalendarCellProps } from "@repo/types";
-import { StyledButton } from "@repo/ui";
-import { generateGrid, isNative, Week } from "@repo/utils";
-import { Plus } from "@tamagui/lucide-icons";
-import { useCallback, useMemo, useState } from "react";
+import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
 import {
-	Card,
-	Dialog,
-	ScrollView,
-	Text,
-	useMedia,
-	XStack,
-	YStack,
-} from "tamagui";
+	useCalendarEntries,
+	useCalendars,
+	useCalendarStore,
+	useProfileStore,
+} from "@repo/hooks";
+import { CalendarCellProps } from "@repo/types";
+import {
+	generateGrid,
+	getPositionedEntries,
+	isNative,
+	PositionedEntry,
+	Week,
+} from "@repo/utils";
+import { useCallback, useMemo, useState } from "react";
+import { Card, ScrollView, Text, useMedia, XStack, YStack } from "tamagui";
 import CalendarCell from "./CalendarCell";
 
 // Constants
@@ -124,24 +125,29 @@ function HourLabel({ hour, locale, hour12, sidebarWidth }: HourLabelProps) {
 interface HourGridProps {
 	columnCount: number;
 	hour: number;
+	dates: Date[];
+	positionedEntriesByDate: Map<string, PositionedEntry[]>;
 }
 
-function HourGridCells({ columnCount, hour }: HourGridProps) {
+function HourGridCells({
+	columnCount,
+	hour,
+	dates,
+	positionedEntriesByDate,
+}: HourGridProps) {
 	return (
 		<>
 			{[...Array(columnCount).keys()].map((_, i) => (
-				<Card
+				<CalendarEntryHourView
+					i={i}
+					columnCount={columnCount}
+					hour={hour}
+					date={dates[i]}
+					positionedEntries={
+						positionedEntriesByDate.get(dates[i].toDateString()) ??
+						[]
+					}
 					key={i}
-					flex={1}
-					flexBasis={0}
-					bg="$color1"
-					style={{
-						...baseCellStyle,
-						borderLeftWidth: BORDER_WIDTH,
-						borderTopWidth: hour === 0 ? 0 : BORDER_WIDTH,
-						borderRightWidth:
-							i === columnCount - 1 ? BORDER_WIDTH : 0,
-					}}
 				/>
 			))}
 		</>
@@ -153,6 +159,7 @@ interface HourlyScrollViewProps {
 	hour12: boolean;
 	sidebarWidth: "$4" | "$6";
 	columnCount: number;
+	dates: Date[];
 }
 
 function HourlyScrollView({
@@ -160,7 +167,29 @@ function HourlyScrollView({
 	hour12,
 	sidebarWidth,
 	columnCount,
+	dates,
 }: HourlyScrollViewProps) {
+	const myCalendars = useCalendars();
+	const calendarEntries = useCalendarEntries(myCalendars);
+	const { checkedCalendarIds } = useCalendarStore();
+
+	// Compute positionedEntries once per date
+	const positionedEntriesByDate = useMemo(() => {
+		const map = new Map<string, PositionedEntry[]>();
+		dates.forEach((date) => {
+			const dayEntries =
+				calendarEntries.data?.filter(
+					(d) =>
+						new Date(d.startDate!).toDateString() ===
+							date.toDateString() &&
+						d.calendarId &&
+						checkedCalendarIds.includes(d.calendarId) &&
+						!d.isAllDay,
+				) ?? [];
+			map.set(date.toDateString(), getPositionedEntries(dayEntries));
+		});
+		return map;
+	}, [calendarEntries.data, dates, checkedCalendarIds]);
 	return (
 		<ScrollView flex={1} flexBasis={0}>
 			<YStack>
@@ -175,7 +204,12 @@ function HourlyScrollView({
 							hour12={hour12}
 							sidebarWidth={sidebarWidth}
 						/>
-						<HourGridCells columnCount={columnCount} hour={hour} />
+						<HourGridCells
+							columnCount={columnCount}
+							hour={hour}
+							dates={dates}
+							positionedEntriesByDate={positionedEntriesByDate}
+						/>
 					</XStack>
 				))}
 			</YStack>
@@ -251,32 +285,6 @@ function CalendarRow({
 				/>
 			))}
 		</XStack>
-	);
-}
-
-function AddEntryButton() {
-	const { setContent } = useDialogStore();
-
-	return (
-		<Dialog.Trigger asChild scope="custom-dialog">
-			<StyledButton
-				style={{
-					position: "absolute",
-					bottom: 20,
-					right: 20,
-					zIndex: 100,
-				}}
-				circular
-				scaleIcon={1.25}
-				size={60}
-				icon={Plus}
-				onPress={() => {
-					setContent(
-						<CreateCalendarEntryForm isContextMenu={false} />,
-					);
-				}}
-			></StyledButton>
-		</Dialog.Trigger>
 	);
 }
 
@@ -431,6 +439,7 @@ export function Calendar({ grid }: CalendarProps) {
 					hour12={hour12}
 					sidebarWidth={sidebarWidth}
 					columnCount={DAYS_IN_WEEK}
+					dates={gridEntries[0][1].map((cell) => cell.date)}
 				/>
 			</YStack>
 		);
@@ -482,6 +491,7 @@ export function Calendar({ grid }: CalendarProps) {
 					hour12={hour12}
 					sidebarWidth={sidebarWidth}
 					columnCount={1}
+					dates={[gridEntries[0][1][0].date]}
 				/>
 			</YStack>
 		);
