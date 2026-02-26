@@ -7,3 +7,4 @@ export * from "./src/useDialogStore";
 export * from "./src/useNavbarStore";
 export * from "./src/useNotificationStore";
 export * from "./src/useProfileStore";
+export * from "./src/useProfile";
