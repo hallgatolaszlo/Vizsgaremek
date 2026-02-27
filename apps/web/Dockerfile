@@ -3,9 +3,6 @@ FROM node:21-alpine AS deps
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
 WORKDIR /app
 
 COPY package.json ./
@@ -30,6 +27,9 @@ RUN pnpm install --shamefully-hoist
 FROM node:21-alpine AS build
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 WORKDIR /app
 

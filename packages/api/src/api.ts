@@ -8,9 +8,9 @@ import {
 } from "./nativeTokenStorage";
 
 export function getBaseUrl() {
-    // if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-    // if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-    return "http://localhost:8080";
+    if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+    if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+    return "http://localhost:5273";
 }
 
 export const api = axios.create({
