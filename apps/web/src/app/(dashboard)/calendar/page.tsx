@@ -95,13 +95,13 @@ export default function CalendarPage() {
 		<FullscreenView
 			flex={1}
 			stack="XStack"
-			maxHeight
+			maxHeightDefined
 			overflow="hidden"
 			bg={"$color2"}
 		>
 			<Sidebar />
 			{/* My calendars */}
-			<FullscreenView maxHeight minW={0} flex={1}>
+			<FullscreenView maxHeightDefined minW={0} flex={1}>
 				{/* Calendar Header */}
 				<CalendarHeader
 					grid={grid}

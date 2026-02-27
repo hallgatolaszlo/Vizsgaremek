@@ -493,7 +493,7 @@ export default function Sidebar() {
 
 	return (
 		<FullscreenView
-			maxHeight
+			maxHeightDefined
 			pt={"$2"}
 			pl={"$4"}
 			pr={"$2"}
