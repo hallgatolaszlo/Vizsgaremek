@@ -2,8 +2,8 @@
 	"name": "@repo/web",
 	"private": true,
 	"scripts": {
-		"dev": "next dev --turbopack",
-		"build": "tamagui build --target web ./src -- next build --turbopack",
+		"dev": "next dev --webpack",
+		"build": "tamagui build --target web ./src -- next build --webpack",
 		"start": "next start"
 	},
 	"dependencies": {
