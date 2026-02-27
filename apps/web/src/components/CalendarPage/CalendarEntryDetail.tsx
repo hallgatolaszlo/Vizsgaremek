@@ -247,7 +247,8 @@ export default function CalendarEntryDetail({
 			>
 				<XStack
 					cursor="pointer"
-					onPress={() => {
+					onPress={(e) => {
+						e.stopPropagation();
 						const next = !isUnderModify;
 						setIsUnderModify(next);
 						setIsEditingDescription(false);
@@ -262,7 +263,8 @@ export default function CalendarEntryDetail({
 				</XStack>
 				<XStack
 					cursor="pointer"
-					onPress={() => {
+					onPress={(e) => {
+						e.stopPropagation();
 						delCalendarEntry(entry.id!);
 					}}
 				>

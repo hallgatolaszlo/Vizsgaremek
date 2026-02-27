@@ -18,6 +18,7 @@ interface CalendarEntryProps {
 	showText?: boolean;
 	isRowStart?: boolean;
 	isRowEnd?: boolean;
+	isGhost?: boolean;
 }
 
 export function CalendarEntry({
@@ -30,10 +31,15 @@ export function CalendarEntry({
 	showText,
 	isRowStart,
 	isRowEnd,
+	isGhost = false,
 }: CalendarEntryProps) {
 	const calendarTheme = useTheme({ name: "calendarColors" });
-	const backgroundColor = calendarTheme[`color${entry.color}`]?.val;
-	const textColor = getContrastFromHSLA(backgroundColor);
+	const backgroundColor = isGhost
+		? "transparent"
+		: calendarTheme[`color${entry.color}`]?.val;
+	const textColor = isGhost
+		? undefined
+		: getContrastFromHSLA(backgroundColor);
 	const { locale, hour12 } = useProfileStore();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -54,6 +60,38 @@ export function CalendarEntry({
 					minute: "2-digit",
 					hour12,
 				})})`;
+	}
+
+	// Ghost entries are placeholders used to reserve vertical slots for
+	// multi-day spanning events. They shouldn't open dialogs or show text.
+	if (isGhost) {
+		return (
+			<Card
+				p={"$1"}
+				pl={"$2"}
+				m={"0"}
+				mb={"1px"}
+				animation={"quickest"}
+				style={{
+					backgroundColor,
+					height: height,
+					marginTop: "$1",
+					minHeight: 20,
+					width: "100%",
+					borderRadius: isMultiDay
+						? isStart && isEnd
+							? 8
+							: isStart || isRowStart
+								? "8px 0 0 8px"
+								: isEnd || isRowEnd
+									? "0 8px 8px 0"
+									: 0
+						: undefined,
+					overflow: "hidden",
+				}}
+				className="entryCard"
+			/>
+		);
 	}
 
 	return (

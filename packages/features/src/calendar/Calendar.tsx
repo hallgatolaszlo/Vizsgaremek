@@ -278,7 +278,7 @@ function CalendarRow({
 			/>
 
 			{row.map((cell, i) => (
-				<CalendarCell
+					<CalendarCell
 					key={i}
 					cell={cell}
 					visibleCount={Infinity}
@@ -294,7 +294,9 @@ function CalendarRow({
 							i === row.length - 1 ? BORDER_WIDTH : 0,
 						minHeight: rowMinHeight,
 					}}
-				/>
+					rowStartDate={row[0].date}
+					rowEndDate={row[row.length - 1].date}
+					/>
 			))}
 		</XStack>
 	);
@@ -446,7 +448,7 @@ export function Calendar({ grid }: CalendarProps) {
 
 							{row.map((cell, i) => {
 								return (
-									<CalendarCell
+										<CalendarCell
 										key={i}
 										cell={cell}
 										style={{
@@ -454,7 +456,10 @@ export function Calendar({ grid }: CalendarProps) {
 											borderLeftWidth: BORDER_WIDTH,
 											borderTopWidth: BORDER_WIDTH,
 										}}
-									/>
+											// pass row boundaries so multi-day tails can be placed
+											rowStartDate={row[0].date}
+											rowEndDate={row[row.length - 1].date}
+										/>
 								);
 							})}
 						</XStack>
@@ -531,6 +536,8 @@ export function Calendar({ grid }: CalendarProps) {
 												? BORDER_WIDTH
 												: 0,
 									}}
+								rowStartDate={row[0].date}
+								rowEndDate={row[row.length - 1].date}
 								/>
 							);
 						})}

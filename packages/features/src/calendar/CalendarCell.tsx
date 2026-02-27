@@ -25,6 +25,8 @@ interface CalendarCellComponentProps extends CardProps {
 	cell: CalendarCellProps;
 	visibleCount?: number;
 	onEntryCountChange?: (count: number) => void;
+	rowStartDate?: Date;
+	rowEndDate?: Date;
 }
 
 export default function CalendarCell(props: CalendarCellComponentProps) {
@@ -149,54 +151,125 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		return { bg: "$color1" } as CardProps;
 	}
 
-	const filteredEntries = calendarEntries.data
-		?.sort((a, b) => {
-			const aDate =
-				new Date(a.endDate!).getTime() -
-				new Date(a.startDate!).getTime();
-			const bDate =
-				new Date(b.endDate!).getTime() -
-				new Date(b.startDate!).getTime();
-			return bDate - aDate;
-		})
-		.filter((d) => {
+	// Build filteredEntries. For month/multiweek views we construct a row-aware
+	// list that includes ghost placeholders so spanning events occupy the same
+	// vertical slot across all cells in the row.
+	let filteredEntries = calendarEntries.data ?? [];
+
+	if (viewType === "month" || viewType === "multiweek") {
+		// Require row boundaries to build row-aware layout; fall back to per-cell
+		// selection if they are not provided.
+		if (props.rowStartDate && props.rowEndDate) {
+			const rowStart = new Date(props.rowStartDate);
+			rowStart.setHours(0, 0, 0, 0);
+			const rowEnd = new Date(props.rowEndDate);
+			rowEnd.setHours(0, 0, 0, 0);
+
+			// Collect events that overlap the row and belong to checked calendars
+			const rowEvents = (calendarEntries.data ?? []).filter((d) => {
+				if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
+					return false;
+				const s = new Date(d.startDate!);
+				s.setHours(0, 0, 0, 0);
+				const e = d.endDate ? new Date(d.endDate) : new Date(d.startDate!);
+				e.setHours(0, 0, 0, 0);
+				return e.getTime() >= rowStart.getTime() && s.getTime() <= rowEnd.getTime();
+			});
+
+			// Assign events into vertical slots across the row so each event has a
+			// fixed slot index for the whole row. This prevents slot shifting and
+			// only inserts ghosts where a slot is empty for this specific cell.
+			rowEvents.sort((a, b) => {
+				const aS = new Date(a.startDate!).setHours(0, 0, 0, 0);
+				const bS = new Date(b.startDate!).setHours(0, 0, 0, 0);
+				if (aS === bS) {
+					const aLen = new Date(a.endDate ?? a.startDate!).getTime() - new Date(a.startDate!).getTime();
+					const bLen = new Date(b.endDate ?? b.startDate!).getTime() - new Date(b.startDate!).getTime();
+					return bLen - aLen;
+				}
+				return aS - bS;
+			});
+
+			const slots: any[][] = [];
+			for (const ev of rowEvents) {
+				const evS = new Date(ev.startDate!); evS.setHours(0,0,0,0);
+				const evE = ev.endDate ? new Date(ev.endDate) : new Date(ev.startDate!); evE.setHours(0,0,0,0);
+				let placed = false;
+				for (const slot of slots) {
+					// since slot events do not overlap, checking against the last is enough
+					const last = slot[slot.length - 1];
+					const lastE = last.endDate ? new Date(last.endDate) : new Date(last.startDate);
+					lastE.setHours(0,0,0,0);
+					if (lastE.getTime() < evS.getTime()) {
+						slot.push(ev);
+						placed = true;
+						break;
+					}
+				}
+				if (!placed) {
+					slots.push([ev]);
+				}
+			}
+
+			const cellDay = new Date(cell.date);
+			cellDay.setHours(0, 0, 0, 0);
+
+			// Build per-slot entry for this cell: real event if it covers the cell,
+			// otherwise a ghost placeholder so vertical alignment is preserved.
+			const rowAware: any[] = slots.map((slot) => {
+				const evForCell = slot.find((ev) => {
+					const s = new Date(ev.startDate!); s.setHours(0,0,0,0);
+					const e = ev.endDate ? new Date(ev.endDate) : new Date(ev.startDate!); e.setHours(0,0,0,0);
+					return cellDay.getTime() >= s.getTime() && cellDay.getTime() <= e.getTime();
+				});
+				if (evForCell) return evForCell;
+				// ghost placeholder
+				const representative = slot[0];
+				return {
+					id: `ghost-${representative.id}-${cellDay.toDateString()}`,
+					name: "",
+					startDate: representative.startDate,
+					endDate: representative.endDate,
+					calendarId: representative.calendarId,
+					color: representative.color,
+					isAllDay: true,
+					_isGhost: true,
+				} as any;
+			});
+
+			filteredEntries = rowAware;
+		} else {
+			// Fallback: per-cell selection if row boundaries not provided
+			filteredEntries = (calendarEntries.data ?? []).filter((d) => {
+				if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
+					return false;
+				const s = new Date(d.startDate!); s.setHours(0, 0, 0, 0);
+				const e = d.endDate ? new Date(d.endDate) : new Date(d.startDate!); e.setHours(0, 0, 0, 0);
+				const cellDay = new Date(cell.date); cellDay.setHours(0,0,0,0);
+				return cellDay.getTime() >= s.getTime() && cellDay.getTime() <= e.getTime();
+			}).sort((a,b)=>{
+				const aLen = (new Date(a.endDate ?? a.startDate!).getTime() - new Date(a.startDate!).getTime());
+				const bLen = (new Date(b.endDate ?? b.startDate!).getTime() - new Date(b.startDate!).getTime());
+				return bLen - aLen;
+			});
+		}
+	} else if (viewType === "week" || viewType === "day") {
+		filteredEntries = (calendarEntries.data ?? []).filter((d) => {
 			if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
 				return false;
-
-			const entryStart = new Date(d.startDate!);
-			const entryEnd = d.endDate
-				? new Date(d.endDate)
-				: new Date(d.startDate!);
-
-			// Month / Multiweek: include entries that span this day (multi-day support)
-			if (viewType === "month" || viewType === "multiweek") {
-				const cellDay = new Date(cell.date);
-				cellDay.setHours(0, 0, 0, 0);
-				const s = new Date(entryStart);
-				s.setHours(0, 0, 0, 0);
-				const e = new Date(entryEnd);
-				e.setHours(0, 0, 0, 0);
-				return (
-					cellDay.getTime() >= s.getTime() &&
-					cellDay.getTime() <= e.getTime()
-				);
-			}
-
-			// Week / Day: show only all-day entries in the top cell (hourly events
-			// are rendered in the HourlyScrollView). This prevents non-all-day
-			// events from appearing in the first-row calendar cell.
-			if (viewType === "week" || viewType === "day") {
-				return (
-					new Date(d.startDate!).toDateString() ===
-						cell.date.toDateString() && !!d.isAllDay
-				);
-			}
-
-			return (
-				new Date(d.startDate!).toDateString() ===
-				cell.date.toDateString()
-			);
+			return new Date(d.startDate!).toDateString() === cell.date.toDateString() && !!d.isAllDay;
+		}).sort((a,b)=>{
+			const aLen = (new Date(a.endDate ?? a.startDate!).getTime() - new Date(a.startDate!).getTime());
+			const bLen = (new Date(b.endDate ?? b.startDate!).getTime() - new Date(b.startDate!).getTime());
+			return bLen - aLen;
 		});
+	} else {
+		filteredEntries = (calendarEntries.data ?? []).filter((d) => new Date(d.startDate!).toDateString() === cell.date.toDateString()).sort((a,b)=>{
+			const aLen = (new Date(a.endDate ?? a.startDate!).getTime() - new Date(a.startDate!).getTime());
+			const bLen = (new Date(b.endDate ?? b.startDate!).getTime() - new Date(b.startDate!).getTime());
+			return bLen - aLen;
+		});
+	}
 
 	useEffect(() => {
 		if (viewType != "month" && viewType != "multiweek") return;
@@ -233,9 +306,10 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 	}, [filteredEntries?.length, externalVisibleCount]);
 
 	const resolvedVisibleCount = externalVisibleCount ?? visibleCount;
-	const visibleEntries =
-		filteredEntries?.slice(0, resolvedVisibleCount) ?? [];
-	const hiddenCount = (filteredEntries?.length ?? 0) - visibleEntries.length;
+	const visibleEntries = filteredEntries?.slice(0, resolvedVisibleCount) ?? [];
+	const visibleRealCount = visibleEntries.filter((e) => !(e as any)?._isGhost).length;
+	const totalReal = filteredEntries.filter((e) => !(e as any)?._isGhost).length;
+	const hiddenCount = Math.max(totalReal - visibleRealCount, 0);
 
 	return (
 		<Card
@@ -286,7 +360,20 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 					eDay.setHours(0, 0, 0, 0);
 					const isMultiDay = eDay.getTime() > sDay.getTime();
 					const isStart = sDay.getTime() === cellDay.getTime();
-					const isEnd = eDay.getTime() === cellDay.getTime();
+					let isEnd = eDay.getTime() === cellDay.getTime();
+
+					// If this is month/multiweek view and the event ends after the end of
+					// the current week row, consider the last cell of the row its visual
+					// "end" so the tail appears in the same row as the head.
+					if (!isEnd && (viewType === "month" || viewType === "multiweek")) {
+						if (props.rowEndDate) {
+							const rowEnd = new Date(props.rowEndDate);
+							rowEnd.setHours(0, 0, 0, 0);
+							if (eDay.getTime() > rowEnd.getTime() && cellDay.getTime() === rowEnd.getTime()) {
+								isEnd = true;
+							}
+						}
+					}
 
 					// Determine whether to show text for multi-day entries.
 					// Show text when the entry starts here, or when this cell is the
@@ -315,6 +402,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 							showText={showText}
 							isRowStart={cellIsRowStart}
 							isRowEnd={cellIsRowEnd}
+							isGhost={(entry as any)?._isGhost}
 						/>
 					);
 				})}
@@ -355,9 +443,11 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 							>
 								{headerLabel()}
 							</Text>
-							{filteredEntries?.map((entry) => (
-								<CalendarEntry key={entry.id} entry={entry} />
-							))}
+							{filteredEntries
+								?.filter((e) => !(e as any)?._isGhost)
+								.map((entry) => (
+									<CalendarEntry key={entry.id} entry={entry} />
+								))}
 						</YStack>
 					}
 					transparent={true}
