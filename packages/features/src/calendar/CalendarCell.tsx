@@ -149,43 +149,54 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		return { bg: "$color1" } as CardProps;
 	}
 
-	const filteredEntries = calendarEntries.data?.filter((d) => {
-		if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
-			return false;
+	const filteredEntries = calendarEntries.data
+		?.sort((a, b) => {
+			const aDate =
+				new Date(a.endDate!).getTime() -
+				new Date(a.startDate!).getTime();
+			const bDate =
+				new Date(b.endDate!).getTime() -
+				new Date(b.startDate!).getTime();
+			return bDate - aDate;
+		})
+		.filter((d) => {
+			if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
+				return false;
 
-		const entryStart = new Date(d.startDate!);
-		const entryEnd = d.endDate
-			? new Date(d.endDate)
-			: new Date(d.startDate!);
+			const entryStart = new Date(d.startDate!);
+			const entryEnd = d.endDate
+				? new Date(d.endDate)
+				: new Date(d.startDate!);
 
-		// Month / Multiweek: include entries that span this day (multi-day support)
-		if (viewType === "month" || viewType === "multiweek") {
-			const cellDay = new Date(cell.date);
-			cellDay.setHours(0, 0, 0, 0);
-			const s = new Date(entryStart);
-			s.setHours(0, 0, 0, 0);
-			const e = new Date(entryEnd);
-			e.setHours(0, 0, 0, 0);
-			return (
-				cellDay.getTime() >= s.getTime() &&
-				cellDay.getTime() <= e.getTime()
-			);
-		}
+			// Month / Multiweek: include entries that span this day (multi-day support)
+			if (viewType === "month" || viewType === "multiweek") {
+				const cellDay = new Date(cell.date);
+				cellDay.setHours(0, 0, 0, 0);
+				const s = new Date(entryStart);
+				s.setHours(0, 0, 0, 0);
+				const e = new Date(entryEnd);
+				e.setHours(0, 0, 0, 0);
+				return (
+					cellDay.getTime() >= s.getTime() &&
+					cellDay.getTime() <= e.getTime()
+				);
+			}
 
-		// Week / Day: show only all-day entries in the top cell (hourly events
-		// are rendered in the HourlyScrollView). This prevents non-all-day
-		// events from appearing in the first-row calendar cell.
-		if (viewType === "week" || viewType === "day") {
+			// Week / Day: show only all-day entries in the top cell (hourly events
+			// are rendered in the HourlyScrollView). This prevents non-all-day
+			// events from appearing in the first-row calendar cell.
+			if (viewType === "week" || viewType === "day") {
+				return (
+					new Date(d.startDate!).toDateString() ===
+						cell.date.toDateString() && !!d.isAllDay
+				);
+			}
+
 			return (
 				new Date(d.startDate!).toDateString() ===
-					cell.date.toDateString() && !!d.isAllDay
+				cell.date.toDateString()
 			);
-		}
-
-		return (
-			new Date(d.startDate!).toDateString() === cell.date.toDateString()
-		);
-	});
+		});
 
 	useEffect(() => {
 		if (viewType != "month" && viewType != "multiweek") return;
