@@ -73,8 +73,8 @@ services:
         restart: unless-stopped
         ports:
             - "3000:3000"
-        env_file:
-            - ./apps/web/.env.docker
+        environment:
+            - NEXT_PUBLIC_API_URL=http://localhost:8080
         depends_on:
             typegen:
                 condition: service_completed_successfully
