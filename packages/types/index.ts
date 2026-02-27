@@ -1,2 +1,2 @@
 export * from "./src/calendar";
-export * from "./src/swagger";
+export type * from "./src/swagger";

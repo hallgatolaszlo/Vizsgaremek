@@ -9,7 +9,7 @@ import {
 	useNotificationStore,
 	useProfileStore,
 } from "@repo/hooks";
-import { components } from "@repo/types";
+import { type components } from "@repo/types";
 import { generateGrid } from "@repo/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
