@@ -1,7 +1,7 @@
 import { Input, InputProps } from "tamagui";
 
 interface StyledInputProps extends InputProps {
-	ref: React.RefObject<any> | React.RefCallback<any>;
+	ref?: React.RefObject<any> | React.RefCallback<any>;
 }
 
 // Styled Input component with hover and focus styles

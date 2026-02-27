@@ -1,8 +1,16 @@
 import { ColorIcon, SelectElement } from "@repo/ui";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Select, useTheme, View } from "tamagui";
 
-function ColorSelectItem({ color, index }: { color: any; index: number }) {
+type ThemeColor = ReturnType<typeof useTheme>["color1"];
+
+function ColorSelectItem({
+	color,
+	index,
+}: {
+	color: ThemeColor;
+	index: number;
+}) {
 	const [isHovered, setIsHovered] = useState(false);
 
 	return (
@@ -35,12 +43,14 @@ function ColorSelectItem({ color, index }: { color: any; index: number }) {
 export default function ColorSelect({
 	value,
 	onChange,
+	disabled = false,
 }: {
 	value: number;
 	onChange: (value: number) => void;
+	disabled?: boolean;
 }) {
 	const theme = useTheme({ name: "calendarColors" });
-	const colors = useRef<Record<string, any>>({
+	const colors = {
 		"1": theme.color1,
 		"2": theme.color2,
 		"3": theme.color3,
@@ -53,11 +63,12 @@ export default function ColorSelect({
 		"10": theme.color10,
 		"11": theme.color11,
 		"12": theme.color12,
-	});
+	} satisfies Record<string, ThemeColor>;
 
 	return (
 		<View>
 			<SelectElement
+				disabled={disabled}
 				value={value.toString()}
 				onValueChange={(value) => onChange(Number(value))}
 				renderValue={(value) => (
@@ -65,13 +76,14 @@ export default function ColorSelect({
 						style={{
 							width: 20,
 							height: 20,
-							backgroundColor: colors.current[value].val,
+							backgroundColor:
+								colors[value as keyof typeof colors]?.val ||
+								"transparent",
 							borderRadius: "5.5px",
 						}}
 					></View>
 				)}
-				triggerPlaceholder=""
-				groupItems={Object.values(colors.current).map((color, i) => (
+				groupItems={Object.values(colors).map((color, i) => (
 					<ColorSelectItem key={i} color={color} index={i} />
 				))}
 				groupStyle={{

@@ -9,18 +9,25 @@ import {
 	useProfileStore,
 } from "@repo/hooks";
 import { components } from "@repo/types";
-import { ColorIcon, SelectElement, StyledButton, StyledInput } from "@repo/ui";
-import { CalendarPlus2, Check } from "@tamagui/lucide-icons";
+import {
+	ColorIcon,
+	SelectElement,
+	StyledButton,
+	StyledInput,
+	StyledTextArea,
+} from "@repo/ui";
+import { CalendarPlus2, Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRef, useState } from "react";
-import { DatePicker } from "react-datepicker";
-import { Controller, useForm } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import {
 	Checkbox,
 	Form,
 	Label,
 	Select,
+	Separator,
 	Spinner,
 	Text,
 	Theme,
@@ -72,31 +79,34 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 
 export function CreateCalendarEntryForm({
 	isContextMenu = true,
+	onClose,
 }: {
 	isContextMenu?: boolean;
+	onClose?: () => void;
 }) {
 	const queryClient = useQueryClient();
 	const myCalendars = useCalendars();
 
 	const { selectedDate } = useCalendarStore();
+	const { date } = useContextMenuStore();
 
 	const [error, setError] = useState<string | null>(null);
 	const [selectedCalendar, setSelectedCalendar] =
 		useState<GetCalendarDTO | null>(myCalendars.data?.[0] || null);
 	const [useCalendarColor, setUseCalendarColor] = useState(true);
 
-	const startDate = isContextMenu
-		? useContextMenuStore((state) => state.date)
-		: selectedDate;
-	startDate?.setHours(new Date().getHours(), 0, 0, 0);
+	const initialDate = isContextMenu ? date : selectedDate;
+	initialDate?.setHours(new Date().getHours(), 0, 0, 0);
 	const { locale } = useProfileStore();
+
+	const [isStartDatePickerOpen, setIsStartDatePickerOpen] = useState(false);
+	const [isEndDatePickerOpen, setIsEndDatePickerOpen] = useState(false);
 
 	const {
 		control,
 		handleSubmit,
 		reset,
 		setValue,
-		watch,
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(createCalendarEntrySchema),
@@ -106,13 +116,15 @@ export function CreateCalendarEntryForm({
 			name: "",
 			description: "",
 			isAllDay: true,
-			startDate: startDate!,
-			endDate: new Date(startDate!.getTime() + 60 * 60 * 1000),
+			startDate: initialDate ?? new Date(),
+			endDate: new Date(
+				(initialDate ?? new Date()).getTime() + 60 * 60 * 1000,
+			),
 			color: selectedCalendar?.color || 1,
 		},
 	});
 
-	const isAllDay = watch("isAllDay");
+	const isAllDay = useWatch({ control, name: "isAllDay" });
 
 	// Mutation for sign-up action
 	const createCalendarEntryMutation = useMutation({
@@ -121,6 +133,7 @@ export function CreateCalendarEntryForm({
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 		},
 		onSuccess: () => {
+			onClose?.();
 			reset();
 		},
 		onError: (err) => {
@@ -135,6 +148,7 @@ export function CreateCalendarEntryForm({
 	});
 
 	type FormData = z.infer<typeof createCalendarEntrySchema>;
+	type ThemeColor = ReturnType<typeof useTheme>["color1"];
 
 	async function onSubmit(data: FormData) {
 		const startDate: Date = new Date(data.startDate);
@@ -167,7 +181,7 @@ export function CreateCalendarEntryForm({
 	}
 
 	const theme = useTheme({ name: "calendarColors" });
-	const colors = useRef<Record<string, any>>({
+	const colors = useRef<Record<string, ThemeColor>>({
 		"1": theme.color1,
 		"2": theme.color2,
 		"3": theme.color3,
@@ -183,14 +197,16 @@ export function CreateCalendarEntryForm({
 	});
 
 	return (
-		<YStack>
-			<Form>
-				<YStack gap="$2">
+		<Form style={{ minWidth: 300, width: "fit-content" }}>
+			<YStack gap="$4">
+				<YStack gap={"$2"} style={{ alignItems: "center" }}>
+					<Text color={"$color11"}>Calendar</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="calendarId"
 						render={({ field: { onChange, value } }) => (
-							<View>
+							<View style={{ width: "100%" }}>
 								<SelectElement
 									value={value}
 									onValueChange={(value) => {
@@ -211,22 +227,36 @@ export function CreateCalendarEntryForm({
 										);
 
 										return (
-											<Text>
-												{
-													<ColorIcon
-														color={
-															colors.current[
-																calendar?.color!
-															].val
-														}
-													/>
-												}
-												{calendar?.name}
-											</Text>
+											<Select.ItemText>
+												<XStack
+													gap="$2"
+													alignItems="center"
+												>
+													{calendar &&
+													calendar.color ? (
+														<ColorIcon
+															color={
+																colors.current[
+																	calendar
+																		.color
+																]?.val
+															}
+														/>
+													) : null}
+													<Text>
+														{calendar?.name}
+													</Text>
+												</XStack>
+											</Select.ItemText>
 										);
 									}}
+									valueStyle={{
+										display: "flex",
+										flexDirection: "row",
+										flexWrap: "nowrap",
+										gap: 15,
+									}}
 									defaultValue={""}
-									triggerPlaceholder=""
 									groupItems={myCalendars.data?.map(
 										(calendar, i) => (
 											<Select.Item
@@ -234,18 +264,33 @@ export function CreateCalendarEntryForm({
 												index={i}
 												value={calendar.id!}
 											>
-												<Select.ItemText>
-													{
-														<ColorIcon
-															color={
-																colors.current[
-																	calendar
-																		?.color!
-																].val
-															}
-														/>
-													}
-													{calendar.name}
+												<Select.ItemText
+													style={{
+														display: "flex",
+														alignItems: "center",
+														gap: 15,
+													}}
+												>
+													<XStack
+														gap="$2"
+														alignItems="center"
+													>
+														{calendar &&
+														calendar.color ? (
+															<ColorIcon
+																color={
+																	colors
+																		.current[
+																		calendar
+																			.color
+																	]?.val
+																}
+															/>
+														) : null}
+														<Text>
+															{calendar?.name}
+														</Text>
+													</XStack>
 												</Select.ItemText>
 											</Select.Item>
 										),
@@ -254,18 +299,21 @@ export function CreateCalendarEntryForm({
 							</View>
 						)}
 					/>
+				</YStack>
+				<YStack gap={"$2"} style={{ alignItems: "center" }}>
+					<Text color={"$color11"}>Entry Type</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="entryCategory"
 						render={({ field: { onChange, value } }) => (
-							<View>
+							<View style={{ width: "100%" }}>
 								<SelectElement
 									value={value}
 									onValueChange={(value) => onChange(value)}
 									renderValue={(value) => (
 										<Text>{value}</Text>
 									)}
-									triggerPlaceholder=""
 									groupItems={ENTRY_CATEGORIES.map(
 										(category, i) => (
 											<Select.Item
@@ -283,17 +331,21 @@ export function CreateCalendarEntryForm({
 							</View>
 						)}
 					/>
+				</YStack>
+				<YStack gap={"$2"} style={{ alignItems: "center" }}>
+					<Text color={"$color11"}>Title & Description</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="name"
 						render={({ field: { onChange, value, ref } }) => (
 							<StyledInput
+								style={{ width: "100%" }}
 								ref={ref}
-								placeholder="Name"
+								placeholder="Title"
 								onChange={onChange}
 								value={value}
 								returnKeyType="next"
-								autoFocus
 							/>
 						)}
 					/>
@@ -301,9 +353,9 @@ export function CreateCalendarEntryForm({
 					<Controller
 						control={control}
 						name="description"
-						render={({ field: { onChange, value, ref } }) => (
-							<StyledInput
-								ref={ref}
+						render={({ field: { onChange, value } }) => (
+							<StyledTextArea
+								style={{ width: "100%" }}
 								placeholder="Description"
 								onChange={onChange}
 								value={value}
@@ -315,11 +367,20 @@ export function CreateCalendarEntryForm({
 					{errors.description && (
 						<ErrorText message={errors.description.message} />
 					)}
+				</YStack>
+				<YStack gap={"$2"} style={{ textAlign: "center" }}>
+					<Text color={"$color11"}>Time</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
 					<Controller
 						control={control}
 						name="isAllDay"
 						render={({ field: { onChange, value, ref } }) => (
-							<XStack style={{ alignItems: "center" }} gap="$2">
+							<XStack
+								style={{
+									alignItems: "center",
+								}}
+								gap="$2"
+							>
 								<Checkbox
 									id="isAllDayCheckbox"
 									ref={ref}
@@ -342,32 +403,48 @@ export function CreateCalendarEntryForm({
 						control={control}
 						name="startDate"
 						render={({ field: { onChange, value } }) => (
-							<DatePicker
-								selected={value}
-								onChange={(value: Date | null) => {
-									onChange(value);
-									setValue(
-										"endDate",
-										new Date(
-											value!.getTime() + 60 * 60 * 1000,
-										),
-									);
+							<View
+								style={{
+									height: "40px",
+									flexGrow: 1,
+									flexShrink: 1,
 								}}
-								locale={
-									locale instanceof Intl.Locale
-										? locale.language
-										: "en"
-								}
-								timeInputLabel="Time:"
-								dateFormat={
-									isAllDay
-										? "MM/dd/yyyy"
-										: "MM/dd/yyyy hh:mm aa"
-								}
-								showTimeInput={!isAllDay}
-								className="custom-datepicker"
-								wrapperClassName="custom-datepicker-wrapper"
-							/>
+							>
+								<DatePicker
+									open={isStartDatePickerOpen}
+									onClickOutside={() =>
+										setIsStartDatePickerOpen(false)
+									}
+									onInputClick={() =>
+										setIsStartDatePickerOpen(true)
+									}
+									selected={value ?? new Date()}
+									onChange={(val: Date | null) => {
+										if (!val) return;
+										onChange(val);
+										setValue(
+											"endDate",
+											new Date(
+												val.getTime() + 60 * 60 * 1000,
+											),
+										);
+									}}
+									locale={
+										locale instanceof Intl.Locale
+											? locale.language
+											: "en"
+									}
+									timeInputLabel="Time:"
+									dateFormat={
+										isAllDay
+											? "MM/dd/yyyy"
+											: "MM/dd/yyyy hh:mm aa"
+									}
+									showTimeInput={!isAllDay}
+									className="custom-datepicker"
+									wrapperClassName="custom-datepicker-wrapper"
+								/>
+							</View>
 						)}
 					/>
 					{!isAllDay && (
@@ -375,54 +452,87 @@ export function CreateCalendarEntryForm({
 							control={control}
 							name="endDate"
 							render={({ field: { onChange, value } }) => (
-								<DatePicker
-									selected={value}
-									onChange={onChange}
-									locale={
-										locale instanceof Intl.Locale
-											? locale.language
-											: "en"
-									}
-									timeInputLabel="Time:"
-									dateFormat="MM/dd/yyyy hh:mm aa"
-									showTimeInput
-									className="custom-datepicker"
-									wrapperClassName="custom-datepicker-wrapper"
-								/>
+								<View
+									style={{
+										height: "40px",
+										flexGrow: 1,
+										flexShrink: 1,
+									}}
+								>
+									<DatePicker
+										open={isEndDatePickerOpen}
+										onClickOutside={() =>
+											setIsEndDatePickerOpen(false)
+										}
+										onInputClick={() =>
+											setIsEndDatePickerOpen(true)
+										}
+										selected={value ?? new Date()}
+										onChange={(val: Date | null) => {
+											if (!val) return;
+											onChange(val);
+										}}
+										locale={
+											locale instanceof Intl.Locale
+												? locale.language
+												: "en"
+										}
+										timeInputLabel="Time:"
+										dateFormat="MM/dd/yyyy hh:mm aa"
+										showTimeInput
+										className="custom-datepicker"
+										wrapperClassName="custom-datepicker-wrapper"
+									/>
+								</View>
 							)}
 						/>
 					)}
-					<XStack style={{ alignItems: "center" }} gap="$2">
-						<Checkbox
-							id="useCalendarColorCheckbox"
-							checked={useCalendarColor}
-							onCheckedChange={(value) => {
-								setUseCalendarColor(
-									value === "indeterminate" ? false : value,
-								);
-							}}
-						>
-							<Checkbox.Indicator>
-								<Check />
-							</Checkbox.Indicator>
-						</Checkbox>
-						<Label htmlFor="useCalendarColorCheckbox">
-							Use calendar color
-						</Label>
-					</XStack>
-					{!useCalendarColor && (
+				</YStack>
+				<YStack gap={"$2"} style={{ textAlign: "center" }}>
+					<Text color={"$color11"}>Color</Text>
+					<Separator style={{ borderWidth: 1, width: "100%" }} />
+					<XStack
+						style={{
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
 						<Controller
 							control={control}
 							name="color"
 							render={({ field: { onChange, value } }) => (
 								<ColorSelect
+									disabled={useCalendarColor}
 									value={value}
 									onChange={onChange}
 								/>
 							)}
 						/>
-					)}
+						<XStack style={{ alignItems: "center" }} gap="$2">
+							<Checkbox
+								id="useCalendarColorCheckbox"
+								checked={useCalendarColor}
+								onCheckedChange={(value) => {
+									setUseCalendarColor(
+										value === "indeterminate"
+											? false
+											: value,
+									);
+								}}
+							>
+								<Checkbox.Indicator>
+									<Check />
+								</Checkbox.Indicator>
+							</Checkbox>
+							<Label htmlFor="useCalendarColorCheckbox">
+								Use calendar color
+							</Label>
+						</XStack>
+					</XStack>
+				</YStack>
+				<XStack gap={"$2"} style={{ width: "100%" }}>
 					<StyledButton
+						style={{ flexGrow: 1 }}
 						onPress={handleSubmit(onSubmit)}
 						disabled={createCalendarEntryMutation.isPending}
 						icon={
@@ -443,18 +553,20 @@ export function CreateCalendarEntryForm({
 							</Text>
 						)}
 					</StyledButton>
-					{error && (
-						<Theme name="error">
-							<Text
-								style={{ textAlign: "center" }}
-								color="$color9"
-							>
-								{error}
-							</Text>
-						</Theme>
-					)}
-				</YStack>
-			</Form>
-		</YStack>
+					<StyledButton
+						onPress={() => onClose?.()}
+						icon={X}
+						scaleIcon={1.5}
+					/>
+				</XStack>
+				{error && (
+					<Theme name="error">
+						<Text style={{ textAlign: "center" }} color="$color9">
+							{error}
+						</Text>
+					</Theme>
+				)}
+			</YStack>
+		</Form>
 	);
 }

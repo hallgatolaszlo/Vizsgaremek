@@ -24,7 +24,7 @@ export default function DashboardLayout({
 			await startConnection();
 		}
 		start();
-	}, []);
+	}, [startConnection]);
 
 	return <ProtectedRoute>{children}</ProtectedRoute>;
 }

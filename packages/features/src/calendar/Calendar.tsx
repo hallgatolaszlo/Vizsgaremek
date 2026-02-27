@@ -1,5 +1,6 @@
 import { CalendarEntryHourView } from "@/src/components/CalendarPage/CalendarEntryHourView";
 import { CreateCalendarEntryForm } from "@/src/components/CalendarPage/CreateCalendarEntryForm";
+import CustomDialog from "@/src/components/CalendarPage/CustomDialog";
 import {
 	useCalendarEntries,
 	useCalendars,
@@ -80,7 +81,7 @@ function WeekNumberSidebar({
 			}}
 		>
 			<Card.Header p={padding}>
-				<Text fontWeight="$2" style={{ textAlign: "center" }}>
+				<Text fontWeight="bold" style={{ textAlign: "center" }}>
 					{weekNumber}
 				</Text>
 			</Card.Header>
@@ -117,7 +118,7 @@ function HourLabel({ hour, locale, hour12, sidebarWidth }: HourLabelProps) {
 			}}
 		>
 			<Text
-				fontWeight="$2"
+				fontWeight="bold"
 				color="$color11"
 				style={{
 					width: "100%",
@@ -154,7 +155,6 @@ function HourGridCells({
 					i={i}
 					columnCount={columnCount}
 					hour={hour}
-					date={dates[i]}
 					positionedEntries={
 						positionedEntriesByDate.get(dates[i].toDateString()) ??
 						[]
@@ -302,27 +302,39 @@ function CalendarRow({
 
 function AddEntryButton() {
 	const { setContent } = useDialogStore();
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	return (
-		<Dialog.Trigger asChild scope="custom-dialog">
-			<StyledButton
-				style={{
-					position: "absolute",
-					bottom: 20,
-					right: 20,
-					zIndex: 100,
-				}}
-				circular
-				scaleIcon={1.25}
-				size={60}
-				icon={Plus}
-				onPress={() => {
-					setContent(
-						<CreateCalendarEntryForm isContextMenu={false} />,
-					);
-				}}
-			></StyledButton>
-		</Dialog.Trigger>
+		<CustomDialog
+			isDialogOpen={isDialogOpen}
+			setIsDialogOpen={setIsDialogOpen}
+			onPointerDownOutside={(e) => e.preventDefault()}
+			content={
+				<CreateCalendarEntryForm
+					onClose={() => setIsDialogOpen(false)}
+				/>
+			}
+		>
+			<Dialog.Trigger asChild>
+				<StyledButton
+					style={{
+						position: "absolute",
+						bottom: 20,
+						right: 20,
+						zIndex: 100,
+					}}
+					circular
+					scaleIcon={1.25}
+					size={60}
+					icon={Plus}
+					onPress={() => {
+						setContent(
+							<CreateCalendarEntryForm isContextMenu={false} />,
+						);
+					}}
+				></StyledButton>
+			</Dialog.Trigger>
+		</CustomDialog>
 	);
 }
 
@@ -397,7 +409,7 @@ export function Calendar({ grid }: CalendarProps) {
 									: 0,
 						}}
 					>
-						<Text fontWeight="$2" style={{ textAlign: "center" }}>
+						<Text fontWeight="bold" style={{ textAlign: "center" }}>
 							{day}
 						</Text>
 					</Card>
