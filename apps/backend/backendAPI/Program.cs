@@ -64,9 +64,13 @@ namespace backend
             //add context; username and password is in user-secrets - configuration needed
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!
-                    .Replace("{USERNAME}", builder.Configuration.GetValue<string>("postgres-username"))
-                    .Replace("{PASSWORD}", builder.Configuration.GetValue<string>("postgres-password"));
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+                if (connectionString.Contains("{USERNAME}"))
+                {
+                    connectionString = connectionString
+                        .Replace("{USERNAME}", builder.Configuration.GetValue<string>("postgres-username"))
+                        .Replace("{PASSWORD}", builder.Configuration.GetValue<string>("postgres-password"));
+                }
                 options.UseNpgsql(connectionString);
             });
 
@@ -147,16 +151,24 @@ namespace backend
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
             }
 
-            app.UseHttpsRedirection();
-
+            // Configure the HTTP request pipeline.
             app.UseCors();
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapHub<NotificationHub>("/notifications");

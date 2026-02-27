@@ -1,0 +1,85 @@
+services:
+    db:
+        image: postgres:17.6-alpine
+        container_name: vizsgaremek-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: admin123
+            POSTGRES_DB: vizsgaremek
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U admin -d vizsgaremek"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+
+    backend:
+        build:
+            context: ./apps/backend
+            dockerfile: Dockerfile
+        container_name: vizsgaremek-backend
+        restart: unless-stopped
+        ports:
+            - "8080:8080"
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Production
+            - ASPNETCORE_URLS=http://+:8080
+            - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=vizsgaremek;Username=admin;Password=admin123;Trust Server Certificate=true;
+            - jwt-secret-key=verylongsecretkeytoaccesseverythingyouneedandidontknowwhattowriteherehelpmeplease123456789012344567789990100
+            - AppSettings__Issuer=MyAppIssuer
+            - AppSettings__Audience=MyAppAudienc
+        depends_on:
+            db:
+                condition: service_healthy
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 10
+            start_period: 600s
+
+    typegen:
+        image: node:21-alpine
+        container_name: vizsgaremek-typegen
+        working_dir: /app
+        volumes:
+            # Mount directly into the host source tree so web build can see it
+            - ./packages/types/src:/app/out
+        command: >
+            sh -c "
+                apk add --no-cache wget &&
+                npx --yes openapi-typescript@latest http://backend:8080/swagger/v1/swagger.json -o /app/out/swagger.ts &&
+                echo '✅ Types generated'
+            "
+        depends_on:
+            backend:
+                condition: service_healthy
+        restart: "no"
+
+    web:
+        build:
+            context: .
+            dockerfile: apps/web/Dockerfile
+        container_name: vizsgaremek-web
+        restart: unless-stopped
+        ports:
+            - "3000:3000"
+        environment:
+            - NEXT_PUBLIC_API_URL=http://localhost:8080
+        depends_on:
+            typegen:
+                condition: service_completed_successfully
+            backend:
+                condition: service_healthy
+
+volumes:
+    postgres_data:

@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+
+node_modules/
+**/node_modules/
+**/.next/
+apps/mobile/
+apps/backend/
+.git/

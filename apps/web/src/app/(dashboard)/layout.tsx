@@ -1,6 +1,6 @@
 "use client";
 
-import { ProtectedRoute } from "@repo/features";
+import { ProtectedRoute } from "@/src/components/ProtectedRoute";
 import { useCalendarStore, useNotificationStore } from "@repo/hooks";
 import { useEffect } from "react";
 
