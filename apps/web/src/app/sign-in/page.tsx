@@ -3,14 +3,12 @@
 import { FullscreenView } from "@/src/components/FullscreenView";
 import { AuthCard } from "@repo/features";
 import { useAuthStore } from "@repo/hooks";
-import { useRouter } from "next/navigation";
 
 export default function SignIn() {
 	const { isAuthorized } = useAuthStore();
-	const router = useRouter();
 
 	if (isAuthorized) {
-		router.push("/calendar");
+		window.location.href = "/calendar";
 	}
 
 	return (
@@ -18,7 +16,7 @@ export default function SignIn() {
 			<AuthCard
 				style={{ margin: "0px auto 50px auto" }}
 				onSignIn={() => {
-					router.push("/calendar");
+					window.location.href = "/calendar";
 				}}
 			/>
 		</FullscreenView>
