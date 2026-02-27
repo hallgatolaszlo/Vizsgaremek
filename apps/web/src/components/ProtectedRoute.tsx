@@ -1,14 +1,15 @@
 import { useAuthStore } from "@repo/hooks";
-import { H1, View } from "tamagui";
+import { H1 } from "tamagui";
+import { FullscreenView } from "./FullscreenView";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 	const isAuthorized = useAuthStore((state) => state.isAuthorized);
 
 	if (!isAuthorized) {
 		return (
-			<View>
+			<FullscreenView p={"$4"}>
 				<H1>Access Denied. Please log in to continue.</H1>
-			</View>
+			</FullscreenView>
 		);
 	}
 

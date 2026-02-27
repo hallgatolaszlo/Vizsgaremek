@@ -154,10 +154,13 @@ function PublicNavbar() {
 			borderBottomColor={"$color5"}
 			borderBottomWidth={2}
 		>
-			<XStack
-				gap={"$4"}
-				style={{ display: "flex", alignItems: "center" }}
-			>
+			<XStack style={{ display: "flex", alignItems: "center", gap: 10 }}>
+				<Image
+					src={Images.Logo}
+					width={42}
+					height={42}
+					alt="Planova Logo"
+				/>
 				<H1 style={{ userSelect: "none" }}>Planova</H1>
 			</XStack>
 			<XStack gap="$2" p="$2" justify="flex-end">
