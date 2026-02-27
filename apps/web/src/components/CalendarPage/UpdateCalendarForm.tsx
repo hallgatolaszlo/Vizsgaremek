@@ -4,19 +4,8 @@ import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
 import { Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-	Form,
-	Select,
-	Spinner,
-	Text,
-	Theme,
-	useTheme,
-	View,
-	XStack,
-	YStack,
-} from "tamagui";
+import { Form, Spinner, Text, Theme, useTheme, XStack, YStack } from "tamagui";
 import z from "zod";
 import ColorSelect from "./ColorSelect";
 
@@ -44,49 +33,49 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 
 type ThemeColor = ReturnType<typeof useTheme>["color1"];
 
-function ColorSelectItem({
-	color,
-	index,
-}: {
-	color: ThemeColor;
-	index: number;
-	isSelected: boolean;
-}) {
-	const [isHovered, setIsHovered] = useState(false);
+// function ColorSelectItem({
+// 	color,
+// 	index,
+// }: {
+// 	color: ThemeColor;
+// 	index: number;
+// 	isSelected: boolean;
+// }) {
+// 	const [isHovered, setIsHovered] = useState(false);
 
-	return (
-		<Select.Item
-			unstyled
-			index={index}
-			value={(index + 1).toString()}
-			flexBasis={0}
-			style={
-				isHovered
-					? {
-							outlineWidth: 2,
-							outlineOffset: -2,
-							outlineColor: "var(--accent9)",
-							outlineStyle: "solid",
-							borderRadius: 9,
-						}
-					: {}
-			}
-			onHoverIn={() => setIsHovered(true)}
-			onHoverOut={() => setIsHovered(false)}
-		>
-			<Select.ItemText>
-				<View
-					style={{
-						width: 20,
-						height: 20,
-						backgroundColor: color.val,
-						borderRadius: "5.5px",
-					}}
-				/>
-			</Select.ItemText>
-		</Select.Item>
-	);
-}
+// 	return (
+// 		<Select.Item
+// 			unstyled
+// 			index={index}
+// 			value={(index + 1).toString()}
+// 			flexBasis={0}
+// 			style={
+// 				isHovered
+// 					? {
+// 							outlineWidth: 2,
+// 							outlineOffset: -2,
+// 							outlineColor: "var(--accent9)",
+// 							outlineStyle: "solid",
+// 							borderRadius: 9,
+// 						}
+// 					: {}
+// 			}
+// 			onHoverIn={() => setIsHovered(true)}
+// 			onHoverOut={() => setIsHovered(false)}
+// 		>
+// 			<Select.ItemText>
+// 				<View
+// 					style={{
+// 						width: 20,
+// 						height: 20,
+// 						backgroundColor: color.val,
+// 						borderRadius: "5.5px",
+// 					}}
+// 				/>
+// 			</Select.ItemText>
+// 		</Select.Item>
+// 	);
+// }
 
 export function UpdateCalendarForm({
 	onCancel,
@@ -103,20 +92,20 @@ export function UpdateCalendarForm({
 }) {
 	const theme = useTheme({ name: "calendarColors" });
 	const queryClient = useQueryClient();
-	const colors = useRef<Record<string, ThemeColor>>({
-		"1": theme.color1,
-		"2": theme.color2,
-		"3": theme.color3,
-		"4": theme.color4,
-		"5": theme.color5,
-		"6": theme.color6,
-		"7": theme.color7,
-		"8": theme.color8,
-		"9": theme.color9,
-		"10": theme.color10,
-		"11": theme.color11,
-		"12": theme.color12,
-	});
+	// const colors = useRef<Record<string, ThemeColor>>({
+	// 	"1": theme.color1,
+	// 	"2": theme.color2,
+	// 	"3": theme.color3,
+	// 	"4": theme.color4,
+	// 	"5": theme.color5,
+	// 	"6": theme.color6,
+	// 	"7": theme.color7,
+	// 	"8": theme.color8,
+	// 	"9": theme.color9,
+	// 	"10": theme.color10,
+	// 	"11": theme.color11,
+	// 	"12": theme.color12,
+	// });
 
 	const {
 		control,
