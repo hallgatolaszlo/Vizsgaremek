@@ -1,9 +1,17 @@
+import React from "react";
 import { View } from "tamagui";
 
-export function ColorIcon({ color }: { color: string }) {
+export function ColorIcon({
+	color,
+	style,
+}: {
+	color: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<View
 			style={{
+				...style,
 				width: 20,
 				height: 20,
 				backgroundColor: color,

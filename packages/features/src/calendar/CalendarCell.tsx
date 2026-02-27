@@ -37,7 +37,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		tabletView,
 		mobileView,
 	} = useCalendarStore();
-	const { locale } = useProfileStore();
+	const { locale, weekStartsOn } = useProfileStore();
 	const { setFieldType, setDate } = useContextMenuStore();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -149,16 +149,43 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 		return { bg: "$color1" } as CardProps;
 	}
 
-	const filteredEntries = calendarEntries.data?.filter(
-		(d) =>
-			new Date(d.startDate!).toDateString() ===
-				cell.date.toDateString() &&
-			d.calendarId &&
-			checkedCalendarIds.includes(d.calendarId) &&
-			(viewType == "week" || viewType == "day"
-				? d.isAllDay
-				: d.isAllDay || !d.isAllDay),
-	);
+	const filteredEntries = calendarEntries.data?.filter((d) => {
+		if (!d.calendarId || !checkedCalendarIds.includes(d.calendarId))
+			return false;
+
+		const entryStart = new Date(d.startDate!);
+		const entryEnd = d.endDate
+			? new Date(d.endDate)
+			: new Date(d.startDate!);
+
+		// Month / Multiweek: include entries that span this day (multi-day support)
+		if (viewType === "month" || viewType === "multiweek") {
+			const cellDay = new Date(cell.date);
+			cellDay.setHours(0, 0, 0, 0);
+			const s = new Date(entryStart);
+			s.setHours(0, 0, 0, 0);
+			const e = new Date(entryEnd);
+			e.setHours(0, 0, 0, 0);
+			return (
+				cellDay.getTime() >= s.getTime() &&
+				cellDay.getTime() <= e.getTime()
+			);
+		}
+
+		// Week / Day: show only all-day entries in the top cell (hourly events
+		// are rendered in the HourlyScrollView). This prevents non-all-day
+		// events from appearing in the first-row calendar cell.
+		if (viewType === "week" || viewType === "day") {
+			return (
+				new Date(d.startDate!).toDateString() ===
+					cell.date.toDateString() && !!d.isAllDay
+			);
+		}
+
+		return (
+			new Date(d.startDate!).toDateString() === cell.date.toDateString()
+		);
+	});
 
 	useEffect(() => {
 		if (viewType != "month" && viewType != "multiweek") return;
@@ -219,7 +246,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 				ref={headRef}
 			>
 				<Text
-					fontWeight="$2"
+					fontWeight="bold"
 					style={{
 						userSelect: "none",
 						textAlign: "center",
@@ -235,9 +262,51 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 				</Text>
 			</Card.Header>
 			<AnimatePresence>
-				{visibleEntries.map((entry) => (
-					<CalendarEntry key={entry.id} entry={entry} />
-				))}
+				{visibleEntries.map((entry) => {
+					const s = new Date(entry.startDate!);
+					const e = entry.endDate
+						? new Date(entry.endDate)
+						: new Date(entry.startDate!);
+					const cellDay = new Date(cell.date);
+					cellDay.setHours(0, 0, 0, 0);
+					const sDay = new Date(s);
+					sDay.setHours(0, 0, 0, 0);
+					const eDay = new Date(e);
+					eDay.setHours(0, 0, 0, 0);
+					const isMultiDay = eDay.getTime() > sDay.getTime();
+					const isStart = sDay.getTime() === cellDay.getTime();
+					const isEnd = eDay.getTime() === cellDay.getTime();
+
+					// Determine whether to show text for multi-day entries.
+					// Show text when the entry starts here, or when this cell is the
+					// first visible cell of the row for the event (row start), or
+					// when the previous day is not part of the event span.
+					const prevDay = new Date(cell.date);
+					prevDay.setDate(prevDay.getDate() - 1);
+					prevDay.setHours(0, 0, 0, 0);
+					const prevInSpan =
+						prevDay.getTime() >= sDay.getTime() &&
+						prevDay.getTime() <= eDay.getTime();
+					const weekStartIndex = weekStartsOn === "sunday" ? 0 : 1;
+					const cellIsRowStart =
+						cell.date.getDay() === weekStartIndex;
+					const rowEndIndex = (weekStartIndex + 6) % 7;
+					const cellIsRowEnd = cell.date.getDay() === rowEndIndex;
+					const showText = isStart || !prevInSpan || cellIsRowStart;
+
+					return (
+						<CalendarEntry
+							key={entry.id}
+							entry={entry}
+							isMultiDay={isMultiDay}
+							isStart={isStart}
+							isEnd={isEnd}
+							showText={showText}
+							isRowStart={cellIsRowStart}
+							isRowEnd={cellIsRowEnd}
+						/>
+					);
+				})}
 			</AnimatePresence>
 			{hiddenCount > 0 && (
 				<CustomDialog
@@ -260,7 +329,7 @@ export default function CalendarCell(props: CalendarCellComponentProps) {
 								<X />
 							</XStack>
 							<Text
-								fontWeight="$2"
+								fontWeight="bold"
 								style={{
 									userSelect: "none",
 									textAlign: "center",

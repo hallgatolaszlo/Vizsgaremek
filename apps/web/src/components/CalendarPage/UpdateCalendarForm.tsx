@@ -1,10 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateCalendar } from "@repo/api";
 import { components } from "@repo/types";
-import { SelectElement, StyledButton, StyledInput } from "@repo/ui";
-import { Check } from "@tamagui/lucide-icons";
+import { StyledButton, StyledInput } from "@repo/ui";
+import { Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -19,6 +18,7 @@ import {
 	YStack,
 } from "tamagui";
 import z from "zod";
+import ColorSelect from "./ColorSelect";
 
 // Type for sign-up request data from Swagger
 type UpdateCalendarDTO = components["schemas"]["UpdateCalendarDTO"];
@@ -42,11 +42,13 @@ const ErrorText = ({ message }: { message: string | undefined }) => (
 	</Theme>
 );
 
+type ThemeColor = ReturnType<typeof useTheme>["color1"];
+
 function ColorSelectItem({
 	color,
 	index,
 }: {
-	color: any;
+	color: ThemeColor;
 	index: number;
 	isSelected: boolean;
 }) {
@@ -87,23 +89,21 @@ function ColorSelectItem({
 }
 
 export function UpdateCalendarForm({
+	onCancel,
 	onSuccess,
-	onBlur,
 	calendar,
 }: {
+	onCancel?: () => void;
 	onSuccess?: () => void;
-	onBlur?: () => void;
 	calendar: {
 		name?: string | null | undefined;
 		color?: number | undefined;
 		id?: string | undefined;
 	};
 }) {
-	const [error, setError] = useState<string | null>(null);
-	const [isSelectOpen, setIsSelectOpen] = useState(false);
 	const theme = useTheme({ name: "calendarColors" });
 	const queryClient = useQueryClient();
-	const colors = useRef<Record<string, any>>({
+	const colors = useRef<Record<string, ThemeColor>>({
 		"1": theme.color1,
 		"2": theme.color2,
 		"3": theme.color3,
@@ -130,7 +130,6 @@ export function UpdateCalendarForm({
 			color: calendar.color!,
 		},
 	});
-	0;
 
 	// Mutation for sign-up action
 	const updateCalendarMutation = useMutation({
@@ -143,15 +142,6 @@ export function UpdateCalendarForm({
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 			onSuccess?.(); // Call the callback to close the popover
 		},
-		onError: (err) => {
-			if (err instanceof AxiosError && err.status === 400) {
-				setError(err.response?.data);
-			} else {
-				setError(
-					"An unexpected error occurred. Please try again later.",
-				);
-			}
-		},
 	});
 
 	async function onSubmit(request: UpdateCalendarDTO) {
@@ -159,114 +149,72 @@ export function UpdateCalendarForm({
 		updateCalendarMutation.mutate(request);
 	}
 
-	function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
-		// if the blur was because of outside focus
-		// currentTarget is the parent element, relatedTarget is the clicked element
-		const currentTarget = event.currentTarget;
-
-		// Use setTimeout to allow focus to settle on the new element
-		// This handles cases where relatedTarget is null (e.g., clicking on Select dropdown)
-		requestAnimationFrame(() => {
-			// Check if the new active element is within our form or in a portal (Select dropdown)
-			const activeElement = document.activeElement;
-			const isInForm = currentTarget.contains(activeElement);
-			const isInPortal =
-				document
-					.querySelector("[data-radix-popper-content-wrapper]")
-					?.contains(activeElement) ||
-				document
-					.querySelector('[role="listbox"]')
-					?.contains(activeElement);
-
-			if (!isInForm && !isInPortal) {
-				onBlur?.();
-			}
-		});
-	}
-
 	return (
-		<Form style={{ width: "100%" }}>
-			<XStack gap={"$2"} p={"$2"} onBlur={handleBlur} width="100%">
-				<Controller
-					control={control}
-					name="color"
-					render={({ field: { onChange, value } }) => (
-						<View style={{ flexShrink: 0 }}>
-							<SelectElement
-								value={value.toString()}
-								onValueChange={(value) =>
-									onChange(Number(value))
-								}
-								onOpenChange={setIsSelectOpen}
-								renderValue={(value) => (
-									<View
-										bg={"red"}
-										style={{
-											width: 20,
-											height: 20,
-											backgroundColor:
-												colors.current[value].val,
-											borderRadius: "5.5px",
-										}}
-									></View>
+		<Form>
+			<YStack px={15} pt={5} gap={"$2"}>
+				<XStack
+					gap={"$2"}
+					bg="$color2"
+					style={{
+						borderRadius: 10,
+					}}
+				>
+					<Controller
+						control={control}
+						name="color"
+						render={({ field: { onChange, value } }) => (
+							<ColorSelect value={value} onChange={onChange} />
+						)}
+					/>
+					<Controller
+						control={control}
+						name="name"
+						render={({
+							field: { onChange, onBlur, value, ref },
+						}) => (
+							<YStack flex={1}>
+								<StyledInput
+									autoFocus
+									ref={ref}
+									placeholder="Name"
+									onBlur={onBlur}
+									onChange={onChange}
+									value={value}
+									returnKeyType="done"
+									onSubmitEditing={handleSubmit(onSubmit)}
+								/>
+								{errors.name && (
+									<ErrorText message={errors.name.message} />
 								)}
-								triggerPlaceholder=""
-								groupItems={Object.values(colors.current).map(
-									(color, i) => (
-										<ColorSelectItem
-											key={i}
-											color={color}
-											index={i}
-											isSelected={value === i + 1}
-										/>
-									),
-								)}
-								groupStyle={{
-									display: "grid",
-									gridTemplateColumns: "1fr 1fr 1fr 1fr",
-								}}
-							/>
-						</View>
-					)}
-				/>
-				<Controller
-					control={control}
-					name="name"
-					render={({ field: { onChange, onBlur, value, ref } }) => (
-						<YStack flex={1} minW={0}>
-							<StyledInput
-								autoFocus
-								ref={ref}
-								placeholder="Name"
-								onBlur={onBlur}
-								onChange={onChange}
-								value={value}
-								returnKeyType="done"
-								onSubmitEditing={handleSubmit(onSubmit)}
-							/>
-							{errors.name && (
-								<ErrorText message={errors.name.message} />
-							)}
-						</YStack>
-					)}
-				/>
-				<StyledButton
-					style={{ flexShrink: 0 }}
-					onPress={handleSubmit(onSubmit)}
-					disabled={updateCalendarMutation.isPending}
-					icon={
-						updateCalendarMutation.isPending
-							? () => <Spinner color="$color12" />
-							: undefined
-					}
-					scaleIcon={1.5}
-					iconAfter={
-						!updateCalendarMutation.isPending ? (
-							<Check />
-						) : undefined
-					}
-				></StyledButton>
-			</XStack>
+							</YStack>
+						)}
+					/>
+				</XStack>
+				<XStack gap={"$2"} style={{ width: "100%" }}>
+					<StyledButton
+						flex={20}
+						onPress={handleSubmit(onSubmit)}
+						disabled={updateCalendarMutation.isPending}
+						icon={
+							updateCalendarMutation.isPending
+								? () => <Spinner color="$color12" />
+								: undefined
+						}
+						scaleIcon={1.5}
+						iconAfter={
+							!updateCalendarMutation.isPending ? (
+								<Check />
+							) : undefined
+						}
+					/>
+					<StyledButton
+						icon={X}
+						scaleIcon={1.5}
+						flex={1}
+						onPress={onCancel}
+					/>
+				</XStack>
+			</YStack>
 		</Form>
 	);
 }

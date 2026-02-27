@@ -9,19 +9,14 @@ import {
 	useNotificationStore,
 	useProfileStore,
 } from "@repo/hooks";
-import { type components } from "@repo/types";
 import { generateGrid } from "@repo/utils";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { XStack } from "tamagui";
-
-type getCalendarDTO = components["schemas"]["GetCalendarDTO"];
 
 export default function CalendarPage() {
 	const {
 		selectedDate,
 		viewType,
-		setViewType,
 		decMonth,
 		incMonth,
 		decWeek,
@@ -38,8 +33,6 @@ export default function CalendarPage() {
 		console.log("Actual connection state:", connection?.state);
 	}, [isConnected, connection]);
 
-	const queryClient = useQueryClient();
-
 	const grid = useMemo(
 		() =>
 			generateGrid({
@@ -50,7 +43,7 @@ export default function CalendarPage() {
 		[selectedDate, weekStartsOn, viewType],
 	);
 
-	function decreaseView() {
+	const decreaseView = useCallback(() => {
 		if (viewType === "month") {
 			decMonth();
 			return;
@@ -60,9 +53,9 @@ export default function CalendarPage() {
 			return;
 		}
 		decWeek();
-	}
+	}, [viewType, decMonth, decDay, decWeek]);
 
-	function increaseView() {
+	const increaseView = useCallback(() => {
 		if (viewType === "month") {
 			incMonth();
 			return;
@@ -72,20 +65,15 @@ export default function CalendarPage() {
 			return;
 		}
 		incWeek();
-	}
+	}, [viewType, incMonth, incDay, incWeek]);
 
 	// Attach a non-passive wheel listener to allow preventDefault
 	const wheelableYStackRef = useRef<HTMLDivElement | null>(null);
 
-	useEffect(() => {
-		const el = wheelableYStackRef.current;
-		if (!el || viewType === "day" || viewType === "week") return;
-
-		const handleWheel = (e: WheelEvent) => {
-			// Only triggers while the cursor is over this Calendar wrapper.
+	const handleWheel = useMemo(() => {
+		return (e: WheelEvent) => {
 			e.preventDefault();
 			e.stopPropagation();
-
 			if (e.deltaY > 0) {
 				increaseView();
 				return;
@@ -94,10 +82,14 @@ export default function CalendarPage() {
 				decreaseView();
 			}
 		};
+	}, [increaseView, decreaseView]);
 
+	useEffect(() => {
+		const el = wheelableYStackRef.current;
+		if (!el || viewType === "day" || viewType === "week") return;
 		el.addEventListener("wheel", handleWheel, { passive: false });
 		return () => el.removeEventListener("wheel", handleWheel);
-	}, [increaseView, decreaseView, viewType]);
+	}, [viewType, handleWheel]);
 
 	return (
 		<FullscreenView

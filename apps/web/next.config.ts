@@ -1,7 +1,4 @@
-const defaultConfig = require("@tamagui/config/v4");
-const { withTamagui } = require("@tamagui/next-plugin");
-const fs = require("fs");
-const path = require("path");
+import { withTamagui } from "@tamagui/next-plugin";
 
 module.exports = () => {
 	const tamaguiPlugin = withTamagui({

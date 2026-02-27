@@ -6,6 +6,7 @@ import { themes } from "./themes";
 export const config = createTamagui({
 	...defaultConfig,
 	themes,
+	settings: { onlyAllowShorthands: false },
 	fonts: { heading: font, body: font },
 });
 

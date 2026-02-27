@@ -221,7 +221,12 @@ function PrivateNavbar() {
 				<XStack
 					style={{ display: "flex", alignItems: "center", gap: 10 }}
 				>
-					<Image src={Images.Logo} width={42} height={42} />
+					<Image
+						src={Images.Logo}
+						width={42}
+						height={42}
+						alt="Planova Logo"
+					/>
 					<H1 style={{ userSelect: "none" }}>Planova</H1>
 				</XStack>
 			</XStack>
