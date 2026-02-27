@@ -1,0 +1,751 @@
+Date: Fri, 27 Feb 2026 09:54:06 +0000 (UTC)
+Message-ID: <289526146.5.1772186046696@8cbf6116744b>
+Subject: Exported From Confluence
+MIME-Version: 1.0
+Content-Type: multipart/related; 
+	boundary="----=_Part_4_1144207842.1772186046695"
+
+------=_Part_4_1144207842.1772186046695
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Location: file:///C:/exported.html
+
+<html xmlns:o=3D'urn:schemas-microsoft-com:office:office'
+      xmlns:w=3D'urn:schemas-microsoft-com:office:word'
+      xmlns:v=3D'urn:schemas-microsoft-com:vml'
+      xmlns=3D'urn:w3-org-ns:HTML'>
+<head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8=
+">
+    <title>Szoftver technikai le=C3=ADr=C3=A1sa</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:TargetScreenSize>1024x640</o:TargetScreenSize>
+            <o:PixelsPerInch>72</o:PixelsPerInch>
+            <o:AllowPNG/>
+        </o:OfficeDocumentSettings>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>90</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+                <!--
+        @page Section1 {
+            size: 8.5in 11.0in;
+            margin: 1.0in;
+            mso-header-margin: .5in;
+            mso-footer-margin: .5in;
+            mso-paper-source: 0;
+        }
+
+        table {
+            border: solid 1px;
+            border-collapse: collapse;
+        }
+
+        table td, table th {
+            border: solid 1px;
+            padding: 5px;
+        }
+
+        td {
+            page-break-inside: avoid;
+        }
+
+        tr {
+            page-break-after: avoid;
+        }
+
+        div.Section1 {
+            page: Section1;
+        }
+
+        /* Confluence print stylesheet. Common to all themes for print medi=
+a */
+/* Full of !important until we improve batching for print CSS */
+
+@media print {
+    #main {
+        padding-bottom: 1em !important; /* The default padding of 6em is to=
+o much for printouts */
+    }
+
+    body {
+        font: var(--ds-font-body-small, Arial, Helvetica, FreeSans, sans-se=
+rif);
+    }
+
+    body, #full-height-container, #main, #page, #content, .has-personal-sid=
+ebar #content {
+        background: var(--ds-surface, #fff) !important;
+        color: var(--ds-text, #000) !important;
+        border: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    a, a:link, a:visited, a:focus, a:hover, a:active {
+        color: var(--ds-text, #000);
+    }
+
+    #content h1,
+    #content h2,
+    #content h3,
+    #content h4,
+    #content h5,
+    #content h6 {
+        page-break-after: avoid;
+    }
+
+    pre {
+        font: var(--ds-font-code, Monaco, "Courier New", monospace);
+    }
+
+    #header,
+    .aui-header-inner,
+    #navigation,
+    #sidebar,
+    .sidebar,
+    #personal-info-sidebar,
+    .ia-fixed-sidebar,
+    .page-actions,
+    .navmenu,
+    .ajs-menu-bar,
+    .noprint,
+    .inline-control-link,
+    .inline-control-link a,
+    a.show-labels-editor,
+    .global-comment-actions,
+    .comment-actions,
+    .quick-comment-container,
+    #addcomment {
+        display: none !important;
+    }
+
+    /* CONF-28544 cannot print multiple pages in IE */
+    #splitter-content {
+        position: relative !important;
+    }
+
+    .comment .date::before {
+        content: none !important; /* remove middot for print view */
+    }
+
+    h1.pagetitle img {
+        height: auto;
+        width: auto;
+    }
+
+    .print-only {
+        display: block;
+    }
+
+    #footer {
+        position: relative !important; /* CONF-17506 Place the footer at en=
+d of the content */
+        margin: 0;
+        padding: 0;
+        background: none;
+        clear: both;
+    }
+
+    #poweredby {
+        border-top: none;
+        background: none;
+    }
+
+    #poweredby li.print-only {
+        display: list-item;
+        font-style: italic;
+    }
+
+    #poweredby li.noprint {
+        display: none;
+    }
+
+    /* no width controls in print */
+    .wiki-content .table-wrap,
+    .wiki-content p,
+    .panel .codeContent,
+    .panel .codeContent pre,
+    .image-wrap {
+        overflow: visible !important;
+    }
+
+    /* TODO - should this work? */
+    #children-section,
+    #comments-section .comment,
+    #comments-section .comment .comment-body,
+    #comments-section .comment .comment-content,
+    #comments-section .comment p {
+        page-break-inside: avoid;
+    }
+
+    #page-children a {
+        text-decoration: none;
+    }
+
+    /**
+     hide twixies
+
+     the specificity here is a hack because print styles
+     are getting loaded before the base styles. */
+    #comments-section.pageSection .section-header,
+    #comments-section.pageSection .section-title,
+    #children-section.pageSection .section-header,
+    #children-section.pageSection .section-title,
+    .children-show-hide {
+        padding-left: 0;
+        margin-left: 0;
+    }
+
+    .children-show-hide.icon {
+        display: none;
+    }
+
+    /* personal sidebar */
+    .has-personal-sidebar #content {
+        margin-right: 0px;
+    }
+
+    .has-personal-sidebar #content .pageSection {
+        margin-right: 0px;
+    }
+
+    .no-print, .no-print * {
+        display: none !important;
+    }
+}
+-->
+    </style>
+</head>
+<body>
+    <h1>Szoftver technikai le=C3=ADr=C3=A1sa</h1>
+    <div class=3D"Section1">
+        <h2 local-id=3D"a93b3ce5cfc2" id=3D"Szoftvertechnikaile=C3=ADr=C3=
+=A1sa-1.Hivatkoz=C3=A1sok">1. Hivatkoz=C3=A1sok</h2>
+<style type=3D"text/css">/*<![CDATA[*/
+div.rbtoc1772186046678 {padding: 0px;}
+div.rbtoc1772186046678 ul {list-style: none;margin-left: 0px;}
+div.rbtoc1772186046678 li {margin-left: 0px;padding-left: 0px;}
+
+/*]]>*/</style>
+<div class=3D"toc-macro rbtoc1772186046678">
+<ul class=3D"toc-indentation">
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-1.Hivatkoz=C3=A1sok">1. =
+Hivatkoz=C3=A1sok</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-2.Architekt=C3=BAra=C3=
+=A9stechnol=C3=B3giaih=C3=A1tt=C3=A9r">2. Architekt=C3=BAra =C3=A9s technol=
+=C3=B3giai h=C3=A1tt=C3=A9r</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-3.Funkci=C3=B3kr=C3=A9sz=
+letesle=C3=ADr=C3=A1sa">3. Funkci=C3=B3k r=C3=A9szletes le=C3=ADr=C3=A1sa</=
+a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-4.Adatmodell">4. Adatmod=
+ell</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-5.Felhaszn=C3=A1l=C3=B3i=
+fel=C3=BClet">5. Felhaszn=C3=A1l=C3=B3i fel=C3=BClet</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-6.Biztons=C3=A1g">6. Biz=
+tons=C3=A1g</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-7.Keresztplatformosk=C3=
+=B3dmegoszt=C3=A1s">7. Keresztplatformos k=C3=B3dmegoszt=C3=A1s</a></li>
+<li><a href=3D"#Szoftvertechnikaile=C3=ADr=C3=A1sa-8.T=C3=ADpusgener=C3=A1l=
+=C3=A1s=C3=A9sAPIszinkroniz=C3=A1ci=C3=B3">8. T=C3=ADpusgener=C3=A1l=C3=A1s=
+ =C3=A9s API szinkroniz=C3=A1ci=C3=B3</a></li>
+</ul>
+</div>
+<div class=3D"confluence-information-macro confluence-information-macro-inf=
+ormation">
+<span class=3D"aui-icon aui-icon-small aui-iconfont-info confluence-informa=
+tion-macro-icon"></span>
+<div class=3D"confluence-information-macro-body">
+<p local-id=3D"cab3a90f62ba">A =E2=80=9C*=E2=80=9D-gal megjel=C3=B6lt eleme=
+k, sorok fejleszt=C3=A9s alatt =C3=A1llnak vagy j=C3=B6v=C5=91beli terveket=
+ t=C3=BCkr=C3=B6znek.</p>
+</div>
+</div>
+<h2 local-id=3D"597e6cfbe05c" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-2.Ar=
+chitekt=C3=BAra=C3=A9stechnol=C3=B3giaih=C3=A1tt=C3=A9r">2. Architekt=C3=BA=
+ra =C3=A9s technol=C3=B3giai h=C3=A1tt=C3=A9r</h2>
+<p local-id=3D"d558fadcc1f2"><strong>2.1. =C3=81ltal=C3=A1nos fel=C3=A9p=C3=
+=ADt=C3=A9s</strong></p>
+<p local-id=3D"f81052076ef5">Az alkalmaz=C3=A1s monorepo strukt=C3=BAr=C3=
+=A1ban =C3=A9p=C3=BCl fel, pnpm workspaces =C3=A9s Turborepo<br>
+seg=C3=ADts=C3=A9g=C3=A9vel. A projekt h=C3=A1rom f=C5=91 alkalmaz=C3=A1sb=
+=C3=B3l =C3=A9s hat megosztott csomagb=C3=B3l =C3=A1ll.</p>
+<p local-id=3D"d33218c1fd94"><strong>2.2. Backend</strong></p>
+<ul local-id=3D"f436425b-40e7-4bca-a378-a7f914e78bd3">
+<li local-id=3D"f5f5121e-ccf4-4c48-9465-d9396a2becdb">
+<p local-id=3D"7a7ddb1bd2e5">Keretrendszer: .NET 8 (C#)</p></li>
+<li local-id=3D"247d9b9b-45a7-4752-b1f4-63a163748ef1">
+<p local-id=3D"8b11a1f40427">Adatb=C3=A1zis: PostgreSQL, Entity Framework C=
+ore ORM-mel</p></li>
+<li local-id=3D"de695bf3-8782-4cf4-99e2-706beb4fa1f3">
+<p local-id=3D"fa124169ab44">Hiteles=C3=ADt=C3=A9s: JWT Bearer tokenek (acc=
+ess + refresh token)</p></li>
+<li local-id=3D"9c2f4139-2ce5-4caa-85de-8bf563049f9b">
+<p local-id=3D"f4241f513d67">Val=C3=B3s idej=C5=B1 kommunik=C3=A1ci=C3=B3: =
+SignalR hub</p></li>
+<li local-id=3D"fafcabad-436b-4d79-9f36-f69a95183206">
+<p local-id=3D"cd378b593824">API dokument=C3=A1ci=C3=B3: Swagger / OpenAPI<=
+/p></li>
+</ul>
+<p local-id=3D"05020efc506d"><strong>2.3. Webes frontend</strong></p>
+<ul local-id=3D"f9ab0b90-17c7-4c12-abda-7754db5b8fdf">
+<li local-id=3D"ba0d777a-6c29-4b37-87fe-20e42a1dc5ed">
+<p local-id=3D"7cf3662abd34">Keretrendszer: Next.js (App Router)</p></li>
+<li local-id=3D"9c8a7f8e-a1eb-4964-9a0f-d6c33f001313">
+<p local-id=3D"2067d214ca37">UI k=C3=B6nyvt=C3=A1r: Tamagui</p></li>
+<li local-id=3D"01db9b76-f3e0-4fa6-981f-0ad0adeedab2">
+<p local-id=3D"65b83b132fe9">=C3=81llapotkezel=C3=A9s: Zustand (store-ok), =
+React Query (szerver adat)</p></li>
+<li local-id=3D"80288455-ffd3-49d6-93de-8d6cc7446df8">
+<p local-id=3D"90119e95d302">T=C3=ADpusoss=C3=A1g: TypeScript, OpenAPI-b=C3=
+=B3l gener=C3=A1lt t=C3=ADpusok</p></li>
+</ul>
+<p local-id=3D"29354ec68e6f"><strong>*2.4. Mobil alkalmaz=C3=A1s</strong></=
+p>
+<ul local-id=3D"af6c87b8685a">
+<li local-id=3D"a0a2ff06-1d82-4877-a6c2-b376ccb766a2">
+<p local-id=3D"2903de408ffd">Keretrendszer: Expo / React Native</p></li>
+<li local-id=3D"fdcd66d1-9a3d-4dd5-a9c7-d3457f9e588f">
+<p local-id=3D"4142f11e3479">Navig=C3=A1ci=C3=B3: expo-router (f=C3=A1jl-al=
+ap=C3=BA routing)</p></li>
+<li local-id=3D"b4bd8ad6-1be9-44ec-b3f5-123efb85d9d2">
+<p local-id=3D"f7deb19e1eeb">UI k=C3=B6nyvt=C3=A1r: Tamagui (k=C3=B6z=C3=B6=
+s a webbel)</p></li>
+<li local-id=3D"33ab8652-7022-45e6-860f-cbac6cec39f4">
+<p local-id=3D"4666aa2d7d30">Token t=C3=A1rol=C3=A1s: expo-secure-store</p>=
+</li>
+</ul>
+<p local-id=3D"72ccd2580565"><strong>2.5. Megosztott csomagok</strong></p>
+<ul local-id=3D"e77c3787-365c-4eec-be39-86d3ca19eb28">
+<li local-id=3D"97bfb77d-2287-43a6-be00-e8bdc6f02440">
+<p local-id=3D"65b5b9a6971e">@repo/api =E2=80=93 Axios-alap=C3=BA API klien=
+s, token-friss=C3=ADt=C5=91 interceptorokkal</p></li>
+<li local-id=3D"191738de-9342-418f-a180-cb688f1f2201">
+<p local-id=3D"6f23764c19f2">@repo/types =E2=80=93 Swagger/OpenAPI-b=C3=B3l=
+ gener=C3=A1lt TypeScript t=C3=ADpusok</p></li>
+<li local-id=3D"b64cefb3-b0d6-4723-ab61-2d43974975bd">
+<p local-id=3D"672c8e4bea63">@repo/features =E2=80=93 K=C3=B6z=C3=B6s UI ko=
+mponensek (AuthCard, Calendar, CalendarEntry stb.)</p></li>
+<li local-id=3D"ba0c3d6c-4e23-4825-b70b-ca350b369f19">
+<p local-id=3D"7455cfafc0d0">@repo/hooks =E2=80=93 Zustand store-ok =C3=A9s=
+ React Query hook-ok</p></li>
+<li local-id=3D"59280e28-0365-4009-b990-b83854abed87">
+<p local-id=3D"43cb29ae2418">@repo/ui =E2=80=93 St=C3=ADlusos UI primit=C3=
+=ADvek (gombok, inputok, select elemek)</p></li>
+<li local-id=3D"118dbcc1-76b4-44dd-8ff8-b35694da746a">
+<p local-id=3D"4f42ada87d3b">@repo/utils =E2=80=93 Napt=C3=A1rr=C3=A1cs-gen=
+er=C3=A1l=C3=A1s, d=C3=A1tum seg=C3=A9df=C3=BCggv=C3=A9nyek, sz=C3=ADn seg=
+=C3=A9dletek</p></li>
+<li local-id=3D"fb8bce41-0a65-466b-ba06-fb1580f61e49">
+<p local-id=3D"2545610efafc">@repo/config =E2=80=93 Tamagui konfigur=C3=A1c=
+i=C3=B3</p></li>
+</ul>
+<h2 local-id=3D"0746a7b5f327" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-3.Fu=
+nkci=C3=B3kr=C3=A9szletesle=C3=ADr=C3=A1sa">3. Funkci=C3=B3k r=C3=A9szletes=
+ le=C3=ADr=C3=A1sa</h2>
+<p local-id=3D"90d5b6fd58fc"><strong>3.1. Regisztr=C3=A1ci=C3=B3 =C3=A9s hi=
+teles=C3=ADt=C3=A9s</strong></p>
+<ul local-id=3D"a5635912-6e17-4004-9cd0-23be9308ac9b">
+<li local-id=3D"5d7bcee4-7816-4eae-96e1-c00ef7d1259d">
+<p local-id=3D"8a9541865d78">E-mail/jelsz=C3=B3 alap=C3=BA regisztr=C3=A1ci=
+=C3=B3 er=C5=91s jelsz=C3=B3-szab=C3=A1lyokkal<br>
+(min. 8 karakter, kis- =C3=A9s nagybet=C5=B1, sz=C3=A1m, speci=C3=A1lis kar=
+akter)</p></li>
+<li local-id=3D"6334d969-1486-4a0c-ac23-4c78190f71f2">
+<p local-id=3D"e4f40d88dc79">Regisztr=C3=A1ci=C3=B3kor automatikusan l=C3=
+=A9trej=C3=B6n a felhaszn=C3=A1l=C3=B3i profil<br>
+=C3=A9s egy alap=C3=A9rtelmezett napt=C3=A1r</p></li>
+<li local-id=3D"bb549173-de52-4635-8d5d-bcc666e87d00">
+<p local-id=3D"fb2ed400c646">JWT access + refresh token rendszer</p></li>
+<li local-id=3D"eaebe04b-dd88-45e4-a2dd-639d9c0030e4">
+<p local-id=3D"b2762b627bf8">Webes fel=C3=BCleten: HttpOnly cookie-k (SameS=
+ite=3DStrict)</p></li>
+<li local-id=3D"81cea58c-0b0e-4e40-90d0-1eca6b601984">
+<p local-id=3D"8285c531f11e"><strong>*</strong> Mobil alkalmaz=C3=A1sban: e=
+xpo-secure-store biztons=C3=A1gos t=C3=A1rol=C3=A1s</p></li>
+<li local-id=3D"5ba71f71-1bfe-444e-90c3-f6c8f9148adc">
+<p local-id=3D"44a058f05567">Automatikus token-friss=C3=ADt=C3=A9s: 401-es =
+v=C3=A1lasz eset=C3=A9n az API kliens<br>
+automatikusan friss=C3=ADti a tokent =C3=A9s =C3=BAjrapr=C3=B3b=C3=A1lja a =
+k=C3=A9r=C3=A9st</p></li>
+</ul>
+<p local-id=3D"a6b4a49a571a"><strong>3.2. Profilkezel=C3=A9s</strong></p>
+<ul local-id=3D"7840ef23-72a3-47fc-a1d7-47f8d6f3526e">
+<li local-id=3D"bd466eec-a7db-43d1-b933-c9e112818f58">
+<p local-id=3D"363e282035e0">Felhaszn=C3=A1l=C3=B3n=C3=A9v, avatar, vezet=
+=C3=A9kn=C3=A9v, keresztn=C3=A9v, sz=C3=BClet=C3=A9si d=C3=A1tum kezel=C3=
+=A9se</p></li>
+<li local-id=3D"f6c3a4ee-92fd-4b6c-be22-e9716bd3d58f">
+<p local-id=3D"f2df2f3af8a5">Adatv=C3=A9delmi be=C3=A1ll=C3=ADt=C3=A1s: pub=
+likus vagy priv=C3=A1t profil</p></li>
+<li local-id=3D"e1147874-07cc-46dd-ad53-21c0a7558473">
+<p local-id=3D"2cd8fa176408">E-mail c=C3=ADm megjelen=C3=ADt=C3=A9se =C3=A9=
+s a fi=C3=B3k l=C3=A9trehoz=C3=A1si d=C3=A1tuma</p></li>
+</ul>
+<p local-id=3D"3e259667c044"><strong>3.3. Napt=C3=A1rkezel=C3=A9s</strong><=
+/p>
+<ul local-id=3D"758c59c9-cff4-429f-a1c4-e39170fad1dc">
+<li local-id=3D"6e91f19d-7587-425b-a7c2-429adf67bb9b">
+<p local-id=3D"24ba0ae5539c">T=C3=B6bb napt=C3=A1r l=C3=A9trehoz=C3=A1sa, s=
+zerkeszt=C3=A9se =C3=A9s t=C3=B6rl=C3=A9se</p></li>
+<li local-id=3D"28a6394d-04ad-4139-9a5c-910bcbc575cb">
+<p local-id=3D"305da4ed9a07">Minden napt=C3=A1rhoz egyedi n=C3=A9v =C3=A9s =
+sz=C3=ADn rendelhet=C5=91 (12 sz=C3=ADn paletta)</p></li>
+<li local-id=3D"016c38c2-41a8-45b0-aebd-027c4dd154fa">
+<p local-id=3D"75e6117184ac">Napt=C3=A1rak megjelen=C3=ADt=C3=A9s=C3=A9nek =
+ki/be kapcsol=C3=A1sa az oldals=C3=A1vban</p></li>
+<li local-id=3D"1712ad4e-5adf-4ff3-80fd-ecdebf7316e2">
+<p local-id=3D"1cebea96968c">A napt=C3=A1r t=C3=B6rl=C3=A9se automatikusan =
+t=C3=B6rli az =C3=B6sszes hozz=C3=A1 tartoz=C3=B3 bejegyz=C3=A9st<br>
+=C3=A9s megoszt=C3=A1st</p></li>
+</ul>
+<p local-id=3D"859164fa0bbc"><strong>3.4. Napt=C3=A1rbejegyz=C3=A9sek</stro=
+ng></p>
+<ul local-id=3D"a7f5a4b9-90c6-4746-ab28-6ef67925c80d">
+<li local-id=3D"1d2b2940-46aa-4478-a3c9-4820fda461e8">
+<p local-id=3D"8339afca9047">Bejegyz=C3=A9s kateg=C3=B3ri=C3=A1k: Nincs, Fe=
+ladat, Esem=C3=A9ny, Sz=C3=BClet=C3=A9snap, =C3=89vfordul=C3=B3</p></li>
+<li local-id=3D"867ff638-3b36-487f-9996-5158b7a7270e">
+<p local-id=3D"3dc82b828264">Minden bejegyz=C3=A9snek van neve, opcion=C3=
+=A1lis le=C3=ADr=C3=A1sa, kezd=C5=91- =C3=A9s z=C3=A1r=C3=B3 d=C3=A1tuma,<b=
+r>
+helysz=C3=ADne, =C3=A9rtes=C3=ADt=C3=A9si ideje, sz=C3=ADne =C3=A9s eg=C3=
+=A9sz napos jelz=C5=91je</p></li>
+<li local-id=3D"21a92218-6baa-4d1d-8e75-4a7eb05e6d20">
+<p local-id=3D"0b7c4b1ffefe">Feladatokn=C3=A1l teljes=C3=ADtetts=C3=A9gi =
+=C3=A1llapot k=C3=B6vet=C3=A9se</p></li>
+<li local-id=3D"6924e0d1-338c-4883-be9e-d04e27651dcf">
+<p local-id=3D"f6a5bb059295">Bejegyz=C3=A9sek sz=C3=ADn alapj=C3=A1n vizu=
+=C3=A1lisan megk=C3=BCl=C3=B6nb=C3=B6ztethet=C5=91k</p></li>
+<li local-id=3D"cd3fa5b8-f63a-4279-8022-85f09466de58">
+<p local-id=3D"2ebed9fc9179">Kontextus men=C3=BC: jobb klikkel gyorsan l=C3=
+=A9trehozhat=C3=B3 =C3=BAj esem=C3=A9ny<br>
+egy adott napon</p></li>
+</ul>
+<p local-id=3D"66f451438bb7"><strong>3.5. Napt=C3=A1rn=C3=A9zetek</strong><=
+/p>
+<p local-id=3D"febb1927cba6"><strong> Az alkalmaz=C3=A1s n=C3=A9gy k=C3=BCl=
+=C3=B6nb=C3=B6z=C5=91 n=C3=A9zetet t=C3=A1mogat:</strong></p>
+<ul local-id=3D"4ea55a1f-b28b-4a18-be4d-4c940459323b">
+<li local-id=3D"1b1c4899-db4a-412b-a05b-bae938c9aeec">
+<p local-id=3D"f1ebd751a3e7">Havi n=C3=A9zet =E2=80=93 Teljes h=C3=B3nap r=
+=C3=A1cs h=C3=A9tsz=C3=A1mokkal, eg=C3=A9rg=C3=B6rg=C5=91vel navig=C3=A1lha=
+t=C3=B3</p></li>
+<li local-id=3D"3acef73f-15ac-406c-8b43-f57e95920c16">
+<p local-id=3D"38b1728b3b44">T=C3=B6bbhetes n=C3=A9zet =E2=80=93 4 hetes =
+=C3=A1ttekint=C3=A9s</p></li>
+<li local-id=3D"bffac268-8f9b-43a1-b334-2e1aa9486ce5">
+<p local-id=3D"efd016653fae">Heti n=C3=A9zet =E2=80=93 Egyetlen h=C3=A9t =
+=C3=B3r=C3=A1nk=C3=A9nti id=C5=91oszt=C3=A1ssal (24 =C3=B3r=C3=A1s g=C3=B6r=
+gethet=C5=91 n=C3=A9zet)</p></li>
+<li local-id=3D"122bca34-2f50-4cdc-82de-850f8811567c">
+<p local-id=3D"6767f6739cbc">Napi n=C3=A9zet =E2=80=93 Egyetlen nap =C3=B3r=
+=C3=A1nk=C3=A9nti id=C5=91oszt=C3=A1ssal</p></li>
+</ul>
+<p local-id=3D"7076d12f71b0">Minden n=C3=A9zetben megjelennek a h=C3=A9tsz=
+=C3=A1mok =C3=A9s a bejegyz=C3=A9sek sz=C3=ADn-k=C3=B3dolva.<br>
+ Heti =C3=A9s napi n=C3=A9zetben az =C3=A1tfed=C5=91 esem=C3=A9nyek egym=C3=
+=A1s mellett jelennek meg.<br>
+ Ha egy cell=C3=A1ban nem f=C3=A9r el minden bejegyz=C3=A9s, =E2=80=9E+X to=
+v=C3=A1bbi" jelz=C3=A9s mutatja<br>
+ a rejtett elemek sz=C3=A1m=C3=A1t.</p>
+<p local-id=3D"fff3d9d4621e"><strong>*3.6. Megosztott napt=C3=A1rak</strong=
+></p>
+<ul local-id=3D"3967d24bc8f1">
+<li local-id=3D"79ee54e5-e344-4e86-83ce-d543d86bc602">
+<p local-id=3D"ba220d0e466d">B=C3=A1rmely napt=C3=A1r megoszthat=C3=B3 m=C3=
+=A1s felhaszn=C3=A1l=C3=B3kkal</p></li>
+<li local-id=3D"ccfe9229-0b07-498c-a46a-2e265c9ca654">
+<p local-id=3D"373e6d51e130">K=C3=A9t jogosults=C3=A1gi szint: Szerkeszt=C5=
+=91 =C3=A9s Megtekint=C5=91</p></li>
+<li local-id=3D"6221e96b-10c1-4d7a-950f-7820288c5585">
+<p local-id=3D"d04174ded67d">A megosztott napt=C3=A1rak a saj=C3=A1t napt=
+=C3=A1rak mellett jelennek meg</p></li>
+<li local-id=3D"fc4a0c16-9661-45ae-8385-b4f714158659">
+<p local-id=3D"9ce8bdcf9848">A jogosults=C3=A1gi szint k=C3=A9s=C5=91bb m=
+=C3=B3dos=C3=ADthat=C3=B3, a megoszt=C3=A1s visszavonhat=C3=B3</p></li>
+</ul>
+<p local-id=3D"f205561cc361"><strong>*3.7. Bar=C3=A1trendszer</strong></p>
+<ul local-id=3D"a02f4563d66c">
+<li local-id=3D"ea210bc9-627d-4b9b-ab26-ae9c62bbdb96">
+<p local-id=3D"3ecf3aea6959">Bar=C3=A1tk=C3=A9r=C3=A9s k=C3=BCld=C3=A9se m=
+=C3=A1s felhaszn=C3=A1l=C3=B3knak</p></li>
+<li local-id=3D"d28e09ed-d4ba-4f41-aed5-29cba29e92a0">
+<p local-id=3D"6f98d0ff8c1c">Bar=C3=A1tk=C3=A9r=C3=A9s elfogad=C3=A1sa vagy=
+ elutas=C3=ADt=C3=A1sa</p></li>
+<li local-id=3D"1df2fc17-cd74-41d6-aa34-2dcdcc016e76">
+<p local-id=3D"ce1bfe0b853c">Bar=C3=A1tok list=C3=A1z=C3=A1sa =C3=A1llapot =
+szerint (Elfogadott, F=C3=BCgg=C5=91ben, Elutas=C3=ADtott)</p></li>
+<li local-id=3D"c0640844-a2a7-4373-89ab-b0c9accb1e3f">
+<p local-id=3D"96ed985ce7c7">Bar=C3=A1ts=C3=A1g t=C3=B6rl=C3=A9se</p></li>
+<li local-id=3D"e2c197b0-4a61-4f30-937a-b578f3eafc4f">
+<p local-id=3D"59c29f9e5e05">Bar=C3=A1tk=C3=A9r=C3=A9s k=C3=BCld=C3=A9sekor=
+ val=C3=B3s idej=C5=B1 =C3=A9rtes=C3=ADt=C3=A9s SignalR-en kereszt=C3=BCl</=
+p></li>
+</ul>
+<p local-id=3D"abcb06b9577f"><strong>*3.8. Val=C3=B3s idej=C5=B1 =C3=A9rtes=
+=C3=ADt=C3=A9sek</strong></p>
+<ul local-id=3D"baa2a82fe69c">
+<li local-id=3D"9455b66e-7f17-40b6-9367-bcd5c8315428">
+<p local-id=3D"2624b4911968">SignalR hub a /notifications v=C3=A9gponton</p=
+></li>
+<li local-id=3D"d66d7e25-770b-4c8c-ba4d-c2e6eef8f5b2">
+<p local-id=3D"3ce79a088ec1">Automatikus =C3=BAjracsatlakoz=C3=A1s kapcsola=
+t megszakad=C3=A1sa eset=C3=A9n</p></li>
+<li local-id=3D"d8e8393e-6c04-424a-bcad-2ef33ec51e18">
+<p local-id=3D"80e535422293">Felhaszn=C3=A1l=C3=B3-azonos=C3=ADt=C3=A1s a J=
+WT token ProfileId claim-je alapj=C3=A1n</p></li>
+<li local-id=3D"3078263a-542d-4278-b203-fdb189b14b5f">
+<p local-id=3D"a89144f9b7ee">Webes fel=C3=BCleten a cookie-k automatikusan =
+tov=C3=A1bb=C3=ADt=C3=B3dnak</p></li>
+<li local-id=3D"c0f6ee84-2ddb-449c-af35-e974e6ac4cb7">
+<p local-id=3D"74b7064e6a56">Mobil alkalmaz=C3=A1sban az access token query=
+ string-k=C3=A9nt ker=C3=BCl =C3=A1tad=C3=A1sra</p></li>
+<li local-id=3D"94bafc9b-889c-47d2-b2b1-2ce6cc8f5fc4">
+<p local-id=3D"cd2a44c6e0cd">Az =C3=A9rtes=C3=ADt=C3=A9sek Zustand store-ba=
+n t=C3=A1rol=C3=B3dnak</p></li>
+</ul>
+<p local-id=3D"4324c08ee281"><strong>*3.9. Szok=C3=A1sk=C3=B6vet=C3=A9s</st=
+rong></p>
+<ul local-id=3D"5ee6fa070cd4">
+<li local-id=3D"1f05caa3-9a87-49c9-b912-a262df02fd51">
+<p local-id=3D"9e115b58cfca">Szok=C3=A1sok l=C3=A9trehoz=C3=A1sa, szerkeszt=
+=C3=A9se =C3=A9s t=C3=B6rl=C3=A9se</p></li>
+<li local-id=3D"d08bfaf0-5eb8-47b7-8426-0924778f1771">
+<p local-id=3D"57854d18b42a">Szok=C3=A1s kateg=C3=B3ri=C3=A1k: Testmozg=C3=
+=A1s, Olvas=C3=A1s, Tudatoss=C3=A1g</p></li>
+<li local-id=3D"03d6cf83-5087-49c0-8d66-c07266d69836">
+<p local-id=3D"58d1fe29dad0">M=C3=A9rt=C3=A9kegys=C3=A9gek: T=C3=A1vols=C3=
+=A1g, Darabsz=C3=A1m, Id=C5=91</p></li>
+<li local-id=3D"012e3665-0d18-447b-9266-02120ccb44bd">
+<p local-id=3D"6d6b1caa488d">C=C3=A9l=C3=A9rt=C3=A9k megad=C3=A1sa =C3=A9s =
+napi napl=C3=B3z=C3=A1s</p></li>
+<li local-id=3D"3baf951c-6e1a-4aca-9663-de35d6a025b1">
+<p local-id=3D"2c23fb06419e">Az egyes napokra megadhat=C3=B3, hogy melyik n=
+apokon akt=C3=ADv a szok=C3=A1s</p></li>
+<li local-id=3D"caa9a9e2-37ca-46db-b2f6-10a94094ffc9">
+<p local-id=3D"f3d7b7c608a0">Szok=C3=A1s t=C3=B6rl=C3=A9se automatikusan t=
+=C3=B6rli az =C3=B6sszes napl=C3=B3bejegyz=C3=A9st</p></li>
+</ul>
+<p local-id=3D"bc900fac04d4"><strong>*3.10. Esem=C3=A9ny r=C3=A9sztvev=C5=
+=91k (tervezett funkci=C3=B3)</strong></p>
+<ul local-id=3D"7470385a3c0b">
+<li local-id=3D"649e1be5-9009-4c53-a3e6-b98fddfe1de9">
+<p local-id=3D"c7918ba2ac18">Az adatmodell m=C3=A1r tartalmazza az EventCon=
+tributor entit=C3=A1st</p></li>
+<li local-id=3D"696256d2-2acf-4f40-aa68-11d12ead4cdf">
+<p local-id=3D"d9cb4faa7e59">Profil =C3=A9s napt=C3=A1rbejegyz=C3=A9s =C3=
+=B6sszerendel=C3=A9se F=C3=BCgg=C5=91ben/Elfogadott/Elutas=C3=ADtott<br>
+st=C3=A1tusszal</p></li>
+<li local-id=3D"aafaa77e-ea83-4995-abfb-2454ff888d81">
+<p local-id=3D"cca5f0563128">A kontroller implement=C3=A1l=C3=A1sa m=C3=A9g=
+ folyamatban van</p></li>
+</ul>
+<h2 local-id=3D"90b8312dea11" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-4.Ad=
+atmodell">4. Adatmodell</h2>
+<p local-id=3D"9d096f7eaece"><strong>4.1. Entit=C3=A1sok</strong></p>
+<ul local-id=3D"6db37177-d951-490e-9760-ae8b94ae4c7d">
+<li local-id=3D"5366eb96-8faa-4327-9628-1815b8a69642">
+<p local-id=3D"c13b8e1bed98">User =E2=80=93 Felhaszn=C3=A1l=C3=B3i fi=C3=B3=
+k (e-mail, jelsz=C3=B3 hash, refresh token)</p></li>
+<li local-id=3D"c35961b4-9662-4323-a40f-4c53adae336e">
+<p local-id=3D"a16dd8060397">Profile =E2=80=93 Felhaszn=C3=A1l=C3=B3i profi=
+l (felhaszn=C3=A1l=C3=B3n=C3=A9v, avatar, adatv=C3=A9delem)</p></li>
+<li local-id=3D"f38d2caf-f9fe-4ae2-967f-cd52f513a3ce">
+<p local-id=3D"c2e2ac0a919f">Calendar =E2=80=93 Napt=C3=A1r (n=C3=A9v, sz=
+=C3=ADn, profilhoz k=C3=B6tve)</p></li>
+<li local-id=3D"c355f013-949c-4e30-b192-9b3336371699">
+<p local-id=3D"e01565114f74">CalendarEntry =E2=80=93 Napt=C3=A1rbejegyz=C3=
+=A9s (kateg=C3=B3ria, n=C3=A9v, le=C3=ADr=C3=A1s, d=C3=A1tumok, sz=C3=ADn)<=
+/p></li>
+<li local-id=3D"2abaa451-dd14-484a-99fe-02dc31e01a0c">
+<p local-id=3D"f7391a6ac2d4">Habit =E2=80=93 Szok=C3=A1s (n=C3=A9v, kateg=
+=C3=B3ria, m=C3=A9rt=C3=A9kegys=C3=A9g, c=C3=A9l, napok)</p></li>
+<li local-id=3D"925665cc-b480-4299-b13d-aaf56c69a738">
+<p local-id=3D"705eab138737">HabitLog =E2=80=93 Szok=C3=A1s napl=C3=B3 (d=
+=C3=A1tum, =C3=A9rt=C3=A9k, teljes=C3=ADtetts=C3=A9g)</p></li>
+<li local-id=3D"48eee50b-f166-43fb-906b-d661c5a65e04">
+<p local-id=3D"42194d7fb01a">Friend =E2=80=93 Bar=C3=A1ts=C3=A1g (k=C3=A9t =
+profil k=C3=B6z=C3=B6tt, st=C3=A1tusz)</p></li>
+<li local-id=3D"9ea782ba-026d-4afe-8601-9077d4bdd4e5">
+<p local-id=3D"f564192176a7">SharedCalendar =E2=80=93 Megosztott napt=C3=A1=
+r (profil + napt=C3=A1r + jogosults=C3=A1g)</p></li>
+<li local-id=3D"a3d17cf5-cb6a-475a-864b-7658ae88f5f8">
+<p local-id=3D"034da762fe85">EventContributor =E2=80=93 Esem=C3=A9ny r=C3=
+=A9sztvev=C5=91 (profil + bejegyz=C3=A9s + st=C3=A1tusz)</p></li>
+</ul>
+<p local-id=3D"efba7cff056f"><strong>4.2. Kapcsolatok</strong></p>
+<ul local-id=3D"ba3c5d64-e8d1-45b3-b6bf-d71a3635149f">
+<li local-id=3D"cf850ec3-78df-4c46-823f-5a2a7d39ab56">
+<p local-id=3D"250f28d8ffbd">Egy felhaszn=C3=A1l=C3=B3hoz egy profil tartoz=
+ik</p></li>
+<li local-id=3D"8f74f8ec-d4ef-488b-b428-fbf4b492641a">
+<p local-id=3D"cde9047f5d91">Egy profilhoz t=C3=B6bb napt=C3=A1r, szok=C3=
+=A1s, bar=C3=A1ts=C3=A1g =C3=A9s megosztott napt=C3=A1r tartozhat</p></li>
+<li local-id=3D"0be2cc45-8f79-47c8-8119-83f59b4c2253">
+<p local-id=3D"72bcf6c44beb">Egy napt=C3=A1rhoz t=C3=B6bb bejegyz=C3=A9s =
+=C3=A9s megoszt=C3=A1s tartozhat</p></li>
+<li local-id=3D"ab14262c-2ca0-4728-82ad-678126a0e87b">
+<p local-id=3D"f0c6517e0678">Egy szok=C3=A1shoz t=C3=B6bb napl=C3=B3bejegyz=
+=C3=A9s tartozhat</p></li>
+<li local-id=3D"73807b54-3acf-4727-ba9d-39c13323fa9e">
+<p local-id=3D"09c2a6615b75">A bar=C3=A1ts=C3=A1g k=C3=A9t profil k=C3=B6z=
+=C3=B6tti k=C3=A9tir=C3=A1ny=C3=BA kapcsolat</p></li>
+</ul>
+<h2 local-id=3D"0cce63d9dcdd" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-5.Fe=
+lhaszn=C3=A1l=C3=B3ifel=C3=BClet">5. Felhaszn=C3=A1l=C3=B3i fel=C3=BClet</h=
+2>
+<p local-id=3D"971e56a50fb6"><strong>5.1. Webes =C3=BAtvonalak</strong></p>
+<ul local-id=3D"d7e47e01-0202-4cdc-92a2-0876bb751f13">
+<li local-id=3D"737c59be-9c5d-42bc-bd80-64cac84c0599">
+<p local-id=3D"3227435fe528">/sign-in =E2=80=93 Bejelentkez=C3=A9s / Regisz=
+tr=C3=A1ci=C3=B3 (AuthCard komponens)</p></li>
+<li local-id=3D"4eff157f-1302-4635-a5ac-1be1368fd793">
+<p local-id=3D"f91d97172eec">/calendar =E2=80=93 F=C5=91 napt=C3=A1r n=C3=
+=A9zet (v=C3=A9dett =C3=BAtvonal)</p></li>
+<li local-id=3D"b1b4359f-3d2f-4266-a2e7-a86641ed3d18">
+<p local-id=3D"baf0e56c43c1"><strong>* </strong>/profile =E2=80=93 Profil s=
+zerkeszt=C3=A9s</p></li>
+</ul>
+<p local-id=3D"25b1e0d3ff8f"><strong>*5.2. Mobil k=C3=A9perny=C5=91k</stron=
+g></p>
+<ul local-id=3D"4f44f707cb70">
+<li local-id=3D"1fe84db8-4f0a-43c2-891a-50c7c96e62ad">
+<p local-id=3D"f2859b604e58">Vend=C3=A9g =C3=BAtvonalak: Kezd=C5=91lap, Bej=
+elentkez=C3=A9s</p></li>
+<li local-id=3D"8b750df6-1a17-47e6-bbb8-95b2b189e3f8">
+<p local-id=3D"4494aeb1027f">V=C3=A9dett =C3=BAtvonalak: Napt=C3=A1r</p></l=
+i>
+</ul>
+<p local-id=3D"424a7236a98c"><strong>5.3. Navig=C3=A1ci=C3=B3s s=C3=A1v (Na=
+vbar)</strong></p>
+<ul local-id=3D"5857e55c-4719-4c55-917e-217600194476">
+<li local-id=3D"dd5f668e-7e03-49b4-b952-c646ae7e3d54">
+<p local-id=3D"ac6e6f6eeb5f">=E2=80=9EPlanova" log=C3=B3</p></li>
+<li local-id=3D"1a14deee-291e-4a76-885b-26509e9f2e30">
+<p local-id=3D"7ece82a3dfde">Oldals=C3=A1v ki/be kapcsol=C3=B3 gomb</p></li=
+>
+<li local-id=3D"16eb9015-1cc9-45c9-b254-a97a09c7ebfa">
+<p local-id=3D"25c635d9dabe">Avat=C3=A1r =C3=A9s be=C3=A1ll=C3=ADt=C3=A1sok=
+ felugr=C3=B3 ablak:</p>
+<ul local-id=3D"1d03ad77-e1bb-4740-bc07-e73434a90bff">
+<li local-id=3D"ba65daf1-7df2-40e9-bbae-4c35c3b85e6d">
+<p local-id=3D"ea44868a3821">T=C3=A9ma v=C3=A1lt=C3=A1s (vil=C3=A1gos/s=C3=
+=B6t=C3=A9t)</p></li>
+<li local-id=3D"023225ea-68f9-4993-af66-808f41ef8f6b">
+<p local-id=3D"6bebc0ad6ee9">H=C3=A9t kezd=C5=91napja (h=C3=A9tf=C5=91/vas=
+=C3=A1rnap)</p></li>
+<li local-id=3D"ec2ee9b1-7ed0-4770-baf3-97386894d392">
+<p local-id=3D"3f374d576763">=C3=93ra form=C3=A1tum (12 =C3=B3r=C3=A1s / 24=
+ =C3=B3r=C3=A1s)</p></li>
+</ul></li>
+<li local-id=3D"40e30716-32c1-46a3-a8b0-f6c6bc6e73f1">
+<p local-id=3D"2da358fb23c5">Kijelentkez=C3=A9s gomb</p></li>
+</ul>
+<p local-id=3D"bdba86785642"><strong>5.4. Oldals=C3=A1v (Sidebar)</strong><=
+/p>
+<ul local-id=3D"f13f9a41-a890-4f03-88dc-e8cb0bc39501">
+<li local-id=3D"b828e6ef-37fd-4da5-a45a-80581530af35">
+<p local-id=3D"1296c44fe932">Mini napt=C3=A1r d=C3=A1tum navig=C3=A1ci=C3=
+=B3hoz</p></li>
+<li local-id=3D"4f436cab-2be4-47e9-9488-bc41b65ad21f">
+<p local-id=3D"6035bf112eda">Napt=C3=A1rlista jel=C3=B6l=C5=91n=C3=A9gyzete=
+kkel (napt=C3=A1rak megjelen=C3=ADt=C3=A9se/elrejt=C3=A9se)</p></li>
+<li local-id=3D"3d2ad76e-8a3a-4809-9530-34b151dbd36c">
+<p local-id=3D"db5afb9d18b5">Napt=C3=A1rank=C3=A9nt opci=C3=B3k (szerkeszt=
+=C3=A9s, t=C3=B6rl=C3=A9s)</p></li>
+<li local-id=3D"fd6aebc0-422d-4a38-a822-df4d085be376">
+<p local-id=3D"da27936f91eb">=C3=9Aj napt=C3=A1r l=C3=A9trehoz=C3=A1sa gomb=
+</p></li>
+</ul>
+<p local-id=3D"e1c397766c7b"><strong>5.5. Reszponz=C3=ADv megjelen=C3=A9s</=
+strong></p>
+<ul local-id=3D"36b9e61b-80db-402a-95b8-72656aa490c6">
+<li local-id=3D"7620ae0c-b3a6-443a-8a32-b94c5eaf8229">
+<p local-id=3D"214dfb31f055">Tablet t=C3=B6r=C3=A9spontn=C3=A1l (&lt;1024px=
+): automatikusan v=C3=A1lt=C3=A1s kisebb n=C3=A9zetekre</p></li>
+<li local-id=3D"1be1b288-ac48-4f64-828f-202b35d4af18">
+<p local-id=3D"5ad9b89f0a16">Mobil t=C3=B6r=C3=A9spontn=C3=A1l (&lt;768px):=
+ tov=C3=A1bbi n=C3=A9zetm=C3=A9ret cs=C3=B6kkent=C3=A9s</p></li>
+<li local-id=3D"c6b98b6c-8bd7-4e41-959c-556a171ff5d4">
+<p local-id=3D"fca96b608c01">Automatikusan elt=C5=B1n=C5=91 oldals=C3=A1v k=
+isebb kijelz=C5=91k=C3=B6n</p></li>
+</ul>
+<h2 local-id=3D"9e60a948cbaf" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-6.Bi=
+ztons=C3=A1g">6. Biztons=C3=A1g</h2>
+<ul local-id=3D"1a191076-a2ce-4e76-8719-dfbddcd8b99a">
+<li local-id=3D"ddcf31e7-e447-46ff-80d2-1b53482880d9">
+<p local-id=3D"54e1d124da19">Jelszavak hash-elve t=C3=A1rol=C3=B3dnak az ad=
+atb=C3=A1zisban</p></li>
+<li local-id=3D"a5802746-21ef-4c8b-bd2c-66bac8616b37">
+<p local-id=3D"1ea50eecfb98">JWT tokenek r=C3=B6vid =C3=A9lettartammal, ref=
+resh token rot=C3=A1ci=C3=B3</p></li>
+<li local-id=3D"255503e4-9fa0-42c6-a0bf-506a562cdedb">
+<p local-id=3D"6cbc796dbbc3">HttpOnly cookie-k a webes fel=C3=BCleten (XSS =
+v=C3=A9delem)</p></li>
+<li local-id=3D"684e775b-6ceb-4109-b623-cfe920ea7e01">
+<p local-id=3D"4b3979119b42">SameSite=3DStrict cookie be=C3=A1ll=C3=ADt=C3=
+=A1s (CSRF v=C3=A9delem)</p></li>
+<li local-id=3D"047d5808-4ed3-4667-b868-ddebaab0dc81">
+<p local-id=3D"db6efbc79154">expo-secure-store a mobil alkalmaz=C3=A1sban (=
+titkos=C3=ADtott t=C3=A1rol=C3=A1s)</p></li>
+<li local-id=3D"bb27d499-417b-4347-878c-eaf678eb82a9">
+<p local-id=3D"21818964733a">Minden v=C3=A9dett v=C3=A9gpont [Authorize] at=
+trib=C3=BAtummal ell=C3=A1tva</p></li>
+<li local-id=3D"37574f33-0250-402c-86e3-fa57bddb045b">
+<p local-id=3D"ddbd5c9f376b">Er=C5=91s jelsz=C3=B3-szab=C3=A1lyok a regiszt=
+r=C3=A1ci=C3=B3n=C3=A1l</p></li>
+</ul>
+<h2 local-id=3D"c072c84f49e7" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-7.Ke=
+resztplatformosk=C3=B3dmegoszt=C3=A1s">7. Keresztplatformos k=C3=B3dmegoszt=
+=C3=A1s</h2>
+<p local-id=3D"5a811f3554a2">A monorepo strukt=C3=BAra lehet=C5=91v=C3=A9 t=
+eszi a webes =C3=A9s mobil alkalmaz=C3=A1s k=C3=B6z=C3=B6tt<br>
+jelent=C5=91s k=C3=B3db=C3=A1zis megoszt=C3=A1s=C3=A1t:</p>
+<ul local-id=3D"8d30f833-2c9f-420b-9265-32b71ee1e475">
+<li local-id=3D"dfe2e1ce-17da-4cf3-a052-da957fa9b212">
+<p local-id=3D"4e6a5bf88802">Hiteles=C3=ADt=C3=A9si UI (AuthCard, SignInFor=
+m, SignUpForm)</p></li>
+<li local-id=3D"927b2314-6806-4df0-bf3a-f98001b8258d">
+<p local-id=3D"d5d22acd909e">Napt=C3=A1r komponensek (Calendar, CalendarCel=
+l, CalendarEntry)</p></li>
+<li local-id=3D"a992c7c8-e9c9-415e-bb05-579fcd36ee75">
+<p local-id=3D"c8153808e730">V=C3=A9dett =C3=BAtvonal logika (ProtectedRout=
+e)</p></li>
+<li local-id=3D"5810f084-bc43-4af5-83d0-7fa45a45cabe">
+<p local-id=3D"7cce9c16447d">=C3=96sszes Zustand store =C3=A9s React Query =
+hook</p></li>
+<li local-id=3D"7e255101-0437-4fd0-900a-ef37ec62edc3">
+<p local-id=3D"73c3e8f10699">Teljes API kliens r=C3=A9teg</p></li>
+<li local-id=3D"3f861632-97fd-486b-85fc-a6750a716aef">
+<p local-id=3D"22f674e3f6c5">Seg=C3=A9df=C3=BCggv=C3=A9nyek =C3=A9s t=C3=AD=
+pusdefin=C3=ADci=C3=B3k</p></li>
+</ul>
+<p local-id=3D"9936b4ccc149">Ez biztos=C3=ADtja az egys=C3=A9ges m=C5=B1k=
+=C3=B6d=C3=A9st mindk=C3=A9t platformon, mik=C3=B6zben<br>
+minimaliz=C3=A1lja a k=C3=B3d duplik=C3=A1ci=C3=B3t.</p>
+<h2 local-id=3D"f0e0ff13a36f" id=3D"Szoftvertechnikaile=C3=ADr=C3=A1sa-8.T=
+=C3=ADpusgener=C3=A1l=C3=A1s=C3=A9sAPIszinkroniz=C3=A1ci=C3=B3">8. T=C3=ADp=
+usgener=C3=A1l=C3=A1s =C3=A9s API szinkroniz=C3=A1ci=C3=B3</h2>
+<p local-id=3D"9d9714eb1f33"><u>A backend Swagger/OpenAPI specifik=C3=A1ci=
+=C3=B3t gener=C3=A1l, amelyb=C5=91l az</u><br><u>openapi-typescript csomag =
+automatikusan l=C3=A9trehozza a TypeScript</u><br><u>t=C3=ADpusdefin=C3=ADc=
+i=C3=B3kat. </u></p>
+<p local-id=3D"cfa5b08d9897"><u>Ez biztos=C3=ADtja, hogy a frontend t=C3=AD=
+pusai mindig</u><br><u>szinkronban legyenek a backend API-val, =C3=A9s a t=
+=C3=ADpushib=C3=A1k ford=C3=ADt=C3=A1si</u><br><u>id=C5=91ben kider=C3=BClj=
+enek.</u></p>
+    </div>
+</body>
+</html>
+------=_Part_4_1144207842.1772186046695--
