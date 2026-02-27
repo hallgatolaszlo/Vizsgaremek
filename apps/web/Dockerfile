@@ -46,7 +46,7 @@ COPY apps/web/ ./apps/web/
 
 WORKDIR /app/apps/web
 
-RUN pnpm run build:docker
+RUN pnpm run build
 
 # ---- Runtime Stage ----
 FROM node:21-alpine AS final

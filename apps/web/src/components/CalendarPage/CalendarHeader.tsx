@@ -6,6 +6,7 @@ import {
 	ArrowBigRight,
 	CalendarDays,
 } from "@tamagui/lucide-icons";
+import { useMemo } from "react";
 import { Select, Separator, Text, View, XGroup, XStack, YStack } from "tamagui";
 
 interface CalendarHeaderProps {
@@ -73,92 +74,94 @@ export default function CalendarHeader({
 		}
 	};
 
-	const headerWeekText = () => {
-		if (viewType === "month" || viewType === "multiweek") {
-			const firstWeek = Object.keys(grid)[0]
-				.replace("W0", "")
-				.replace("W", "");
-			const lastWeek = Object.keys(grid)
-				[Object.keys(grid).length - 1].replace("W0", "")
-				.replace("W", "");
-			return `Weeks ${firstWeek} - ${lastWeek}`;
-		} else if (viewType === "week" || viewType === "day") {
-			const weekNumber = Object.keys(grid)[0]
-				.replace("W0", "")
-				.replace("W", "");
-			return `Week ${weekNumber}`;
-		}
-	};
+	// const headerWeekText = () => {
+	// 	if (viewType === "month" || viewType === "multiweek") {
+	// 		const firstWeek = Object.keys(grid)[0]
+	// 			.replace("W0", "")
+	// 			.replace("W", "");
+	// 		const lastWeek = Object.keys(grid)
+	// 			[Object.keys(grid).length - 1].replace("W0", "")
+	// 			.replace("W", "");
+	// 		return `Weeks ${firstWeek} - ${lastWeek}`;
+	// 	} else if (viewType === "week" || viewType === "day") {
+	// 		const weekNumber = Object.keys(grid)[0]
+	// 			.replace("W0", "")
+	// 			.replace("W", "");
+	// 		return `Week ${weekNumber}`;
+	// 	}
+	// };
 
-	const HeaderDateButtonGroup = () => {
-		return (
-			<XGroup>
-				<XGroup.Item>
-					<StyledButton onPress={decreaseView}>
-						<Text>
-							<ArrowBigLeft />
-						</Text>
-					</StyledButton>
-				</XGroup.Item>
-				<Separator vertical />
-				<XGroup.Item>
-					<StyledButton onPress={resetToToday}>
-						<Text>
-							<CalendarDays />
-						</Text>
-					</StyledButton>
-				</XGroup.Item>
-				<Separator vertical />
-				<XGroup.Item>
-					<StyledButton onPress={increaseView}>
-						<Text>
-							<ArrowBigRight />
-						</Text>
-					</StyledButton>
-				</XGroup.Item>
-			</XGroup>
-		);
-	};
+	const HeaderDateButtonGroup = () =>
+		useMemo(() => {
+			return (
+				<XGroup>
+					<XGroup.Item>
+						<StyledButton onPress={decreaseView}>
+							<Text>
+								<ArrowBigLeft />
+							</Text>
+						</StyledButton>
+					</XGroup.Item>
+					<Separator vertical />
+					<XGroup.Item>
+						<StyledButton onPress={resetToToday}>
+							<Text>
+								<CalendarDays />
+							</Text>
+						</StyledButton>
+					</XGroup.Item>
+					<Separator vertical />
+					<XGroup.Item>
+						<StyledButton onPress={increaseView}>
+							<Text>
+								<ArrowBigRight />
+							</Text>
+						</StyledButton>
+					</XGroup.Item>
+				</XGroup>
+			);
+		}, []);
 
-	const ViewTypeToggle = () => {
-		return (
-			<View style={{ width: 120 }}>
-				<SelectElement
-					value={viewType}
-					onValueChange={(value) =>
-						setViewType(value as CalendarViewType)
-					}
-					renderValue={(value) => (
-						<Select.ItemText>
-							{value.charAt(0).toUpperCase() + value.slice(1)}
-						</Select.ItemText>
-					)}
-					triggerPlaceholder=""
-					groupItems={["month", "multiweek", "week", "day"].map(
-						(view, index) => (
-							<Select.Item
-								style={{
-									backgroundColor:
-										(view as CalendarViewType) == viewType
-											? "var(--accent4)"
-											: "var(--color2)",
-								}}
-								value={view as CalendarViewType}
-								index={index}
-								key={view}
-							>
-								<Select.ItemText
-									style={{ textTransform: "capitalize" }}
+	const ViewTypeToggle = () =>
+		useMemo(() => {
+			return (
+				<View style={{ width: 120 }}>
+					<SelectElement
+						value={viewType}
+						onValueChange={(value) =>
+							setViewType(value as CalendarViewType)
+						}
+						renderValue={(value) => (
+							<Select.ItemText>
+								{value.charAt(0).toUpperCase() + value.slice(1)}
+							</Select.ItemText>
+						)}
+						groupItems={["month", "multiweek", "week", "day"].map(
+							(view, index) => (
+								<Select.Item
+									style={{
+										backgroundColor:
+											(view as CalendarViewType) ==
+											viewType
+												? "var(--accent4)"
+												: "var(--color2)",
+									}}
+									value={view as CalendarViewType}
+									index={index}
+									key={view}
 								>
-									{view}
-								</Select.ItemText>
-							</Select.Item>
-						),
-					)}
-				/>
-			</View>
-		);
-	};
+									<Select.ItemText
+										style={{ textTransform: "capitalize" }}
+									>
+										{view}
+									</Select.ItemText>
+								</Select.Item>
+							),
+						)}
+					/>
+				</View>
+			);
+		}, []);
 
 	return (
 		<YStack
@@ -186,7 +189,7 @@ export default function CalendarHeader({
 					gap: 20,
 				}}
 			>
-				<Text fontWeight="$2" textTransform="capitalize">
+				<Text fontWeight="bold" textTransform="capitalize">
 					{headerDateText()}
 				</Text>
 			</XStack>

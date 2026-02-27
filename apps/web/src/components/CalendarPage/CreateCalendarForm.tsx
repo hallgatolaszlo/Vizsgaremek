@@ -4,8 +4,6 @@ import { components } from "@repo/types";
 import { StyledButton, StyledInput } from "@repo/ui";
 import { Check, X } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Form, Spinner, Text, Theme, XStack, YStack } from "tamagui";
 import z from "zod";
@@ -40,8 +38,6 @@ export function CreateCalendarForm({
 	onSuccess?: () => void;
 	onCancel?: () => void;
 }) {
-	const [error, setError] = useState<string | null>(null);
-
 	const queryClient = useQueryClient();
 
 	const {
@@ -56,7 +52,6 @@ export function CreateCalendarForm({
 			color: 1,
 		},
 	});
-	0;
 
 	// Mutation for sign-up action
 	const createCalendarMutation = useMutation({
@@ -68,15 +63,6 @@ export function CreateCalendarForm({
 			queryClient.invalidateQueries({ queryKey: ["myCalendars"] });
 			queryClient.invalidateQueries({ queryKey: ["calendarEntries"] });
 			onSuccess?.(); // Call the callback to close the popover
-		},
-		onError: (err) => {
-			if (err instanceof AxiosError && err.status === 400) {
-				setError(err.response?.data);
-			} else {
-				setError(
-					"An unexpected error occurred. Please try again later.",
-				);
-			}
 		},
 	});
 
