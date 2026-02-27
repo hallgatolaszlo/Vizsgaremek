@@ -3,11 +3,11 @@ import { View, ViewProps, XStack, YStack } from "tamagui";
 interface FullscreenViewProps extends ViewProps {
 	children: React.ReactNode;
 	stack?: "XStack" | "YStack";
-	maxHeight?: boolean;
+	maxHeightDefined?: boolean;
 }
 
 export function FullscreenView(props: FullscreenViewProps) {
-	const { children, stack, maxHeight, ...rest } = props;
+	const { children, stack, maxHeightDefined, ...rest } = props;
 	const height = `calc(100vh - var(--navbar-height))`;
 
 	if (stack === "XStack") {
@@ -15,7 +15,7 @@ export function FullscreenView(props: FullscreenViewProps) {
 			<XStack
 				style={{
 					minHeight: height,
-					maxHeight: maxHeight ? height : undefined,
+					maxHeight: maxHeightDefined ? height : undefined,
 				}}
 				{...rest}
 			>
@@ -28,7 +28,7 @@ export function FullscreenView(props: FullscreenViewProps) {
 			<YStack
 				style={{
 					minHeight: height,
-					maxHeight: maxHeight ? height : undefined,
+					maxHeight: maxHeightDefined ? height : undefined,
 				}}
 				{...rest}
 			>
@@ -41,7 +41,7 @@ export function FullscreenView(props: FullscreenViewProps) {
 		<View
 			style={{
 				minHeight: height,
-				maxHeight: maxHeight ? height : undefined,
+				maxHeight: maxHeightDefined ? height : undefined,
 			}}
 			{...rest}
 		>
