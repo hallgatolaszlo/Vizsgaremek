@@ -71,7 +71,7 @@ const createCalendarEntrySchema = z.object({
 // Component to display error messages
 const ErrorText = ({ message }: { message: string | undefined }) => (
 	<Theme name="error">
-		<Text pl="$1" fontSize="$1" color="$color9">
+		<Text pl="$1" fontSize="$3" color="$color9">
 			{message}
 		</Text>
 	</Theme>
