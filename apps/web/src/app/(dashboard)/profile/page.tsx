@@ -1,197 +1,146 @@
 "use client";
-import "react-datepicker/dist/react-datepicker.css";
+
+import { useCalendars, useFriends, useProfile } from "@repo/hooks";
+import { Pencil } from "@tamagui/lucide-icons";
+import { useRouter } from "next/navigation";
+import { Avatar, Button, Text, View, XStack, YStack, useTheme } from "tamagui";
 
 export default function ProfilePage() {
-	return <></>;
+    const { isPending, error, data } = useProfile();
+    const { data: friendsData } = useFriends();
+    const { data: calendars } = useCalendars();
+    const router = useRouter();
+    const calendarTheme = useTheme({ name: "calendarColors" });
 
-	// const { isPending, error, data } = useProfile();
-	// // const { locale } = useProfileStore();
-	// const queryClient = useQueryClient();
+    if (isPending) {
+        return <Text>Loading...</Text>;
+    }
 
-	// const [isEditing, setIsEditing] = useState(false);
-	// const [errors, setErrors] = useState<string | null>(null);
+    if (error) {
+        return (
+            <Text>
+                Error:{" "}
+                {error instanceof Error ? error.message : "Unknown error"}
+            </Text>
+        );
+    }
 
-	// const [username, setUsername] = useState("");
-	// const [firstName, setFirstName] = useState("");
-	// const [lastName, setLastName] = useState("");
-	// const [birthDate, setBirthDate] = useState<Date | null>(null);
-	// // const [email, setEmail] = useState("");
-	// const [isPrivate, setIsPrivate] = useState(false);
+    const avatarSrc =
+        data?.avatar && data.avatar !== "placeholder"
+            ? data.avatar
+            : data?.username
+              ? `https://ui-avatars.com/api/?name=${encodeURIComponent(data.username)}`
+              : undefined;
 
-	// if (isPending) {
-	// 	return <Text>Loading...</Text>;
-	// }
+    const acceptedFriendsCount =
+        friendsData?.filter((f) => f.status === "Accepted").length ?? 0;
 
-	// if (error) {
-	// 	return <Text>Error: {error.message}</Text>;
-	// }
+    return (
+        <YStack
+            gap="$5"
+            p="$6"
+            width="100%"
+            alignItems="center"
+            minHeight="calc(100vh - var(--navbar-height))"
+        >
+            <Avatar circular size="$20">
+                <Avatar.Image src={avatarSrc} alt="Profile Avatar" />
+                <Avatar.Fallback backgroundColor="$gray5" />
+            </Avatar>
 
-	// function startEditing() {
-	// 	setUsername(data?.username || "");
-	// 	setFirstName(data?.firstName || "");
-	// 	setLastName(data?.lastName || "");
-	// 	setBirthDate(data?.birthDate ? new Date(data.birthDate) : null);
-	// 	setIsPrivate(data?.isPrivate || false);
-	// 	// setEmail(data?.userEmail || "");
-	// 	setIsEditing(true);
-	// }
+            <XStack gap="$4" alignItems="center">
+                <Text fontSize="$7" fontWeight="bold">
+                    {data?.username}
+                </Text>
+                <Text fontSize="$4" color="$color10">
+                    Friends: {acceptedFriendsCount}
+                </Text>
+            </XStack>
 
-	// async function saveProfile() {
-	// 	const payload = {
-	// 		id: data?.id,
-	// 		username: username,
-	// 		avatar: data?.avatar || "",
-	// 		isPrivate: isPrivate,
-	// 		firstName: firstName,
-	// 		lastName: lastName,
-	// 		birthDate: birthDate ? birthDate.toISOString().split("T")[0] : null,
-	// 		// email: email,
-	// 	};
+            {calendars && calendars.length > 0 && (
+                <YStack
+                    width="100%"
+                    maxWidth={920}
+                    gap="$3"
+                    padding="$4"
+                    alignItems="center"
+                    borderRadius="$7"
+                    backgroundColor="$color2"
+                    borderWidth={1}
+                    borderColor="$color6"
+                >
+                    <XStack
+                        width="100%"
+                        justifyContent="center"
+                        alignItems="center"
+                        gap="$2"
+                        flexWrap="wrap"
+                    >
+                        <Text fontSize="$5" fontWeight="bold">
+                            My Calendars
+                        </Text>
+                        <Text color="$color10">
+                            {calendars.length} calendars
+                        </Text>
+                    </XStack>
 
-	// 	try {
-	// 		await updateProfile(payload);
-	// 		console.log("Saved:", payload);
-	// 		queryClient.invalidateQueries({ queryKey: ["profile"] });
-	// 		setErrors(null);
-	// 		setIsEditing(false);
-	// 	} catch (err) {
-	// 		console.error("Failed to update profile:", err);
-	// 		if (err instanceof AxiosError) {
-	// 			setErrors(err.response?.data || "Failed to update profile");
-	// 		} else {
-	// 			setErrors("An unknown error occurred");
-	// 		}
-	// 	}
-	// }
+                    <XStack
+                        width="100%"
+                        gap="$3"
+                        alignItems="center"
+                        flexWrap="wrap"
+                        justifyContent="center"
+                    >
+                        {calendars.map((cal) => {
+                            const colorKey =
+                                `color${cal.color}` as keyof typeof calendarTheme;
+                            const chipColor =
+                                calendarTheme[colorKey]?.val ?? "#888";
+                            return (
+                                <XStack
+                                    key={cal.id}
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    alignContent="center"
+                                    gap="$2"
+                                    minWidth={180}
+                                    maxWidth={240}
+                                    paddingHorizontal="$4"
+                                    paddingVertical="$3"
+                                    borderRadius="$6"
+                                    backgroundColor="$color3"
+                                    borderWidth={1}
+                                    borderColor={chipColor}
+                                >
+                                    <View
+                                        width={12}
+                                        height={12}
+                                        borderRadius={6}
+                                        backgroundColor={chipColor}
+                                        flexShrink={0}
+                                    />
+                                    <Text
+                                        fontSize="$4"
+                                        fontWeight="600"
+                                        textAlign="center"
+                                        numberOfLines={2}
+                                    >
+                                        {cal.name}
+                                    </Text>
+                                </XStack>
+                            );
+                        })}
+                    </XStack>
+                </YStack>
+            )}
 
-	// return (
-	// 	<YStack>
-	// 		<Text fontWeight="bold" textAlign="center" width="100%">
-	// 			My Profile
-	// 		</Text>
-
-	// 		<XStack>
-	// 			{/* Profile data section */}
-	// 			<YStack>
-	// 				<Text fontSize="$4" fontWeight="bold">
-	// 					Profile information
-	// 				</Text>
-
-	// 				<XStack alignItems="center" gap="$2">
-	// 					<Text>Username: </Text>
-	// 					{isEditing ? (
-	// 						<Input
-	// 							value={username}
-	// 							onChangeText={setUsername}
-	// 							placeholder="Enter username"
-	// 						/>
-	// 					) : (
-	// 						<Text>{data?.username}</Text>
-	// 					)}
-	// 				</XStack>
-
-	// 				{/* <XStack alignItems="center" gap="$2">
-	// 					<Text>Email Address: </Text>
-	// 					{isEditing ? (
-	// 						<Input
-	// 							value={email}
-	// 							onChangeText={setEmail}
-	// 							placeholder="Enter email address"
-	// 						/>
-	// 					) : (
-	// 						<Text>{data?.userEmail}</Text>
-	// 					)}
-	// 				</XStack> */}
-
-	// 				<XStack alignItems="center" gap="$2">
-	// 					<Text>Birth Date: </Text>
-	// 					{isEditing ? (
-	// 						<DatePicker
-	// 							wrapperClassName="custom-datepicker-wrapper"
-	// 							className="custom-datepicker"
-	// 							selected={birthDate}
-	// 							onChange={(date: Date | null) =>
-	// 								setBirthDate(date)
-	// 							}
-	// 							dateFormat="yyyy-MM-dd"
-	// 							placeholderText="Select your birth date"
-	// 						/>
-	// 					) : (
-	// 						<Text>{data?.birthDate}</Text>
-	// 					)}
-	// 				</XStack>
-
-	// 				{/* <Text>
-	// 					Account Created At:{" "}
-	// 					{data?.userCreatedAt
-	// 						? new Intl.DateTimeFormat(locale, {
-	// 								year: "numeric",
-	// 								month: "2-digit",
-	// 								day: "2-digit",
-	// 							}).format(new Date(data.userCreatedAt))
-	// 						: ""}
-	// 				</Text> */}
-
-	// 				<XStack alignItems="center" gap="$2">
-	// 					<Text>Private: </Text>
-	// 					{isEditing ? (
-	// 						<Checkbox
-	// 							checked={isPrivate}
-	// 							onCheckedChange={(checked) =>
-	// 								setIsPrivate(checked as boolean)
-	// 							}
-	// 						>
-	// 							{}
-	// 						</Checkbox>
-	// 					) : (
-	// 						<Text>{data?.isPrivate ? "Yes" : "No"}</Text>
-	// 					)}
-	// 				</XStack>
-
-	// 				<XStack alignItems="center" gap="$2">
-	// 					<Text>First Name: </Text>
-	// 					{isEditing ? (
-	// 						<Input
-	// 							value={firstName}
-	// 							onChangeText={setFirstName}
-	// 							placeholder="Enter first name"
-	// 						/>
-	// 					) : (
-	// 						<Text>{data?.firstName}</Text>
-	// 					)}
-	// 				</XStack>
-
-	// 				<XStack alignItems="center" gap="$2">
-	// 					<Text>Last Name: </Text>
-	// 					{isEditing ? (
-	// 						<Input
-	// 							value={lastName}
-	// 							onChangeText={setLastName}
-	// 							placeholder="Enter last name"
-	// 						/>
-	// 					) : (
-	// 						<Text>{data?.lastName}</Text>
-	// 					)}
-	// 				</XStack>
-	// 			</YStack>
-
-	// 			<YStack>
-	// 				{isEditing ? (
-	// 					<>
-	// 						{errors && <Text color="red">{errors}</Text>}
-	// 						<Button onPress={saveProfile}>
-	// 							<Save size={16} />
-	// 							Save Profile
-	// 						</Button>
-	// 					</>
-	// 				) : (
-	// 					<Button onPress={startEditing}>
-	// 						<Pencil size={16} />
-	// 						Edit Profile
-	// 					</Button>
-	// 				)}
-	// 			</YStack>
-	// 		</XStack>
-	// 	</YStack>
-	// );
+            <Button
+                size="$5"
+                icon={Pencil}
+                onPress={() => router.push("/profile/edit")}
+            >
+                Edit Profile
+            </Button>
+        </YStack>
+    );
 }
