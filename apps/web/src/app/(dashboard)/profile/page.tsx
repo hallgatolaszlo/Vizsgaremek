@@ -1,6 +1,11 @@
 "use client";
 
-import { useCalendars, useFriends, useProfile } from "@repo/hooks";
+import {
+    useCalendars,
+    useFriends,
+    useProfile,
+    useProfileStore,
+} from "@repo/hooks";
 import { Pencil } from "@tamagui/lucide-icons";
 import { useRouter } from "next/navigation";
 import { Avatar, Button, Text, View, XStack, YStack, useTheme } from "tamagui";
@@ -9,6 +14,7 @@ export default function ProfilePage() {
     const { isPending, error, data } = useProfile();
     const { data: friendsData } = useFriends();
     const { data: calendars } = useCalendars();
+    const locale = useProfileStore((state) => state.locale);
     const router = useRouter();
     const calendarTheme = useTheme({ name: "calendarColors" });
 
@@ -35,6 +41,19 @@ export default function ProfilePage() {
     const acceptedFriendsCount =
         friendsData?.filter((f) => f.status === "Accepted").length ?? 0;
 
+    const isHungaryLocale = locale.region === "HU";
+    const orderedFullName = isHungaryLocale
+        ? [data?.lastName, data?.firstName].filter(Boolean).join(" ")
+        : [data?.firstName, data?.lastName].filter(Boolean).join(" ");
+
+    const formattedBirthDate = data?.birthDate
+        ? new Intl.DateTimeFormat(isHungaryLocale ? "hu-HU" : "en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+          }).format(new Date(data.birthDate))
+        : null;
+
     return (
         <YStack
             gap="$5"
@@ -57,32 +76,34 @@ export default function ProfilePage() {
                 </Text>
             </XStack>
 
+            {!data?.isPrivate && (
+                <YStack
+                    gap="$2"
+                    alignItems="center"
+                >
+                    {(data?.firstName || data?.lastName) && (
+                        <Text fontSize="$4" fontWeight="bold">
+                            {orderedFullName}
+                        </Text>
+                    )}
+                    {formattedBirthDate && (
+                        <Text fontSize="$4">
+                            {formattedBirthDate}
+                        </Text>
+                    )}
+                </YStack>
+            )}
+
             {calendars && calendars.length > 0 && (
                 <YStack
                     width="100%"
-                    maxWidth={920}
                     gap="$3"
-                    padding="$4"
                     alignItems="center"
                     borderRadius="$7"
-                    backgroundColor="$color2"
-                    borderWidth={1}
-                    borderColor="$color6"
                 >
-                    <XStack
-                        width="100%"
-                        justifyContent="center"
-                        alignItems="center"
-                        gap="$2"
-                        flexWrap="wrap"
-                    >
-                        <Text fontSize="$5" fontWeight="bold">
-                            My Calendars
-                        </Text>
-                        <Text color="$color10">
-                            {calendars.length} calendars
-                        </Text>
-                    </XStack>
+                    <Text fontSize="$5" fontWeight="bold">
+                        My Calendars
+                    </Text>
 
                     <XStack
                         width="100%"
