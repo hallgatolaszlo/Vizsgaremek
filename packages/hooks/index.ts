@@ -8,3 +8,4 @@ export * from "./src/useNavbarStore";
 export * from "./src/useNotificationStore";
 export * from "./src/useProfileStore";
 export * from "./src/useProfile";
+export * from "./src/useFriends";
